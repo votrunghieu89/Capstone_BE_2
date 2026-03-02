@@ -1,0 +1,29 @@
+# Build
+bin/
+obj/
+
+# User files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / VSCode
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# EF Migrations Snapshot
+*.Designer.cs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Publish
+publish/
+
+# App secrets
+appsettings.Development.json
