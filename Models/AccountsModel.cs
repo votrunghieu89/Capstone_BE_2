@@ -11,7 +11,7 @@ namespace Capstone_2_BE.Models
         public Guid Id { get; set; }
 
         [Column("Email")]
-        public string Name { get; set; }
+        public string Email { get; set; }
         [Column("Password")]
         public string Password { get; set; }
         [Column("Role")]

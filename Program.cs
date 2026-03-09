@@ -1,4 +1,8 @@
 using Capstone_2_BE;
+using Capstone_2_BE.DALs;
+using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Securities;
+using Capstone_2_BE.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +17,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
+builder.Services.AddScoped<IAuthenticationRepo, AuthenticationDAL>();
+builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<Token>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
