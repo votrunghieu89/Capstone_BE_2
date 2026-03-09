@@ -15,9 +15,6 @@ namespace Capstone_2_BE.Models
         public string AvatarURL { get; set; } = string.Empty;
         [Column("IdUnique")]
         public string IdUnique { get; set; }
-
-        [Column("Address")]
-        public string Address { get; set; }
         [Column("PhoneNumber")]
         public string PhoneNumber { get; set; }
 
