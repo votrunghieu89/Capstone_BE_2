@@ -2,6 +2,7 @@
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Authentication;
 using Capstone_2_BE.Enums;
+using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Securities;
 
 namespace Capstone_2_BE.Services
@@ -9,9 +10,9 @@ namespace Capstone_2_BE.Services
     public class AuthenticationService
     {
         private readonly Token _token;
-        private readonly AuthenticationDAL _authenticationDAL;
+        private readonly IAuthenticationRepo _authenticationDAL;
    
-        public AuthenticationService(Token token, AuthenticationDAL authenticationDAL)
+        public AuthenticationService(Token token, IAuthenticationRepo authenticationDAL)
         {
             _token = token;
             _authenticationDAL = authenticationDAL;
