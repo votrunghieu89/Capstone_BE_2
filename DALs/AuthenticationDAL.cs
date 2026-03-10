@@ -3,6 +3,7 @@ using Capstone_2_BE.Enums;
 using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Securities;
+using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -13,32 +14,92 @@ namespace Capstone_2_BE.DALs
         public readonly AppDbContext _context;
         public readonly ILogger<AuthenticationDAL> _logger;
         public readonly Token _token;
+        public readonly Redis _redis;
 
-        public AuthenticationDAL(AppDbContext context, ILogger<AuthenticationDAL> logger, Token token)
+        public AuthenticationDAL(AppDbContext context, ILogger<AuthenticationDAL> logger, Token token, Redis redis)
         {
             _context = context;
             _logger = logger;
             _token = token;
+            _redis = redis;
+        }
+        public static string GenerateIdUnique(Guid accountId, DateTime createAt)
+        {
+            string dateCode = createAt.ToString("yyyyMMdd"); // lấy ngày-tháng-năm
+            return $"{accountId}{dateCode}"; // ghép thành chuỗi
+        }
+        public async Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO)
+        {
+            try
+            {
+                var user = await _context.AccountsModel.FirstOrDefaultAsync(u => u.Id == changePasswordDTO.Id);
+                if (user == null)
+                {
+                  
+                    return false;
+                }
+                bool checkOldPassword = Hash.VerifyPassword(changePasswordDTO.OldPassword, user.Password);
+                if (!checkOldPassword)
+                {
+                   
+                    return false;
+                }
+                string newHashedPassword = Hash.HashPassword(changePasswordDTO.NewPassword);
+                int updated = await _context.AccountsModel
+                                     .Where(u => u.Id == changePasswordDTO.Id)
+                                     .ExecuteUpdateAsync(s => s
+                                         .SetProperty(u => u.Password, newHashedPassword)
+                                         .SetProperty(u => u.UpdateAt, DateTime.Now)
+                                     );
+                if (updated > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex) { 
+                return false;
+            }
         }
 
-        public Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO)
+        public async Task<bool> ForgetPassword(string Email, string password)
         {
-            throw new NotImplementedException();
+            try
+            {
+                int isUpdatePass = await _context.AccountsModel.Where(a => a.Email == Email).ExecuteUpdateAsync(s => s.SetProperty(u => u.Password, password)
+                .SetProperty(u => u.UpdateAt, DateTime.Now));
+                if (isUpdatePass > 0) { 
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex) {
+                return false;
+            }
         }
 
-        public Task<bool> ForgetPassword(int accountId, string password)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<string> getNewAccessToken(string RefressToken)
+        public async Task<Guid?> isEmailExist(string email)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> isEmailExist(string email)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                var isEmail = await _context.AccountsModel.FirstOrDefaultAsync(u => u.Email == email);
+                if (isEmail != null)
+                {
+                    
+                    return isEmail.Id;
+                }
+               
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if email exists for '{Email}'.", email);
+                return null;
+            }
         }
 
         public async Task<LoginResponseDTO> Login(string email, string password)
@@ -46,7 +107,7 @@ namespace Capstone_2_BE.DALs
             try
             {
                 var isExsist = await _context.AccountsModel.Where(a => a.Email == email).FirstOrDefaultAsync();
-                if (isExsist != null) {
+                if (isExsist == null) {
                     return new LoginResponseDTO()
                     {
                         LoginStatus = AuthenticationEnum.Login.Wrong,
@@ -83,12 +144,6 @@ namespace Capstone_2_BE.DALs
                 };
             }
         }
-
-        public async Task<bool> Logout(int accountId)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<bool> RegisterAccountAdmin(string email, string password)
         {
             throw new NotImplementedException();
@@ -115,11 +170,13 @@ namespace Capstone_2_BE.DALs
                         await _context.AccountsModel.AddAsync(newAccount);
                         await _context.SaveChangesAsync();
 
+                        string UniqueId = GenerateIdUnique(newAccount.Id, newAccount.CreateAt);
                         CustomerProfileModel newCustomerProfile = new CustomerProfileModel()
                         {
                             Id = newAccount.Id,
                             FullName = authRegisterDTO.FullName,
                             PhoneNumber = authRegisterDTO.PhoneNumber,
+                            IdUnique = UniqueId,
                             CreateAt = DateTime.Now,
                         };
 
@@ -166,11 +223,13 @@ namespace Capstone_2_BE.DALs
                         await _context.AccountsModel.AddAsync(newAccount);
                         await _context.SaveChangesAsync();
 
+                        string UniqueId = GenerateIdUnique(newAccount.Id, newAccount.CreateAt);
                         TechnicianProfileModel newTechnicianProfile = new TechnicianProfileModel()
                         {
                             Id = newAccount.Id,
                             FullName = authRegisterDTO.FullName,
                             PhoneNumber = authRegisterDTO.PhoneNumber,
+                            IdUnique = UniqueId,
                             Address = authRegisterDTO.Address,
                             Latitude = authRegisterDTO.Latitude,
                             Longitude = authRegisterDTO.Longitude,
@@ -197,10 +256,5 @@ namespace Capstone_2_BE.DALs
                 return AuthenticationEnum.Register.Fail;
             }
         }
-
-        public async Task<bool> verifyOTP(string Email, string otp)
-        {
-           throw new NotImplementedException();
-        } 
     }
 }

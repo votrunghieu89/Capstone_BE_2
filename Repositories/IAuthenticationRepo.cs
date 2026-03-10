@@ -6,14 +6,13 @@ namespace Capstone_2_BE.Repositories
     public interface IAuthenticationRepo
     {
         Task<LoginResponseDTO> Login(string email, string password);
-        Task<int> isEmailExist(string email);
+        Task<Guid?> isEmailExist(string email);
         Task<AuthenticationEnum.Register> RegisterCustomer(RegisterCustomerDTO authRegisterDTO);
         Task<AuthenticationEnum.Register> RegisterTechnician(RegisterFixerDTO authRegisterDTO);
         Task<bool> RegisterAccountAdmin(string email, string password);
         Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO);
-        Task<bool> ForgetPassword(int accountId, string password);
-        Task<string> getNewAccessToken(string RefressToken);
-        Task<bool> Logout(int accountId);
-        Task<bool> verifyOTP(string Email, string otp);
+        Task<bool> ForgetPassword(string Email, string password);
+
+
     }
 }

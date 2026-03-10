@@ -20,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+// Configure Redis
 var redisSettings = new RedisSetting();
 builder.Configuration.GetSection("Redis").Bind(redisSettings);
 
@@ -32,9 +33,19 @@ var redisOptions = new ConfigurationOptions
 };
 var redisConnection = ConnectionMultiplexer.Connect(redisOptions);
 
+// Register Redis connection as Singleton
+builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
+
+// Register Redis wrapper as Scoped
+builder.Services.AddScoped<Redis>();
+
+// Register repositories and services
 builder.Services.AddScoped<IAuthenticationRepo, AuthenticationDAL>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<Token>();
+builder.Services.AddScoped<Email>();
+
+
 
 
 
