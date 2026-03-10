@@ -1,5 +1,4 @@
 ﻿using Capstone_2_BE.DTOs.Authentication;
-using System.Runtime.InteropServices;
 
 namespace Capstone_2_BE.Repositories
 {
@@ -7,7 +6,12 @@ namespace Capstone_2_BE.Repositories
     {
         Task<LoginResponseDTO> Login(string email, string password);
         Task<int> isEmailExist(string email);
-        Task<bool> RegisterStudent(RegisterCustomerDTO authRegisterDTO, string IpAddress);
-        Task<bool> RegisterTeacher(RegisterFixerDTO authRegisterDTO, string IpAddress);
+        Task<bool> RegisterStudent(RegisterCustomerDTO authRegisterDTO);
+        Task<bool> RegisterTeacher(RegisterFixerDTO authRegisterDTO);
+        Task<bool> RegisterAccountAdmin(string email, string password);
+        Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO);
+        Task<string> getNewAccessToken(string RefressToken);
+        Task<bool> Logout(int accountId);
+        Task<bool> verifyOTP(string Email, string otp);
     }
 }
