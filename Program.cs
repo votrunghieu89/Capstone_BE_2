@@ -3,7 +3,9 @@ using Capstone_2_BE.DALs;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Services;
+using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +19,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
+
+var redisSettings = new RedisSetting();
+builder.Configuration.GetSection("Redis").Bind(redisSettings);
+
+var redisOptions = new ConfigurationOptions
+{
+    EndPoints = { $"{redisSettings.Host}:{redisSettings.Port}" },
+    Password = string.IsNullOrEmpty(redisSettings.Password) ? null : redisSettings.Password,
+    DefaultDatabase = redisSettings.DefaultDatabase,
+    AbortOnConnectFail = false
+};
+var redisConnection = ConnectionMultiplexer.Connect(redisOptions);
+
 builder.Services.AddScoped<IAuthenticationRepo, AuthenticationDAL>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<Token>();
+
 
 
 var app = builder.Build();

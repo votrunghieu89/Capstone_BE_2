@@ -1,5 +1,6 @@
 ﻿using Capstone_2_BE.DTOs.Authentication;
 using Capstone_2_BE.Enums;
+using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Securities;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,11 @@ namespace Capstone_2_BE.DALs
             throw new NotImplementedException();
         }
 
+        public Task<bool> ForgetPassword(int accountId, string password)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<string> getNewAccessToken(string RefressToken)
         {
             throw new NotImplementedException();
@@ -39,14 +45,14 @@ namespace Capstone_2_BE.DALs
         {
             try
             {
-                var isExsist =  await _context.AccountsModel.Where(a => a.Email ==  email).FirstOrDefaultAsync();
+                var isExsist = await _context.AccountsModel.Where(a => a.Email == email).FirstOrDefaultAsync();
                 if (isExsist != null) {
                     return new LoginResponseDTO()
                     {
                         LoginStatus = AuthenticationEnum.Login.Wrong,
                     };
                 }
-                if(isExsist.IsActive == 0)
+                if (isExsist.IsActive == 0)
                 {
                     return new LoginResponseDTO()
                     {
@@ -78,7 +84,7 @@ namespace Capstone_2_BE.DALs
             }
         }
 
-        public Task<bool> Logout(int accountId)
+        public async Task<bool> Logout(int accountId)
         {
             throw new NotImplementedException();
         }
@@ -88,19 +94,113 @@ namespace Capstone_2_BE.DALs
             throw new NotImplementedException();
         }
 
-        public Task<bool> RegisterStudent(RegisterCustomerDTO authRegisterDTO)
+        public async Task<AuthenticationEnum.Register> RegisterCustomer(RegisterCustomerDTO authRegisterDTO)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var passwordHash = Hash.HashPassword(authRegisterDTO.Password);
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        AccountsModel newAccount = new AccountsModel()
+                        {
+                            Email = authRegisterDTO.Email,
+                            Password = passwordHash,
+                            Role = "Customer",
+                            IsActive = 1,
+                            CreateAt = DateTime.Now,
+                        };
+
+                        await _context.AccountsModel.AddAsync(newAccount);
+                        await _context.SaveChangesAsync();
+
+                        CustomerProfileModel newCustomerProfile = new CustomerProfileModel()
+                        {
+                            Id = newAccount.Id,
+                            FullName = authRegisterDTO.FullName,
+                            PhoneNumber = authRegisterDTO.PhoneNumber,
+                            CreateAt = DateTime.Now,
+                        };
+
+                        await _context.CustomerProfileModel.AddAsync(newCustomerProfile);
+                        await _context.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+
+                        return AuthenticationEnum.Register.Success;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in RegisterCustomer");
+                return AuthenticationEnum.Register.Fail;
+            }
         }
 
-        public Task<bool> RegisterTeacher(RegisterFixerDTO authRegisterDTO)
+        public async Task<AuthenticationEnum.Register> RegisterTechnician(RegisterFixerDTO authRegisterDTO)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                var passwordHash = Hash.HashPassword(authRegisterDTO.Password);
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        AccountsModel newAccount = new AccountsModel()
+                        {
+                            Email = authRegisterDTO.Email,
+                            Password = passwordHash,
+                            Role = "Technician",
+                            IsActive = 1,
+                            CreateAt = DateTime.Now,
+                        };
+
+                        await _context.AccountsModel.AddAsync(newAccount);
+                        await _context.SaveChangesAsync();
+
+                        TechnicianProfileModel newTechnicianProfile = new TechnicianProfileModel()
+                        {
+                            Id = newAccount.Id,
+                            FullName = authRegisterDTO.FullName,
+                            PhoneNumber = authRegisterDTO.PhoneNumber,
+                            Address = authRegisterDTO.Address,
+                            Latitude = authRegisterDTO.Latitude,
+                            Longitude = authRegisterDTO.Longitude,
+                            CreateAt = DateTime.Now,
+                        };
+
+                        await _context.TechnicianProfileModel.AddAsync(newTechnicianProfile);
+                        await _context.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+
+                        return AuthenticationEnum.Register.Success;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in RegisterTechnician");
+                return AuthenticationEnum.Register.Fail;
+            }
         }
 
-        public Task<bool> verifyOTP(string Email, string otp)
+        public async Task<bool> verifyOTP(string Email, string otp)
         {
-            throw new NotImplementedException();
-        }
+           throw new NotImplementedException();
+        } 
     }
 }

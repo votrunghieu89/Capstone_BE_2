@@ -1,4 +1,4 @@
-﻿using Capstone_2_BE.DTOs;
+﻿    using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Authentication;
 using Capstone_2_BE.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +10,9 @@ namespace Capstone_2_BE.Controllers
     public class AuthenticationController : Controller
     {
         public readonly AuthenticationService _authenticationService;
-        public readonly Logger<AuthenticationController> _logger;
+        public readonly ILogger<AuthenticationController> _logger;
         
-        public AuthenticationController(AuthenticationService authenticationService, Logger<AuthenticationController> logger)
+        public AuthenticationController(AuthenticationService authenticationService, ILogger<AuthenticationController> logger)
         {
             _authenticationService = authenticationService;
             _logger = logger;
