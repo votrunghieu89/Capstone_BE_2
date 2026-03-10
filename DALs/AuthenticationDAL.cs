@@ -10,10 +10,10 @@ namespace Capstone_2_BE.DALs
     public class AuthenticationDAL : IAuthenticationRepo
     {
         public readonly AppDbContext _context;
-        public readonly Logger<AuthenticationDAL> _logger;
+        public readonly ILogger<AuthenticationDAL> _logger;
         public readonly Token _token;
 
-        public AuthenticationDAL(AppDbContext context, Logger<AuthenticationDAL> logger, Token token)
+        public AuthenticationDAL(AppDbContext context, ILogger<AuthenticationDAL> logger, Token token)
         {
             _context = context;
             _logger = logger;

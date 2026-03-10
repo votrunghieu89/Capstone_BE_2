@@ -10,7 +10,7 @@ namespace Capstone_2_BE.Services
     {
         private readonly Token _token;
         private readonly AuthenticationDAL _authenticationDAL;
-
+   
         public AuthenticationService(Token token, AuthenticationDAL authenticationDAL)
         {
             _token = token;
