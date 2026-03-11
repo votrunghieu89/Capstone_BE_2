@@ -1,8 +1,11 @@
 using Capstone_2_BE;
 using Capstone_2_BE.DALs;
+using Capstone_2_BE.DALs.Technician;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Services;
+using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -45,9 +48,12 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<Token>();
 builder.Services.AddScoped<Email>();
 
+// Register Technician repositories and services
+builder.Services.AddScoped<ITechnicianProfileRepo, TechnicianProfileDAL>();
+builder.Services.AddScoped<TechnicianProfileService>();
 
-
-
+// Register AWS S3
+builder.Services.AddScoped<AWS>();
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@
 using Capstone_2_BE.Enums;
 using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
