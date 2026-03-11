@@ -51,6 +51,8 @@ builder.Services.AddScoped<Email>();
 // Register Technician repositories and services
 builder.Services.AddScoped<ITechnicianProfileRepo, TechnicianProfileDAL>();
 builder.Services.AddScoped<TechnicianProfileService>();
+builder.Services.AddScoped<ITechnicianRatingRepo, TechnicianRatingDAL>();
+builder.Services.AddScoped<TechnicianRatingService>();
 
 // Register AWS S3
 builder.Services.AddScoped<AWS>();

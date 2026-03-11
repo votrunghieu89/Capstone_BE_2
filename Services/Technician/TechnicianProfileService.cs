@@ -62,7 +62,7 @@ namespace Capstone_2_BE.Services.Technician
                 if (updateDTO.AvatarURl != null)
                 {
                     // Lấy avatar cũ để xóa (nếu có)
-                    var oldProfile = await _technicianProfileRepo.GetTechnicianProfile(updateDTO.Id);
+                    var oldProfile = await _technicianProfileRepo.GetOldAvatar(updateDTO.Id);
                     
                     // Upload avatar mới lên S3
                     var avatarKey = await _aws.UploadProfile(updateDTO.AvatarURl);
@@ -74,9 +74,9 @@ namespace Capstone_2_BE.Services.Technician
                     dalDTO.AvatarURl = avatarKey;
 
                     // Xóa avatar cũ từ S3 (nếu có)
-                    if (oldProfile != null && !string.IsNullOrEmpty(oldProfile.AvatarURL))
+                    if (oldProfile != null && !string.IsNullOrEmpty(oldProfile))
                     {
-                        await _aws.DeleteImage(oldProfile.AvatarURL);
+                        await _aws.DeleteImage(oldProfile);
                     }
                 }
 

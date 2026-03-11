@@ -15,6 +15,24 @@ namespace Capstone_2_BE.DALs.Technician
             _logger = logger;
         }
 
+        public async Task<string> GetOldAvatar(Guid technicianId)
+        {
+            try
+            {
+                string? oldAvatar = await _context.TechnicianProfileModel
+                    .Where(t => t.Id == technicianId)
+                    .Select(t => t.AvatarURl)
+                    .FirstOrDefaultAsync();
+                return oldAvatar;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Error retrieving old avatar: " + ex.Message);
+                return null;
+            }
+             
+        }
+
         public async Task<TechnicianProfileViewDTO> GetTechnicianProfile(Guid technicianId)
         {
             try
