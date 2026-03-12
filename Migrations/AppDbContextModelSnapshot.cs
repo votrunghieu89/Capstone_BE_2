@@ -43,6 +43,11 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnName("IsActive")
                         .HasComment("0, 1");
 
+                    b.Property<int>("IsOnline")
+                        .HasColumnType("int")
+                        .HasColumnName("IsOnline")
+                        .HasComment("0, 1");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -191,10 +196,10 @@ namespace Capstone_2_BE.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
                         .HasColumnName("Status")
-                        .HasComment("Pending, Success, Fail");
+                        .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
 
                     b.HasKey("Id");
 
@@ -216,6 +221,12 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Address");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("City");
 
                     b.Property<DateTime>("CompleteAt")
                         .HasColumnType("datetime2")
@@ -253,10 +264,10 @@ namespace Capstone_2_BE.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
                         .HasColumnName("Status")
-                        .HasComment("Pending, Success, Fail");
+                        .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
 
                     b.Property<Guid>("TechnicianId")
                         .HasColumnType("uniqueidentifier");
@@ -317,7 +328,10 @@ namespace Capstone_2_BE.Migrations
 
                     b.HasIndex("TechnicianId");
 
-                    b.ToTable("Rating");
+                    b.ToTable("Rating", t =>
+                        {
+                            t.HasCheckConstraint("CK_Rating_Score", "[Score] BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.ServiceCategoriesModel", b =>
@@ -391,6 +405,12 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("AvatarURL");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("City");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
