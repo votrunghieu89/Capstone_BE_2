@@ -53,6 +53,8 @@ builder.Services.AddScoped<ITechnicianProfileRepo, TechnicianProfileDAL>();
 builder.Services.AddScoped<TechnicianProfileService>();
 builder.Services.AddScoped<ITechnicianRatingRepo, TechnicianRatingDAL>();
 builder.Services.AddScoped<TechnicianRatingService>();
+builder.Services.AddScoped<ITechnicianOrderRepo, TechnicianOrderDAL>();
+builder.Services.AddScoped<TechnicianOrderService>();
 
 // Register AWS S3
 builder.Services.AddScoped<AWS>();
