@@ -1,10 +1,13 @@
 using Capstone_2_BE;
 using Capstone_2_BE.DALs;
+using Capstone_2_BE.DALs.Customer;
 using Capstone_2_BE.DALs.Technician;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Services;
+using Capstone_2_BE.Services.Customer;
 using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +58,12 @@ builder.Services.AddScoped<ITechnicianRatingRepo, TechnicianRatingDAL>();
 builder.Services.AddScoped<TechnicianRatingService>();
 builder.Services.AddScoped<ITechnicianOrderRepo, TechnicianOrderDAL>();
 builder.Services.AddScoped<TechnicianOrderService>();
+
+// Register Customer repositories and services
+builder.Services.AddScoped<ICustomerAutoFindRepo, CustomerAutoFindDAL>();
+builder.Services.AddScoped<CustomerAutoFindService>();
+builder.Services.AddScoped<ICustomerProfileRepo, CustomerProfileDAL>();
+builder.Services.AddScoped<CustomerProfileService>();
 
 // Register AWS S3
 builder.Services.AddScoped<AWS>();

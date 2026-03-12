@@ -12,7 +12,6 @@ namespace Capstone_2_BE.Repositories
         Task<bool> RegisterAccountAdmin(string email, string password);
         Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO);
         Task<bool> ForgetPassword(string Email, string password);
-
-
+        Task<bool> UpdateOnlineStatus(Guid accountId, int isOnline);
     }
 }

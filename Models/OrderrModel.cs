@@ -21,6 +21,8 @@ namespace Capstone_2_BE.Models
         public string Description { get; set; } = string.Empty;
         [Column("Address")]
         public string Address { get; set; } = string.Empty;
+        [Column("City")]
+        public string City { get; set; } = string.Empty;
         [Column("Status")]
         public string Status { get; set; }
         [Column("Price")]

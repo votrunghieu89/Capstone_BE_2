@@ -18,6 +18,8 @@ namespace Capstone_2_BE.Models
         public string Role { get; set; }
         [Column("IsActive")]
         public int IsActive { get; set; }
+        [Column("IsOnline")]
+        public int IsOnline { get; set; }
         [Column("CreateAt")]
         public DateTime CreateAt { get; set; }
 

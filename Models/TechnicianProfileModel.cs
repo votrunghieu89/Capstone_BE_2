@@ -18,6 +18,8 @@ namespace Capstone_2_BE.Models
         public string IdUnique { get; set; } 
         [Column("Address")]
         public string Address { get; set; } = string.Empty;
+        [Column("City")]
+        public string City { get; set; } = string.Empty;
         [Column("Latitude")]
         public decimal Latitude { get; set; } 
         [Column("Longtitude")]

@@ -1,4 +1,5 @@
 ﻿using StackExchange.Redis;
+using System.Text.Json;
 
 namespace Capstone_2_BE.Settings
 {
@@ -46,5 +47,23 @@ namespace Capstone_2_BE.Settings
                 await _db.KeyDeleteAsync(key);
             }
         }
+        public async Task<long> PushListAsync<T>(string key, List<T> list)
+        {
+            var values = list
+                .Select(x => (RedisValue)JsonSerializer.Serialize(x))
+                .ToArray();
+
+            return await _db.ListRightPushAsync(key, values);
+        }
+        public async Task<string?> PopFirstAsync(string key)
+        {
+            var value = await _db.ListLeftPopAsync(key);
+
+            if (value.IsNull)
+                return null;
+
+            return value.IsNull ? null : value.ToString();
+        }
+
     }
 }

@@ -47,13 +47,13 @@ namespace Capstone_2_BE.Services
                 var otpHash = Hash.HashPassword(otp);
                 await _redis.SetStringAsync(RedisKey_OTP, otpHash, TimeSpan.FromMinutes(5));
 
-                string subject = "🎓 Xác thực tài khoản giáo viên - Hệ thống EduQuiz";
+                string subject = "🎓 Xác thực tài khoản giáo viên - Hệ thống FixFast";
 
                 string body = $@"
                                     <html>
                                     <body style='font-family: Arial, sans-serif; line-height: 1.6;'>
                                         <h2 style='color: #4a90e2;'>Xin chào {Email},</h2>
-                                        <p>Cảm ơn bạn đã đăng ký tài khoản giáo viên tại <strong>EduQuiz</strong>.</p>
+                                        <p>Cảm ơn bạn đã đăng ký tài khoản  tại <strong>EduQuiz</strong>.</p>
                                         <p>Để hoàn tất quá trình đăng ký, vui lòng nhập mã xác thực (OTP) bên dưới:</p>
 
                                         <div style='background-color: #f3f4f6; padding: 12px 20px; display: inline-block; border-radius: 8px; margin: 10px 0;'>
@@ -272,6 +272,35 @@ namespace Capstone_2_BE.Services
             }
         }
 
+        public async Task<Result<string>> UpdateOnlineStatus(UpdateOnlineStatusDTO updateOnlineStatusDTO)
+        {
+            try
+            {
+                // Validate isOnline value (0 or 1)
+                if (updateOnlineStatusDTO.IsOnline != 0 && updateOnlineStatusDTO.IsOnline != 1)
+                {
+                    return Result<string>.Failure("Trạng thái không hợp lệ. Chỉ chấp nhận 0 (Do Not Disturb) hoặc 1 (Online)", 400);
+                }
 
+                var result = await _authenticationDAL.UpdateOnlineStatus(updateOnlineStatusDTO.AccountId, updateOnlineStatusDTO.IsOnline);
+                
+                if (result)
+                {
+                    string statusMessage = updateOnlineStatusDTO.IsOnline == 1 
+                        ? "Đã chuyển sang trạng thái Online" 
+                        : "Đã chuyển sang chế độ Không làm phiền";
+                    
+                    return Result<string>.Success(statusMessage, 200);
+                }
+                else
+                {
+                    return Result<string>.Failure("Không tìm thấy tài khoản hoặc cập nhật thất bại", 404);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failure("Lỗi khi cập nhật trạng thái online", 500);
+            }
+        }
     }
 }

@@ -17,7 +17,9 @@ namespace Capstone_2_BE
                     .HasComment("Admin, Customer, Technician");
                 entity.Property(e => e.IsActive)
                     .HasComment("0, 1");
-                
+                entity.Property(e => e.IsOnline)
+                  .HasComment("0, 1");
+
                 // One-to-One với CustomerProfile
                 entity.HasOne(e => e.CustomerProfile)
                     .WithOne(c => c.Accounts)
@@ -48,6 +50,7 @@ namespace Capstone_2_BE
                 entity.Property(e => e.IdUnique).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
                 entity.Property(e => e.Address);
+                entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
                 entity.Property(e => e.Longitude).HasPrecision(10, 7);
             });
@@ -86,6 +89,7 @@ namespace Capstone_2_BE
                      .HasMaxLength(30)
                     .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
                 entity.Property(e => e.Price).HasPrecision(18, 2);
+                entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
                 entity.Property(e => e.Longitude).HasPrecision(10, 7);
                 

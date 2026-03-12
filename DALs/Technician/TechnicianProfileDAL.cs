@@ -60,6 +60,7 @@ namespace Capstone_2_BE.DALs.Technician
                     AvatarURL = technicianProfile.AvatarURL,
                     PhoneNumber = technicianProfile.PhoneNumber,
                     Address = technicianProfile.Address,
+                    City = technicianProfile.City,
                     CreateAt = technicianProfile.CreateAt,
                     ServiceName = ServiceName
                 };
@@ -82,6 +83,7 @@ namespace Capstone_2_BE.DALs.Technician
                         .SetProperty(p => p.FullName, technicianProfileUpdateDTO.FullName)
                         .SetProperty(p => p.PhoneNumber, technicianProfileUpdateDTO.PhoneNumber)
                         .SetProperty(p => p.Address, technicianProfileUpdateDTO.Address)
+                        .SetProperty(p => p.City, technicianProfileUpdateDTO.City)
                         .SetProperty(p => p.Latitude, technicianProfileUpdateDTO.Latitude)
                         .SetProperty(p => p.Longitude, technicianProfileUpdateDTO.Longitude)
                     );

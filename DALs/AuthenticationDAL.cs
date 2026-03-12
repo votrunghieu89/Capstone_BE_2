@@ -24,10 +24,11 @@ namespace Capstone_2_BE.DALs
             _token = token;
             _redis = redis;
         }
-        public static string GenerateIdUnique(Guid accountId, DateTime createAt)
+        public static string GenerateIdUnique(DateTime createAt)
         {
+            string random = new Random().Next(1000, 9999).ToString(); // tạo số ngẫu nhiên 4 chữ số
             string dateCode = createAt.ToString("yyyyMMdd"); // lấy ngày-tháng-năm
-            return $"{accountId}{dateCode}"; // ghép thành chuỗi
+            return $"{random}{dateCode}"; // ghép thành chuỗi
         }
         public async Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
@@ -129,7 +130,7 @@ namespace Capstone_2_BE.DALs
                         LoginStatus = AuthenticationEnum.Login.Wrong,
                     };
                 }
-                //bool setRefresh = await _redis.SetStringAsync($"RefressToken_{user.AccountId}", refreshToken, TimeSpan.FromDays(7));
+                int isOnline = await _context.AccountsModel.Where(a => a.Id == isExsist.Id).ExecuteUpdateAsync(s => s.SetProperty(u => u.IsOnline, 1));
                 return new LoginResponseDTO()
                 {
                     Id = isExsist.Id,
@@ -171,7 +172,7 @@ namespace Capstone_2_BE.DALs
                         await _context.AccountsModel.AddAsync(newAccount);
                         await _context.SaveChangesAsync();
 
-                        string UniqueId = GenerateIdUnique(newAccount.Id, newAccount.CreateAt);
+                        string UniqueId = GenerateIdUnique(newAccount.CreateAt);
                         CustomerProfileModel newCustomerProfile = new CustomerProfileModel()
                         {
                             Id = newAccount.Id,
@@ -224,7 +225,7 @@ namespace Capstone_2_BE.DALs
                         await _context.AccountsModel.AddAsync(newAccount);
                         await _context.SaveChangesAsync();
 
-                        string UniqueId = GenerateIdUnique(newAccount.Id, newAccount.CreateAt);
+                        string UniqueId = GenerateIdUnique(newAccount.CreateAt);
                         TechnicianProfileModel newTechnicianProfile = new TechnicianProfileModel()
                         {
                             Id = newAccount.Id,
@@ -232,6 +233,7 @@ namespace Capstone_2_BE.DALs
                             PhoneNumber = authRegisterDTO.PhoneNumber,
                             IdUnique = UniqueId,
                             Address = authRegisterDTO.Address,
+                            City = authRegisterDTO.City,
                             Latitude = authRegisterDTO.Latitude,
                             Longitude = authRegisterDTO.Longitude,
                             CreateAt = DateTime.Now,
@@ -255,6 +257,35 @@ namespace Capstone_2_BE.DALs
             {
                 _logger.LogError(ex, "Error in RegisterTechnician");
                 return AuthenticationEnum.Register.Fail;
+            }
+        }
+
+        public async Task<bool> UpdateOnlineStatus(Guid accountId, int isOnline)
+        {
+            try
+            {
+                int updated = await _context.AccountsModel
+                    .Where(a => a.Id == accountId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(u => u.IsOnline, isOnline)
+                        .SetProperty(u => u.UpdateAt, DateTime.Now)
+                    );
+
+                if (updated > 0)
+                {
+                    _logger.LogInformation("Updated online status for account {AccountId} to {IsOnline}", accountId, isOnline);
+                    return true;
+                }
+                else
+                {
+                    _logger.LogWarning("Account {AccountId} not found for online status update", accountId);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating online status for account {AccountId}", accountId);
+                return false;
             }
         }
     }

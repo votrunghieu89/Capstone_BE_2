@@ -7,6 +7,7 @@
         public string AvatarURl { get; set; }
         public string PhoneNumber { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
+        public string City { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public Guid ServiceId { get; set; }

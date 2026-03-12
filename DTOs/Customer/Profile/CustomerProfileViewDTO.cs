@@ -1,14 +1,11 @@
-﻿namespace Capstone_2_BE.DTOs.Technician.Profile
+﻿namespace Capstone_2_BE.DTOs.Customer.Profile
 {
-    public class TechnicianProfileViewDTO
+    public class CustomerProfileViewDTO
     {
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string FullName { get; set; }
         public string AvatarURL { get; set; }
-        public string Address { get; set; }
-        public string City { get; set; }
-        public string ServiceName { get; set; }
         public DateTime CreateAt { get; set; }
     }
 }

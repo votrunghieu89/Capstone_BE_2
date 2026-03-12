@@ -134,5 +134,16 @@ namespace Capstone_2_BE.Controllers
             }
             return Ok(new { accessToken = newAccessToken });
         }
+
+        [HttpPut("update-online-status")]
+        public async Task<IActionResult> UpdateOnlineStatus([FromBody] UpdateOnlineStatusDTO updateOnlineStatusDTO)
+        {
+            var result = await _authenticationService.UpdateOnlineStatus(updateOnlineStatusDTO);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, new { message = result.Data });
+        }
     }
 }
