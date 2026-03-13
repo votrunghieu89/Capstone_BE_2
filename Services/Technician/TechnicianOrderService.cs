@@ -161,6 +161,29 @@ namespace Capstone_2_BE.Services.Technician
         }
 
         /// <summary>
+        /// Lấy danh sách đơn bị từ chối (do kỹ thuật viên từ chối)
+        /// </summary>
+        public async Task<Result<List<ViewOrderDTO>>> GetRejectedOrders(Guid technicianId)
+        {
+            try
+            {
+                var orders = await _technicianOrderRepo.GetRejectedOrders(technicianId);
+
+                if (orders == null || orders.Count == 0)
+                {
+                    return Result<List<ViewOrderDTO>>.Success(new List<ViewOrderDTO>(), 200);
+                }
+
+                return Result<List<ViewOrderDTO>>.Success(orders, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting rejected orders for technician ID: {TechnicianId}", technicianId);
+                return Result<List<ViewOrderDTO>>.Failure("Lỗi khi lấy danh sách đơn bị từ chối", 500);
+            }
+        }
+
+        /// <summary>
         /// Xác nhận đơn hàng (Pending Confirmation -> Confirmed)
         /// </summary>
         public async Task<Result<string>> ConfirmOrder(OrderActionDTO orderActionDTO)
@@ -217,39 +240,43 @@ namespace Capstone_2_BE.Services.Technician
             }
         }
 
+        /*
         /// <summary>
         /// Hoàn thành đơn hàng (In Progress -> Completed)
+        /// NOTE: CompleteOrder is commented in DAL. Keep commented here for consistency.
         /// </summary>
-        public async Task<Result<string>> CompleteOrder(OrderActionDTO orderActionDTO)
-        {
-            try
-            {
-                var result = await _technicianOrderRepo.CompleteOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
-                
-                if (result)
-                {
-                    return Result<string>.Success("Hoàn thành đơn hàng thành công", 200);
-                }
-                else
-                {
-                    return Result<string>.Failure("Không thể hoàn thành đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái đang thực hiện", 400);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error completing order ID: {OrderId}", orderActionDTO.OrderId);
-                return Result<string>.Failure("Lỗi khi hoàn thành đơn hàng", 500);
-            }
-        }
+        //public async Task<Result<string>> CompleteOrder(OrderActionDTO orderActionDTO)
+        //{
+        //    try
+        //    {
+        //        var result = await _technicianOrderRepo.CompleteOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
+        //        
+        //        if (result)
+        //        {
+        //            return Result<string>.Success("Hoàn thành đơn hàng thành công", 200);
+        //        }
+        //        else
+        //        {
+        //            return Result<string>.Failure("Không thể hoàn thành đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái đang thực hiện", 400);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error completing order ID: {OrderId}", orderActionDTO.OrderId);
+        //        return Result<string>.Failure("Lỗi khi hoàn thành đơn hàng", 500);
+        //    }
+        //}
+        */
 
         /// <summary>
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)
+        /// Maps to repository's RejectedOrder method
         /// </summary>
         public async Task<Result<string>> CancelOrder(OrderActionDTO orderActionDTO)
         {
             try
             {
-                var result = await _technicianOrderRepo.CancelOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
+                var result = await _technicianOrderRepo.RejectedOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
                 
                 if (result)
                 {

@@ -87,7 +87,7 @@ namespace Capstone_2_BE
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.Status)
                      .HasMaxLength(30)
-                    .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
+                    .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
                 entity.Property(e => e.Price).HasPrecision(18, 2);
                 entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
@@ -132,8 +132,8 @@ namespace Capstone_2_BE
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Status)
                     .HasMaxLength(30)
-                    .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
-                
+                    .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
+
                 // FK với Orders
                 entity.HasOne(e => e.Orders)
                     .WithMany(o => o.OrderStatusHistory)

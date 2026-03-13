@@ -102,6 +102,20 @@ namespace Capstone_2_BE.Controllers.Technician
         }
 
         /// <summary>
+        /// Lấy danh sách đơn bị từ chối (do kỹ thuật viên từ chối)
+        /// </summary>
+        [HttpGet("rejected/{technicianId}")]
+        public async Task<IActionResult> GetRejectedOrders(Guid technicianId)
+        {
+            var result = await _technicianOrderService.GetRejectedOrders(technicianId);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, result.Data);
+        }
+
+        /// <summary>
         /// Xác nhận đơn hàng (Pending Confirmation -> Confirmed)
         /// </summary>
         [HttpPost("confirm")]
@@ -129,8 +143,10 @@ namespace Capstone_2_BE.Controllers.Technician
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
 
+        /*
         /// <summary>
         /// Hoàn thành đơn hàng (In Progress -> Completed)
+        /// NOTE: CompleteOrder is commented in DAL and Service. Keep commented here for consistency.
         /// </summary>
         [HttpPost("complete")]
         public async Task<IActionResult> CompleteOrder([FromBody] OrderActionDTO orderActionDTO)
@@ -142,6 +158,7 @@ namespace Capstone_2_BE.Controllers.Technician
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
+        */
 
         /// <summary>
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)

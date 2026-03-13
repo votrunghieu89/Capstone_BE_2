@@ -16,45 +16,46 @@ namespace Capstone_2_BE.DALs.Technician
             _context = context;
             _logger = logger;
         }
-        public async Task<bool> CompleteOrder(Guid orderId, Guid AccountId)
-        {
-            try
-            {
+        //// Thợ hoàn thành đơn hàng
+        //public async Task<bool> CompleteOrder(Guid orderId, Guid AccountId)
+        //{
+        //    try
+        //    {
                 
-               using (var transaction = await _context.Database.BeginTransactionAsync())
-                {
-                    try
-                    {
-                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "In Progress").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Completed"));
-                        if (isUpdated > 0)
-                        {
-                            OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
-                            {
-                                OrderId = orderId,
-                                Status = "Completed",
-                                ChangeBy = AccountId,
-                                ChangeAt = DateTime.UtcNow,
-                            };
-                            await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                            return true;
-                        }
-                        return false;
-                    }
-                    catch(Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        return false;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
+        //       using (var transaction = await _context.Database.BeginTransactionAsync())
+        //        {
+        //            try
+        //            {
+        //                int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "In Progress").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Completed"));
+        //                if (isUpdated > 0)
+        //                {
+        //                    OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
+        //                    {
+        //                        OrderId = orderId,
+        //                        Status = "Completed",
+        //                        ChangeBy = AccountId,
+        //                        ChangeAt = DateTime.UtcNow,
+        //                    };
+        //                    await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
+        //                    await _context.SaveChangesAsync();
+        //                    await transaction.CommitAsync();
+        //                    return true;
+        //                }
+        //                return false;
+        //            }
+        //            catch(Exception ex)
+        //            {
+        //                await transaction.RollbackAsync();
+        //                return false;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return false;
+        //    }
+        //}
+        //// Thợ xác nhận đơn hàng
         public async Task<bool> ConfirmOrder(Guid orderId, Guid AccountId)
         {
             try
@@ -93,6 +94,7 @@ namespace Capstone_2_BE.DALs.Technician
                 return false;
             }
         }
+        // Bắt đầy làm đơn hàng đã xác nhận
         public async Task<bool> StartOrder(Guid orderId, Guid AccountId)
         {
             try
@@ -231,7 +233,7 @@ namespace Capstone_2_BE.DALs.Technician
                return null;
             }   
         }
-
+        // đơn hàng bị huỷ do khách hàng
         public async Task<List<ViewOrderDTO>> GetCanceledOrders(Guid technicianId)
         {
             try
@@ -239,7 +241,7 @@ namespace Capstone_2_BE.DALs.Technician
                 List<ViewOrderDTO> InProgressOrder = await(from o in _context.OrderrModel
                                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
-                                                           where o.TechnicianId == technicianId && o.Status == "Refuse"
+                                                           where o.TechnicianId == technicianId && o.Status == "Cancelled"
                                                            select new ViewOrderDTO
                                                            {
                                                                OrderId = o.Id,
@@ -256,8 +258,8 @@ namespace Capstone_2_BE.DALs.Technician
                 return null;
             }
         }
-
-        public async Task<bool> CancelOrder(Guid orderId, Guid AccountId)
+        // Thợ từ chối đơn hàng
+        public async Task<bool> RejectedOrder(Guid orderId, Guid AccountId)
         {
             try
             {
@@ -272,7 +274,7 @@ namespace Capstone_2_BE.DALs.Technician
                             OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
                             {
                                 OrderId = orderId,
-                                Status = "Refuse",
+                                Status = "Rejected",
                                 ChangeBy = AccountId,
                                 ChangeAt = DateTime.UtcNow,
                             };
@@ -293,6 +295,31 @@ namespace Capstone_2_BE.DALs.Technician
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+        // Lấy toàn bộ đơn bị từ chối ( do thợ từ chối)
+        public async Task<List<ViewOrderDTO>> GetRejectedOrders(Guid technicianId)
+        {
+            try
+            {
+                List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            where o.TechnicianId == technicianId && o.Status == "Rejected"
+                                                            select new ViewOrderDTO
+                                                            {
+                                                                OrderId = o.Id,
+                                                                CustomerName = c.FullName,
+                                                                ServiceName = s.ServiceName,
+                                                                Title = o.Title,
+                                                                Status = o.Status,
+                                                                OrderDate = o.CreateAt,
+                                                            }).ToListAsync();
+                return InProgressOrder;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
     }

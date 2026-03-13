@@ -4,24 +4,27 @@ namespace Capstone_2_BE.Repositories
 {
     public interface ITechnicianOrderRepo
     {
-        // View in Progress Orders
+        // Xem đơn hàng đang xử lý
         Task<ViewOrderDTO> GetInProgressOrders(Guid technicianId);
-        // View Cofirming Orders
+        // Xem danh sách đơn hàng đang chờ xác nhận
         Task<List<ViewOrderDTO>> GetConfirmingOrders(Guid technicianId);
-        // View Comfimred Orders
+        // Xem danh sách đơn hàng đã xác nhận
         Task<List<ViewOrderDTO>> GetConfirmedOrders(Guid technicianId);
-        // View History Orders
+        // Xem lịch sử đơn hàng đã hoàn thành
         Task<List<ViewOrderDTO>> GetHistoryOrders(Guid technicianId);
-        // View Canceled Orders
+        // Xem đơn hàng đã bị huỷ ( cả do khách hàng huỷ)
         Task<List<ViewOrderDTO>> GetCanceledOrders(Guid technicianId);
+        // Xem đơn hàng bị từ chối ( do kỹ thuật viên từ chối)
+        Task<List<ViewOrderDTO>> GetRejectedOrders(Guid technicianId);
         // View Order Details
+        //Task<ViewOrderDetailsDTO> GetOrderDetails(Guid orderId, Guid technicianId);
         // Change Confirming Order to Confirmed
         Task<bool> ConfirmOrder(Guid orderId, Guid AccountId);
         // Changge Confirmed Order to In Progress
         Task<bool> StartOrder(Guid orderId, Guid AccountId);
-        // Change In Progress Order to Completed
-        Task<bool> CompleteOrder(Guid orderId, Guid AccountId);
+        //// Change In Progress Order to Completed
+        //Task<bool> CompleteOrder(Guid orderId, Guid AccountId);
         // Cancel Order
-        Task<bool> CancelOrder(Guid orderId, Guid AccountId);
+        Task<bool> RejectedOrder(Guid orderId, Guid AccountId);
     }
 }
