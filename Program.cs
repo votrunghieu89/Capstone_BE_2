@@ -68,6 +68,9 @@ builder.Services.AddScoped<CustomerProfileService>();
 // Register AWS S3
 builder.Services.AddScoped<AWS>();
 
+// Register Google settings
+builder.Services.Configure<GoogleSetting>(builder.Configuration.GetSection("GoogleAuth"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

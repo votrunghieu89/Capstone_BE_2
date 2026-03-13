@@ -37,13 +37,13 @@ namespace Capstone_2_BE.DALs
                 var user = await _context.AccountsModel.FirstOrDefaultAsync(u => u.Id == changePasswordDTO.Id);
                 if (user == null)
                 {
-                  
+
                     return false;
                 }
                 bool checkOldPassword = Hash.VerifyPassword(changePasswordDTO.OldPassword, user.Password);
                 if (!checkOldPassword)
                 {
-                   
+
                     return false;
                 }
                 string newHashedPassword = Hash.HashPassword(changePasswordDTO.NewPassword);
@@ -62,7 +62,8 @@ namespace Capstone_2_BE.DALs
                     return false;
                 }
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 return false;
             }
         }
@@ -73,12 +74,14 @@ namespace Capstone_2_BE.DALs
             {
                 int isUpdatePass = await _context.AccountsModel.Where(a => a.Email == Email).ExecuteUpdateAsync(s => s.SetProperty(u => u.Password, password)
                 .SetProperty(u => u.UpdateAt, DateTime.Now));
-                if (isUpdatePass > 0) { 
+                if (isUpdatePass > 0)
+                {
                     return true;
                 }
                 return false;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return false;
             }
         }
@@ -91,10 +94,10 @@ namespace Capstone_2_BE.DALs
                 var isEmail = await _context.AccountsModel.FirstOrDefaultAsync(u => u.Email == email);
                 if (isEmail != null)
                 {
-                    
+
                     return isEmail.Id;
                 }
-               
+
                 return null;
             }
             catch (Exception ex)
@@ -109,7 +112,8 @@ namespace Capstone_2_BE.DALs
             try
             {
                 var isExsist = await _context.AccountsModel.Where(a => a.Email == email).FirstOrDefaultAsync();
-                if (isExsist == null) {
+                if (isExsist == null)
+                {
                     return new LoginResponseDTO()
                     {
                         LoginStatus = AuthenticationEnum.Login.Wrong,
@@ -139,7 +143,8 @@ namespace Capstone_2_BE.DALs
                     LoginStatus = AuthenticationEnum.Login.Success
                 };
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return new LoginResponseDTO()
                 {
                     LoginStatus = AuthenticationEnum.Login.Fail,
@@ -286,6 +291,43 @@ namespace Capstone_2_BE.DALs
             {
                 _logger.LogError(ex, "Error updating online status for account {AccountId}", accountId);
                 return false;
+            }
+        }
+
+        public async Task<LoginResponseDTO> LoginGoogleforCustomer(string email)
+        {
+            try
+            {
+                var isExsist = await _context.AccountsModel.Where(a => a.Email == email).FirstOrDefaultAsync();
+                if(isExsist == null)
+                {
+                    return new LoginResponseDTO()
+                    {
+                        LoginStatus = AuthenticationEnum.Login.Wrong,
+                    };
+                }
+                if(isExsist.IsActive == 0)
+                {
+                    return new LoginResponseDTO()
+                    {
+                        LoginStatus = AuthenticationEnum.Login.Banned,
+                    };
+                }
+                LoginResponseDTO newCusGoogle = new LoginResponseDTO()
+                {
+                    Id = isExsist.Id,
+                    Role = isExsist.Role,
+                    Email = email,
+                    LoginStatus = AuthenticationEnum.Login.Success
+                };
+                return newCusGoogle;
+            }
+            catch (Exception ex)
+            {
+                return new LoginResponseDTO()
+                {
+                    LoginStatus = AuthenticationEnum.Login.Fail,
+                };
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Capstone_2_BE.DALs;
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Authentication;
+using Capstone_2_BE.DTOs.Authentication.Google;
 using Capstone_2_BE.Enums;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Technician;
@@ -17,13 +18,15 @@ namespace Capstone_2_BE.Services
         private readonly IAuthenticationRepo _authenticationDAL;
         private readonly Redis _redis;
         private readonly Email _email;
-   
-        public AuthenticationService(Token token, IAuthenticationRepo authenticationDAL, Redis redis, Email email)
+        private readonly Googles _google;
+
+        public AuthenticationService(Token token, IAuthenticationRepo authenticationDAL, Redis redis, Email email, Googles google)
         {
             _token = token;
             _authenticationDAL = authenticationDAL;
             _redis = redis;
             _email = email;
+            _google = google;
         }
 
         public static string GenerateOTP(int length = 6)
@@ -72,7 +75,7 @@ namespace Capstone_2_BE.Services
             }
 
         }
-        
+
         public async Task<Result<LoginResultDTO>> Login(LoginDTO loginDTO)
         {
             var loginResult = await _authenticationDAL.Login(loginDTO.Email, loginDTO.Password);
@@ -81,10 +84,12 @@ namespace Capstone_2_BE.Services
                 case AuthenticationEnum.Login.Success:
                     var accessToken = _token.generateAccessToken(loginResult.Id, loginResult.Role, loginResult.Email);
                     var refressToken = _token.generateRefreshToken();
-                    bool setRefresh = await _redis.SetStringAsync($"RefressToken_{loginResult.Id}", refressToken, TimeSpan.FromDays(7));
+                    bool setRefresh = await _redis.SetStringAsync($"RefressToken:{loginResult.Id}", refressToken, TimeSpan.FromDays(7));
                     return Result<LoginResultDTO>.Success(new LoginResultDTO
                     {
                         Id = loginResult.Id,
+                        Email = loginResult.Email,
+                        Role = loginResult.Role,
                         accessToken = accessToken,
                         refressToken = refressToken
                     });
@@ -98,7 +103,7 @@ namespace Capstone_2_BE.Services
 
             }
         }
-        
+
         public async Task<bool> verifyOTP(string Email, string otp)
         {
             try
@@ -124,7 +129,7 @@ namespace Capstone_2_BE.Services
                 return false;
             }
         }
-        
+
         public async Task<string> getNewAccessToken(GetNewAccessTokenDTO getAccessToken)
         {
             string? refreshTokenInDb = await _redis.GetStringAsync($"RefressToken_{getAccessToken.Id}");
@@ -135,13 +140,13 @@ namespace Capstone_2_BE.Services
             var newAccessToken = _token.generateAccessToken(getAccessToken.Id, getAccessToken.Role, getAccessToken.Email);
             return newAccessToken;
         }
-        
+
         public async Task<Result<string>> Logout(Guid accountId) {
             try
             {
                 bool deleted = await _redis.DeleteKeyAsync($"RefressToken_{accountId}");
                 bool deleteOnline = await _redis.DeleteKeyAsync($"Online_{accountId}");
-                
+
                 if (deleted)
                 {
                     return Result<string>.Success("Đăng xuất thành công", 200);
@@ -162,7 +167,7 @@ namespace Capstone_2_BE.Services
             try
             {
                 var result = await _authenticationDAL.RegisterCustomer(authRegisterDTO);
-                switch (result) { 
+                switch (result) {
                     case AuthenticationEnum.Register.Success:
                         return Result<string>.Success("Đăng kí thành công", 200);
                     case AuthenticationEnum.Register.Fail:
@@ -175,7 +180,7 @@ namespace Capstone_2_BE.Services
                 return Result<string>.Failure("Đăng kí thất bại", 500);
             }
         }
-        
+
         public async Task<Result<string>> RegisterTechnician(RegisterFixerDTO authRegisterDTO)
         {
             try
@@ -254,7 +259,7 @@ namespace Capstone_2_BE.Services
 
                 var hashedPassword = Hash.HashPassword(newPassword);
                 var result = await _authenticationDAL.ForgetPassword(email, hashedPassword);
-                
+
                 if (result)
                 {
                     // Xoá refresh token cũ để buộc đăng nhập lại
@@ -283,13 +288,13 @@ namespace Capstone_2_BE.Services
                 }
 
                 var result = await _authenticationDAL.UpdateOnlineStatus(updateOnlineStatusDTO.AccountId, updateOnlineStatusDTO.IsOnline);
-                
+
                 if (result)
                 {
-                    string statusMessage = updateOnlineStatusDTO.IsOnline == 1 
-                        ? "Đã chuyển sang trạng thái Online" 
+                    string statusMessage = updateOnlineStatusDTO.IsOnline == 1
+                        ? "Đã chuyển sang trạng thái Online"
                         : "Đã chuyển sang chế độ Không làm phiền";
-                    
+
                     return Result<string>.Success(statusMessage, 200);
                 }
                 else
@@ -302,5 +307,67 @@ namespace Capstone_2_BE.Services
                 return Result<string>.Failure("Lỗi khi cập nhật trạng thái online", 500);
             }
         }
+
+        public async Task<Result<LoginResultDTO>> LoginViaGoogleCustomer(GoogleLoginDTO googleloginDTO)
+        {
+            try
+            {
+                if (googleloginDTO == null || string.IsNullOrEmpty(googleloginDTO.IdToken))
+                {
+                    return Result<LoginResultDTO>.Failure("Dữ liệu đăng nhập không hợp lệ", 400);
+                }
+                var TokenIdInfor = await _google.checkIdToken(googleloginDTO.IdToken); // trả về Email, FullName, AvatarURL
+                if (TokenIdInfor == null || string.IsNullOrEmpty(TokenIdInfor.Email))
+                {
+                    return Result<LoginResultDTO>.Failure("Token Id không hợp lệ", 401);
+                }
+                var checkAccessToken = await _google.CheckAccessToken(googleloginDTO.AccessToken);
+                if (checkAccessToken == null)
+                {
+                        return Result<LoginResultDTO>.Failure("Access token không hợp lệ", 401);
+                }
+                if (TokenIdInfor.Sub != checkAccessToken.sub)
+                {
+                    return Result<LoginResultDTO>.Failure("Token không khớp user", 401);
+                }
+                var checkEmail = await _authenticationDAL.isEmailExist(TokenIdInfor.Email);
+                if (checkEmail == null)
+                {
+                    var newCustomer = new RegisterCustomerDTO
+                    {
+                        Email = TokenIdInfor.Email,
+                        FullName = TokenIdInfor.FullName,
+                        Password = Hash.HashPassword(Guid.NewGuid().ToString()),
+                        PhoneNumber = null
+                    };
+                    var registerResult = await _authenticationDAL.RegisterCustomer(newCustomer);
+                }
+                var loginResult = await _authenticationDAL.LoginGoogleforCustomer(TokenIdInfor.Email);
+                switch (loginResult.LoginStatus)
+                {
+                    case AuthenticationEnum.Login.Success:
+                        var accessToken = _token.generateAccessToken(loginResult.Id, loginResult.Role, loginResult.Email);
+                        var refressToken = _token.generateRefreshToken();
+                        bool setRefresh = await _redis.SetStringAsync($"RefressToken:{loginResult.Id}", refressToken, TimeSpan.FromDays(7));
+                        return Result<LoginResultDTO>.Success(new LoginResultDTO
+                        {
+                            Id = loginResult.Id,
+                            Email = loginResult.Email,
+                            Role = loginResult.Role,
+                            accessToken = accessToken,
+                            refressToken = refressToken
+                        }, 200);
+                    case AuthenticationEnum.Login.Banned:
+                        return Result<LoginResultDTO>.Failure("Tài khoản đã bị khoá", 404);
+                    case AuthenticationEnum.Login.Fail:
+                    default:
+                        return Result<LoginResultDTO>.Failure("Đăng nhập thất bại", 500);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<LoginResultDTO>.Failure("Đăng nhập thất bại", 500);
+            }
+        } 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Authentication;
+using Capstone_2_BE.DTOs.Authentication.Google;
 using Capstone_2_BE.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -144,6 +145,18 @@ namespace Capstone_2_BE.Controllers
                 return StatusCode(result.StatusCode, new { message = result.Error });
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
+        }
+
+        // New endpoint for Google login (customer)
+        [HttpPost("login/google/customer")]
+        public async Task<IActionResult> LoginViaGoogleCustomer([FromBody] GoogleLoginDTO googleLoginDTO)
+        {
+            var result = await _authenticationService.LoginViaGoogleCustomer(googleLoginDTO);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, result.Data);
         }
     }
 }

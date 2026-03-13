@@ -13,5 +13,6 @@ namespace Capstone_2_BE.Repositories
         Task<bool> ChangePassword(ChangePasswordDTO changePasswordDTO);
         Task<bool> ForgetPassword(string Email, string password);
         Task<bool> UpdateOnlineStatus(Guid accountId, int isOnline);
+        Task<LoginResponseDTO> LoginGoogleforCustomer(string email);
     }
 }
