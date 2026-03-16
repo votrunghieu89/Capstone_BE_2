@@ -16,47 +16,9 @@ namespace Capstone_2_BE.DALs.Technician
             _context = context;
             _logger = logger;
         }
-        //// Thợ hoàn thành đơn hàng
-        //public async Task<bool> CompleteOrder(Guid orderId, Guid AccountId)
-        //{
-        //    try
-        //    {
-                
-        //       using (var transaction = await _context.Database.BeginTransactionAsync())
-        //        {
-        //            try
-        //            {
-        //                int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "In Progress").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Completed"));
-        //                if (isUpdated > 0)
-        //                {
-        //                    OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
-        //                    {
-        //                        OrderId = orderId,
-        //                        Status = "Completed",
-        //                        ChangeBy = AccountId,
-        //                        ChangeAt = DateTime.UtcNow,
-        //                    };
-        //                    await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
-        //                    await _context.SaveChangesAsync();
-        //                    await transaction.CommitAsync();
-        //                    return true;
-        //                }
-        //                return false;
-        //            }
-        //            catch(Exception ex)
-        //            {
-        //                await transaction.RollbackAsync();
-        //                return false;
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
+        
         //// Thợ xác nhận đơn hàng
-        public async Task<bool> ConfirmOrder(Guid orderId, Guid AccountId)
+        public async Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid AccountId)
         {
             try
             {
@@ -78,24 +40,35 @@ namespace Capstone_2_BE.DALs.Technician
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                             await _context.SaveChangesAsync();
                             await transaction.CommitAsync();
-                            return true;
                         }
-                        return false;
+                        var OrderRes = await (from o in _context.OrderrModel
+                                              join h in _context.OrderStatusHistoryModel on o.Id equals h.OrderId
+                                              join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                              where o.Id == orderId
+                                              select new OrderActionResDTO
+                                              {
+                                                  OrderId = o.Id,
+                                                  SenderId = o.TechnicianId,
+                                                  ReceiverId = o.CustomerId,
+                                                  OrderName = o.Title,
+                                                  CreatedAt = o.CreateAt,
+                                              }).FirstOrDefaultAsync();
+                        return OrderRes;
                     }
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                        return false;
+                        return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                return false;
+                return null;
             }
         }
         // Bắt đầy làm đơn hàng đã xác nhận
-        public async Task<bool> StartOrder(Guid orderId, Guid AccountId)
+        public async Task<OrderActionResDTO> StartOrder(Guid orderId, Guid AccountId)
         {
             try
             {
@@ -117,20 +90,32 @@ namespace Capstone_2_BE.DALs.Technician
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                             await _context.SaveChangesAsync();
                             await transaction.CommitAsync();
-                            return true;
+                            
                         }
-                        return false;
+                        var OrderRes = await (from o in _context.OrderrModel
+                                              join h in _context.OrderStatusHistoryModel on o.Id equals h.OrderId
+                                              join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                              where o.Id == orderId
+                                              select new OrderActionResDTO
+                                              {
+                                                  OrderId = o.Id,
+                                                  SenderId = o.TechnicianId,
+                                                  ReceiverId = o.CustomerId,
+                                                  OrderName = o.Title,
+                                                  CreatedAt = o.CreateAt,
+                                              }).FirstOrDefaultAsync();
+                        return OrderRes;
                     }
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                        return false;
+                       return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                return false;
+                return null;
             }
         }
         // Lấy ds đơn đã xác nhận
@@ -259,7 +244,7 @@ namespace Capstone_2_BE.DALs.Technician
             }
         }
         // Thợ từ chối đơn hàng
-        public async Task<bool> RejectedOrder(Guid orderId, Guid AccountId)
+        public async Task<OrderActionResDTO> RejectedOrder(Guid orderId, Guid AccountId)
         {
             try
             {
@@ -281,20 +266,32 @@ namespace Capstone_2_BE.DALs.Technician
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                             await _context.SaveChangesAsync();
                             await transaction.CommitAsync();
-                            return true;
+                            
                         }
-                        return false;
+                        var OrderRes = await (from o in _context.OrderrModel
+                                              join h in _context.OrderStatusHistoryModel on o.Id equals h.OrderId
+                                              join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                              where o.Id == orderId
+                                              select new OrderActionResDTO
+                                              {
+                                                  OrderId = o.Id,
+                                                  SenderId = o.TechnicianId,
+                                                  ReceiverId = o.CustomerId,
+                                                  OrderName = o.Title,
+                                                  CreatedAt = o.CreateAt,
+                                              }).FirstOrDefaultAsync();
+                        return OrderRes;
                     }
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                        return false;
+                        return null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                return false;
+                return null;
             }
         }
         // Lấy toàn bộ đơn bị từ chối ( do thợ từ chối)
@@ -321,6 +318,11 @@ namespace Capstone_2_BE.DALs.Technician
             {
                 return null;
             }
+        }
+
+        public Task<string> GetOrderDetails(Guid orderId, Guid technicianId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

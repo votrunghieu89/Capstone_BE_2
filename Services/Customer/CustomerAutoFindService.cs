@@ -1,6 +1,7 @@
 ﻿using Capstone_2_BE.DTOs.Customer.AutoFind;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Settings;
+using Capstone_2_BE.DTOs.Customer.Order;
 
 namespace Capstone_2_BE.Services.Customer
 {
@@ -83,7 +84,8 @@ namespace Capstone_2_BE.Services.Customer
                     FullName = acceptedTechnician.FullName,
                     avatarURL = acceptedTechnician.avatarURL,
                     ServiceName = acceptedTechnician.ServiceName,
-                    Score = acceptedTechnician.Score
+                    Score = acceptedTechnician.Score,
+                    OrderCount =  acceptedTechnician.OrderCount
                 };
                 techinician.avatarURL = await _aws.ReadImage(acceptedTechnician.avatarURL);
                 return Result<AutoFindFixerResSuccessDTO>.Success(techinician, 200);
@@ -107,6 +109,60 @@ namespace Capstone_2_BE.Services.Customer
             {
                 _logger.LogError(ex, "Error clearing technician cache for CustomerId: {CustomerId}", CustomerId);
                 return Result<string>.Failure("An error occurred while clearing the technician cache. Please try again later.", 500);
+            }
+        }
+
+        public async Task<Result<bool>> PlaceAutoOrder(CreateOrderFormDTO form)
+        {
+            try
+            {
+                var dalDto = new CreateOrderDALDTO
+                {
+                    CustomerId = form.CustomerId,
+                    TechnicianId = form.TechnicianId,
+                    ServiceId = form.ServiceId,
+                    Title = form.Title,
+                    Description = form.Description,
+                    Address = form.Address,
+                    City = form.City,
+                    Latitude = form.Latitude,
+                    Longitude = form.Longitude,
+                    ImageOrderUrl = new List<string>(),
+                    videoUrl = string.Empty
+                };
+
+                // Upload video if present
+                if (form.VideoFile != null)
+                {
+                    var videoKey = await _aws.UploadVideoOrder(form.VideoFile);
+                    if (string.IsNullOrEmpty(videoKey))
+                    {
+                        return Result<bool>.Failure("Upload video thất bại", 400);
+                    }
+                    dalDto.videoUrl = videoKey;
+                }
+
+                // Upload images
+                if (form.ImageFiles != null && form.ImageFiles.Count > 0)
+                {
+                    foreach (var file in form.ImageFiles)
+                    {
+                        var key = await _aws.UploadImageOrder(file);
+                        if (!string.IsNullOrEmpty(key))
+                        {
+                            dalDto.ImageOrderUrl.Add(key);
+                        }
+                    }
+                }
+
+                var ok = await _customerAutoFindRepo.PlaceAutoOrder(dalDto);
+                if (ok) return Result<bool>.Success(true, 200);
+                return Result<bool>.Failure("Đặt đơn tự động thất bại", 400);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error placing auto order for customer {CustomerId}", form.CustomerId);
+                return Result<bool>.Failure("Lỗi khi đặt đơn tự động", 500);
             }
         }
     }

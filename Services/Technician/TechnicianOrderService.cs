@@ -1,5 +1,8 @@
-﻿using Capstone_2_BE.DTOs.Technician.Orders;
+﻿using Capstone_2_BE.DTOs.Notification;
+using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Socket;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Capstone_2_BE.Services.Technician
 {
@@ -7,44 +10,16 @@ namespace Capstone_2_BE.Services.Technician
     {
         private readonly ITechnicianOrderRepo _technicianOrderRepo;
         private readonly ILogger<TechnicianOrderService> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationRepo _notificationRepo;
 
-        public TechnicianOrderService(ITechnicianOrderRepo technicianOrderRepo, ILogger<TechnicianOrderService> logger)
+        public TechnicianOrderService(ITechnicianOrderRepo technicianOrderRepo, ILogger<TechnicianOrderService> logger, IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo)
         {
             _technicianOrderRepo = technicianOrderRepo;
             _logger = logger;
+            _hubContext = hubContext;
+            _notificationRepo = notificationRepo;
         }
-
-        ///// <summary>
-        ///// Lấy tổng quan tất cả đơn hàng của kỹ thuật viên
-        ///// </summary>
-        //public async Task<Result<TechnicianOrdersOverviewDTO>> GetOrdersOverview(Guid technicianId)
-        //{
-        //    try
-        //    {
-        //        var inProgressOrder = await _technicianOrderRepo.GetInProgressOrders(technicianId);
-        //        var confirmingOrders = await _technicianOrderRepo.GetConfirmingOrders(technicianId);
-        //        var confirmedOrders = await _technicianOrderRepo.GetConfirmedOrders(technicianId);
-        //        var historyOrders = await _technicianOrderRepo.GetHistoryOrders(technicianId);
-        //        var canceledOrders = await _technicianOrderRepo.GetCanceledOrders(technicianId);
-
-        //        var overview = new TechnicianOrdersOverviewDTO
-        //        {
-        //            InProgressOrder = inProgressOrder,
-        //            ConfirmingOrders = confirmingOrders ?? new List<ViewOrderDTO>(),
-        //            ConfirmedOrders = confirmedOrders ?? new List<ViewOrderDTO>(),
-        //            TotalHistoryOrders = historyOrders?.Count ?? 0,
-        //            TotalCanceledOrders = canceledOrders?.Count ?? 0
-        //        };
-
-        //        return Result<TechnicianOrdersOverviewDTO>.Success(overview, 200);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error getting orders overview for technician ID: {TechnicianId}", technicianId);
-        //        return Result<TechnicianOrdersOverviewDTO>.Failure("Lỗi khi lấy tổng quan đơn hàng", 500);
-        //    }
-        //}
-
         /// <summary>
         /// Lấy đơn hàng đang thực hiện
         /// </summary>
@@ -190,11 +165,24 @@ namespace Capstone_2_BE.Services.Technician
         {
             try
             {
-                var result = await _technicianOrderRepo.ConfirmOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
+                OrderActionResDTO result = await _technicianOrderRepo.ConfirmOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
                 
-                if (result)
+                if (result != null)
                 {
-                    return Result<string>.Success("Xác nhận đơn hàng thành công", 200);
+                    InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
+                    {
+                        SenderId = result.SenderId,
+                        ReceiverId = result.ReceiverId,
+                        Message = $"Đơn hàng của bạn đã được kỹ thuật viên xác nhận và đang chờ bắt đầu thực hiện.",
+                        CratedAt = result.CreatedAt
+                    };
+                    var isInsert =  await _notificationRepo.InsertNewNotification(newNotification);
+                    if(isInsert)
+                    {
+                        await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        return Result<string>.Success("Xác nhận đơn hàng thành công", 200);
+                    }
+                    return Result<string>.Failure("Không thể xác nhận đơn hàng. Lỗi hệ thống", 400);
                 }
                 else
                 {
@@ -222,11 +210,24 @@ namespace Capstone_2_BE.Services.Technician
                     return Result<string>.Failure("Bạn đang có một đơn hàng đang thực hiện. Vui lòng hoàn thành đơn hàng hiện tại trước", 400);
                 }
 
-                var result = await _technicianOrderRepo.StartOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
+                OrderActionResDTO result = await _technicianOrderRepo.StartOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
                 
-                if (result)
+                if (result != null)
                 {
-                    return Result<string>.Success("Bắt đầu thực hiện đơn hàng thành công", 200);
+                    InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
+                    {
+                        SenderId = result.SenderId,
+                        ReceiverId = result.ReceiverId,
+                        Message = $"Kỹ thuật viên đã bắt đầu thực hiện đơn hàng của bạn.",
+                        CratedAt = result.CreatedAt
+                    };
+                    var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
+                    if (isInsert)
+                    {
+                        await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        return Result<string>.Success("Bắt đầu thực hiện đơn hàng thành công", 200);
+                    }
+                    return Result<string>.Failure("Không thể bắt đầu đơn hàng. Lỗi hệ thống", 400);
                 }
                 else
                 {
@@ -272,15 +273,28 @@ namespace Capstone_2_BE.Services.Technician
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)
         /// Maps to repository's RejectedOrder method
         /// </summary>
-        public async Task<Result<string>> CancelOrder(OrderActionDTO orderActionDTO)
+        public async Task<Result<string>> RejectedOrder(OrderActionDTO orderActionDTO)
         {
             try
             {
-                var result = await _technicianOrderRepo.RejectedOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
+                OrderActionResDTO result = await _technicianOrderRepo.RejectedOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
                 
-                if (result)
+                if (result != null)
                 {
-                    return Result<string>.Success("Hủy đơn hàng thành công", 200);
+                    InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
+                    {
+                        SenderId = result.SenderId,
+                        ReceiverId = result.ReceiverId,
+                        Message = $"Đơn hàng của bạn đã bị kỹ thuật viên từ chối.",
+                        CratedAt = result.CreatedAt
+                    };
+                    var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
+                    if (isInsert)
+                    {
+                        await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        return Result<string>.Success("Hủy đơn hàng thành công", 200);
+                    }
+                    return Result<string>.Failure("Không thể hủy đơn hàng. Lỗi hệ thống", 400);
                 }
                 else
                 {

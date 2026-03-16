@@ -50,6 +50,7 @@ namespace Capstone_2_BE
                 entity.Property(e => e.IdUnique).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
                 entity.Property(e => e.Address);
+                entity.Property(e => e.OrderCount);
                 entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
                 entity.Property(e => e.Longitude).HasPrecision(10, 7);

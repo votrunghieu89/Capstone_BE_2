@@ -10,5 +10,6 @@
         public decimal Longitude { get; set; }
         public decimal Score { get; set; }
         public decimal Total { get; set; }
+        public int OrderCount { get; set; }
     }
 }

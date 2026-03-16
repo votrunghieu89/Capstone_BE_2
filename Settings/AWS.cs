@@ -64,31 +64,56 @@ namespace Capstone_2_BE.Settings
             }
         }
 
-        //public async Task<string> UploadOrder(IFormFile file)
-        //{
-        //    try
-        //    {
-        //        string key = $"quiz/{Guid.NewGuid()}_{file.FileName}";
+        public async Task<string> UploadVideoOrder(IFormFile file)
+        {
+            try
+            {
+                string key = $"Video/{Guid.NewGuid()}_{file.FileName}";
 
-        //        using var stream = file.OpenReadStream();
+                using var stream = file.OpenReadStream();
 
-        //        var request = new PutObjectRequest
-        //        {
-        //            BucketName = _bucketName,
-        //            Key = key,
-        //            InputStream = stream,
-        //            ContentType = file.ContentType
-        //        };
+                var request = new PutObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = key,
+                    InputStream = stream,
+                    ContentType = file.ContentType
+                };
 
-        //        await _s3Client.PutObjectAsync(request);
-        //        return key;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"❌ UploadQuizImageToS3 FAILED: {ex.Message}");
-        //        return null;
-        //    }
-        //}
+                await _s3Client.PutObjectAsync(request);
+                return key;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ UploadQuizImageToS3 FAILED: {ex.Message}");
+                return null;
+            }
+        }
+        public async Task<string> UploadImageOrder(IFormFile file)
+        {
+            try
+            {
+                string key = $"Image/{Guid.NewGuid()}_{file.FileName}";
+
+                using var stream = file.OpenReadStream();
+
+                var request = new PutObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = key,
+                    InputStream = stream,
+                    ContentType = file.ContentType
+                };
+
+                await _s3Client.PutObjectAsync(request);
+                return key;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ UploadQuizImageToS3 FAILED: {ex.Message}");
+                return null;
+            }
+        }
         public async Task<string> ReadImage(string key)
         {
             return $"https://{_bucketName}.s3.ap-southeast-2.amazonaws.com/{key}";

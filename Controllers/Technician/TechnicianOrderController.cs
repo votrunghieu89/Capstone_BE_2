@@ -163,10 +163,10 @@ namespace Capstone_2_BE.Controllers.Technician
         /// <summary>
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)
         /// </summary>
-        [HttpPost("cancel")]
-        public async Task<IActionResult> CancelOrder([FromBody] OrderActionDTO orderActionDTO)
+        [HttpPost("reject")]
+        public async Task<IActionResult> RejectedOrder([FromBody] OrderActionDTO orderActionDTO)
         {
-            var result = await _technicianOrderService.CancelOrder(orderActionDTO);
+            var result = await _technicianOrderService.RejectedOrder(orderActionDTO);
             if (!result.IsSuccess)
             {
                 return StatusCode(result.StatusCode, new { message = result.Error });

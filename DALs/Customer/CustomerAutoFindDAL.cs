@@ -1,4 +1,6 @@
 ﻿using Capstone_2_BE.DTOs.Customer.AutoFind;
+using Capstone_2_BE.DTOs.Customer.Order;
+using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories.Customer;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +32,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                             AvatarURL = t.AvatarURl,
                                                             ServiceName = sc.ServiceName,
                                                             Latitude = t.Latitude,
-                                                            Longitude = t.Longitude
+                                                            Longitude = t.Longitude,
+                                                            OrderCount = t.OrderCount,
                                                         }).ToListAsync();
                 var result =  new List<AutoFindFixerResDTO>();
                 foreach (var tech in TechList)
@@ -45,7 +48,8 @@ namespace Capstone_2_BE.DALs.Customer
                         Latitude = tech.Latitude,
                         Longitude = tech.Longitude,
                         Score = score,
-                        Total = score
+                        Total = score,
+                        OrderCount = tech.OrderCount
                     });
                 }
                 return result;
@@ -53,6 +57,79 @@ namespace Capstone_2_BE.DALs.Customer
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        public async Task<bool> PlaceAutoOrder(CreateOrderDALDTO placeOrderDALDTO)
+        {
+            try
+            {
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        OrderrModel newOrder = new OrderrModel
+                        {
+                            CustomerId = placeOrderDALDTO.CustomerId,
+                            TechnicianId = placeOrderDALDTO.TechnicianId,
+                            ServiceId = placeOrderDALDTO.ServiceId,
+                            Title = placeOrderDALDTO.Title,
+                            Description = placeOrderDALDTO.Description,
+                            Address = placeOrderDALDTO.Address,
+                            City = placeOrderDALDTO.City,
+                            Latitude = placeOrderDALDTO.Latitude,
+                            Longitude = placeOrderDALDTO.Longitude,
+                            CreateAt = DateTime.Now,
+                            Status = "Pending Confirmation",
+                        };
+                        await _context.OrderrModel.AddAsync(newOrder);
+                        await _context.SaveChangesAsync();
+                        OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
+                        {
+                            OrderId = newOrder.Id,
+                            Status = "Pending Confirmation",
+                            ChangeBy = placeOrderDALDTO.CustomerId,
+                            ChangeAt = DateTime.Now,
+                        };
+                        await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
+                        await _context.SaveChangesAsync();
+                        // Video
+                        if (!string.IsNullOrEmpty(placeOrderDALDTO.videoUrl))
+                        {
+                            OrderAttachmentsModel videoAttachment = new OrderAttachmentsModel
+                            {
+                                OrderId = newOrder.Id,
+                                FileType = "Video",
+                                FileName = placeOrderDALDTO.videoUrl,
+                            };
+                            await _context.OrderAttachmentsModel.AddAsync(videoAttachment);
+                            await _context.SaveChangesAsync();
+                        }
+                        // Images
+                        if (placeOrderDALDTO.ImageOrderUrl != null && placeOrderDALDTO.ImageOrderUrl.Count > 0)
+                        {
+                            List<OrderAttachmentsModel> imageAttachments = placeOrderDALDTO.ImageOrderUrl.Select(imageUrl => new OrderAttachmentsModel
+                            {
+                                OrderId = newOrder.Id,
+                                FileType = "Image",
+                                FileName = imageUrl,
+                            }).ToList();
+                            await _context.OrderAttachmentsModel.AddRangeAsync(imageAttachments);
+                            await _context.SaveChangesAsync();
+                        }
+                        await transaction.CommitAsync();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
     }

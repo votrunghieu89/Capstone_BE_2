@@ -2,6 +2,7 @@ using Capstone_2_BE;
 using Capstone_2_BE.DALs;
 using Capstone_2_BE.DALs.Customer;
 using Capstone_2_BE.DALs.Technician;
+using Capstone_2_BE.DTOs;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
@@ -10,14 +11,70 @@ using Capstone_2_BE.Services;
 using Capstone_2_BE.Services.Customer;
 using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
+
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Integration System API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid JWT token prefixed with 'Bearer ' (e.g., 'Bearer eyJhbGciOi...')",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+
+builder.Services.AddSignalR();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -47,7 +104,9 @@ builder.Services.AddScoped<Redis>();
 
 // Register repositories and services
 builder.Services.AddScoped<IAuthenticationRepo, AuthenticationDAL>();
+builder.Services.AddScoped<INotificationRepo, NotificationDAL>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<Googles>();
 builder.Services.AddScoped<Token>();
 builder.Services.AddScoped<Email>();
 
@@ -64,12 +123,21 @@ builder.Services.AddScoped<ICustomerAutoFindRepo, CustomerAutoFindDAL>();
 builder.Services.AddScoped<CustomerAutoFindService>();
 builder.Services.AddScoped<ICustomerProfileRepo, CustomerProfileDAL>();
 builder.Services.AddScoped<CustomerProfileService>();
+builder.Services.AddScoped<ICustomerOrderRepo, CustomerOrderDAL>();
+builder.Services.AddScoped<CustomerOrderService>();
 
 // Register AWS S3
 builder.Services.AddScoped<AWS>();
 
 // Register Google settings
 builder.Services.Configure<GoogleSetting>(builder.Configuration.GetSection("GoogleAuth"));
+
+// Register Service DAL and ServiceType
+builder.Services.AddScoped<IServiceRepo, ServiceDAL>();
+builder.Services.AddScoped<ServiceType>();
+
+// Register NotificationService
+builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();
 
