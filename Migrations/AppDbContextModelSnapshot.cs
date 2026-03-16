@@ -199,7 +199,7 @@ namespace Capstone_2_BE.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("Status")
-                        .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
+                        .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
 
                     b.HasKey("Id");
 
@@ -267,7 +267,7 @@ namespace Capstone_2_BE.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("Status")
-                        .HasComment("Refuse, Pending Confirmation, Confirmed, In Progress, Completed");
+                        .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
 
                     b.Property<Guid>("TechnicianId")
                         .HasColumnType("uniqueidentifier");
@@ -344,6 +344,11 @@ namespace Capstone_2_BE.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreateAt");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Description");
 
                     b.Property<string>("ServiceName")
                         .IsRequired()
@@ -437,6 +442,10 @@ namespace Capstone_2_BE.Migrations
                         .HasPrecision(10, 7)
                         .HasColumnType("decimal(10,7)")
                         .HasColumnName("Longtitude");
+
+                    b.Property<int>("OrderCount")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderCount");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()

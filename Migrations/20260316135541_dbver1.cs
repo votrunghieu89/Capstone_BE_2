@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Capstone_2_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class ver1db : Migration
+    public partial class dbver1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,6 +51,7 @@ namespace Capstone_2_BE.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ServiceName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -90,6 +91,7 @@ namespace Capstone_2_BE.Migrations
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     AvatarURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdUnique = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    OrderCount = table.Column<int>(type: "int", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
@@ -121,7 +123,7 @@ namespace Capstone_2_BE.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Refuse, Pending Confirmation, Confirmed, In Progress, Completed"),
+                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed"),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
                     Longtitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
@@ -235,7 +237,7 @@ namespace Capstone_2_BE.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Refuse, Pending Confirmation, Confirmed, In Progress, Completed"),
+                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed"),
                     ChangeBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ChangeAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

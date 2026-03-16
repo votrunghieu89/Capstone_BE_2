@@ -61,6 +61,7 @@ namespace Capstone_2_BE
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.ServiceName).IsRequired().HasMaxLength(255);
+                
             });
 
             // Service_ProfileModel Configuration
