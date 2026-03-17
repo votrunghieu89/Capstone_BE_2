@@ -40,5 +40,22 @@ namespace Capstone_2_BE.Controllers
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
             return StatusCode(result.StatusCode, new { serviceId = result.Data });
         }
+
+        // Admin endpoints
+        [HttpPost("admin/add")]
+        public async Task<IActionResult> AddService([FromBody] CreateServiceAdminDTO createDTO)
+        {
+            var result = await _serviceType.AddService(createDTO);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, new { serviceId = result.Data });
+        }
+
+        [HttpGet("admin/all")]
+        public async Task<IActionResult> GetAllServicesAdmin()
+        {
+            var result = await _serviceType.GetAllServicesAdmin();
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, result.Data);
+        }
     }
 }

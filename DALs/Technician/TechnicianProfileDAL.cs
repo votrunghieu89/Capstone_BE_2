@@ -37,33 +37,32 @@ namespace Capstone_2_BE.DALs.Technician
         {
             try
             {
-                var technicianProfile = await _context.TechnicianProfileModel
-                    .Where(t => t.Id == technicianId)
-                    .Select(t => new TechnicianProfileViewDTO
-                    {
-                        
-                        FullName = t.FullName,
-                        AvatarURL = t.AvatarURl,
-                        PhoneNumber = t.PhoneNumber,
-                        Address = t.Address,
-                        CreateAt = t.CreateAt,
-                    })
-                    .FirstOrDefaultAsync();
-                var ServiceName = await (from t in _context.TechnicianProfileModel
-                                         join sp in _context.Service_ProfileModel on t.Id equals sp.Id
-                                         join s in _context.ServiceCategoriesModel on sp.ServiceId equals s.Id
-                                         where t.Id == technicianId
-                                         select s.ServiceName).FirstOrDefaultAsync();
-                TechnicianProfileViewDTO result = new TechnicianProfileViewDTO
-                {
-                    FullName = technicianProfile.FullName,
-                    AvatarURL = technicianProfile.AvatarURL,
-                    PhoneNumber = technicianProfile.PhoneNumber,
-                    Address = technicianProfile.Address,
-                    City = technicianProfile.City,
-                    CreateAt = technicianProfile.CreateAt,
-                    ServiceName = ServiceName
-                };
+                var avgScore = await _context.RatingModel
+                    .Where(r => r.TechnicianId == technicianId)
+                    .AverageAsync(r => (double?)r.Score) ?? 0.0;
+                var totalRatings = await _context.RatingModel
+                    .Where(r => r.TechnicianId == technicianId)
+                    .CountAsync();
+                var result = await (
+                                        from t in _context.TechnicianProfileModel
+                                        join sp in _context.Service_ProfileModel on t.Id equals sp.TechnicianId   
+                                        join s in _context.ServiceCategoriesModel on sp.ServiceId equals s.Id
+                                        where t.Id == technicianId
+                                        select new TechnicianProfileViewDTO
+                                        {
+                                            FullName = t.FullName,
+                                            AvatarURL = t.AvatarURl,
+                                            PhoneNumber = t.PhoneNumber,
+                                            Address = t.Address,
+                                            City = t.City,
+                                            AverageRating = (decimal)avgScore,
+                                            TotalRating = totalRatings,
+                                            TotalOrders = t.OrderCount,
+                                            CreateAt = t.CreateAt,
+                                            ServiceName = s.ServiceName
+                                        }
+                                    ).FirstOrDefaultAsync();
+
                 return result;
             }
             catch(Exception ex)

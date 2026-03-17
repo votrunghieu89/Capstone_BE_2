@@ -49,7 +49,9 @@ namespace Capstone_2_BE.DALs.Technician
                         Id = t.Id,
                         FullName = t.FullName,
                         AvatarURL = t.AvatarURl,
-                        Score = _context.RatingModel.Where(r => r.TechnicianId == technicianId).Average(r => (decimal?)r.Score) ?? 0
+                        AvgScore = _context.RatingModel.Where(r => r.TechnicianId == technicianId).Average(r => (decimal?)r.Score) ?? 0,
+                        RatingCount = _context.RatingModel.Where(r => r.TechnicianId == technicianId).Count(),
+                        TotalOrders = t.OrderCount
                     })
                     .FirstOrDefaultAsync();
                 return result;

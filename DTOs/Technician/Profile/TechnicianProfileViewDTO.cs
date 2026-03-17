@@ -9,6 +9,9 @@
         public string Address { get; set; }
         public string City { get; set; }
         public string ServiceName { get; set; }
+        public int TotalOrders { get; set; }
+        public int TotalRating { get; set; }
+        public decimal AverageRating { get; set; }
         public DateTime CreateAt { get; set; }
     }
 }

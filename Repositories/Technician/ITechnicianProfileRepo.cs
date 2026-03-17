@@ -6,7 +6,6 @@ namespace Capstone_2_BE.Repositories.Technician
     {
         Task<TechnicianProfileViewDTO> GetTechnicianProfile(Guid technicianId);
         Task<bool> UpdateTechnicianProfile(TechnicianProfileUpdateDALDTO technicianProfileUpdateDTO);
-
         Task<string> GetOldAvatar(Guid technicianId);
     }
 }

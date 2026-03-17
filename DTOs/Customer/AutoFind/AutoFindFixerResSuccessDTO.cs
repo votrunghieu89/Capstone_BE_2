@@ -7,5 +7,6 @@
         public string ServiceName { get; set; } = string.Empty;
         public decimal Score { get; set; }
         public int OrderCount { get; set; }
+        public int RatingCount { get; set; }
     }
 }

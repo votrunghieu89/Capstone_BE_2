@@ -72,41 +72,41 @@ namespace Capstone_2_BE.Services.Technician
             }
         }
 
-        public async Task<Result<TechnicianRatingDetailDTO>> GetTechnicianRatingDetail(Guid technicianId)
-        {
-            try
-            {
-                // Get rating overview
-                var overviewResult = await GetTechnicianRatingOverview(technicianId);
-                if (!overviewResult.IsSuccess)
-                {
-                    return Result<TechnicianRatingDetailDTO>.Failure(overviewResult.Error, overviewResult.StatusCode);
-                }
+        //public async Task<Result<TechnicianRatingDetailDTO>> GetTechnicianRatingDetail(Guid technicianId)
+        //{
+        //    try
+        //    {
+        //        // Get rating overview
+        //        var overviewResult = await GetTechnicianRatingOverview(technicianId);
+        //        if (!overviewResult.IsSuccess)
+        //        {
+        //            return Result<TechnicianRatingDetailDTO>.Failure(overviewResult.Error, overviewResult.StatusCode);
+        //        }
 
-                // Get feedbacks
-                var feedbacksResult = await GetTechnicianFeedbacks(technicianId);
-                if (!feedbacksResult.IsSuccess)
-                {
-                    return Result<TechnicianRatingDetailDTO>.Failure(feedbacksResult.Error, feedbacksResult.StatusCode);
-                }
+        //        // Get feedbacks
+        //        var feedbacksResult = await GetTechnicianFeedbacks(technicianId);
+        //        if (!feedbacksResult.IsSuccess)
+        //        {
+        //            return Result<TechnicianRatingDetailDTO>.Failure(feedbacksResult.Error, feedbacksResult.StatusCode);
+        //        }
 
-                var detail = new TechnicianRatingDetailDTO
-                {
-                    Id = overviewResult.Data.Id,
-                    FullName = overviewResult.Data.FullName,
-                    AvatarURL = overviewResult.Data.AvatarURL,
-                    AverageScore = overviewResult.Data.Score,
-                    TotalFeedbacks = feedbacksResult.Data.Count,
-                    Feedbacks = feedbacksResult.Data
-                };
+        //        var detail = new TechnicianRatingDetailDTO
+        //        {
+        //            Id = overviewResult.Data.Id,
+        //            FullName = overviewResult.Data.FullName,
+        //            AvatarURL = overviewResult.Data.AvatarURL,
+        //            AverageScore = overviewResult.Data.AvgScore,
+        //            TotalFeedbacks = feedbacksResult.Data.Count,
+        //            Feedbacks = feedbacksResult.Data
+        //        };
 
-                return Result<TechnicianRatingDetailDTO>.Success(detail, 200);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting technician rating detail for ID: {TechnicianId}", technicianId);
-                return Result<TechnicianRatingDetailDTO>.Failure("Lỗi khi lấy chi tiết đánh giá kỹ thuật viên", 500);
-            }
-        }
+        //        return Result<TechnicianRatingDetailDTO>.Success(detail, 200);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error getting technician rating detail for ID: {TechnicianId}", technicianId);
+        //        return Result<TechnicianRatingDetailDTO>.Failure("Lỗi khi lấy chi tiết đánh giá kỹ thuật viên", 500);
+        //    }
+        //}
     }
 }

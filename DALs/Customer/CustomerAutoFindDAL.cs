@@ -39,6 +39,7 @@ namespace Capstone_2_BE.DALs.Customer
                 foreach (var tech in TechList)
                 {
                     var score = await _context.RatingModel.Where(r => r.TechnicianId == tech.TechnicianId).AverageAsync(r => (decimal?)r.Score) ?? 0;
+                    var RatingCount = await _context.RatingModel.Where(r => r.TechnicianId == tech.TechnicianId).CountAsync();
                     result.Add(new AutoFindFixerResDTO
                     {
                         TechnicianId = tech.TechnicianId,
@@ -47,9 +48,10 @@ namespace Capstone_2_BE.DALs.Customer
                         ServiceName = tech.ServiceName,
                         Latitude = tech.Latitude,
                         Longitude = tech.Longitude,
-                        Score = score,
+                        AvgScore = score,
                         Total = score,
-                        OrderCount = tech.OrderCount
+                        OrderCount = tech.OrderCount,
+                        RatingCount = RatingCount,
                     });
                 }
                 return result;

@@ -57,5 +57,35 @@ namespace Capstone_2_BE.Services
                 return Result<Guid>.Failure("Error retrieving service id", 500);
             }
         }
+
+        // Admin methods
+        public async Task<Result<Guid>> AddService(CreateServiceAdminDTO createDTO)
+        {
+            try
+            {
+                var id = await _serviceRepo.AddService(createDTO);
+                if (!id.HasValue) return Result<Guid>.Failure("Cannot add service", 400);
+                return Result<Guid>.Success(id.Value, 201);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding service {ServiceName}", createDTO.ServiceName);
+                return Result<Guid>.Failure("Error adding service", 500);
+            }
+        }
+
+        public async Task<Result<List<ServiceAdminDTO>>> GetAllServicesAdmin()
+        {
+            try
+            {
+                var list = await _serviceRepo.GetAllServicesAdmin();
+                return Result<List<ServiceAdminDTO>>.Success(list, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all services for admin");
+                return Result<List<ServiceAdminDTO>>.Failure("Error retrieving services", 500);
+            }
+        }
     }
 }

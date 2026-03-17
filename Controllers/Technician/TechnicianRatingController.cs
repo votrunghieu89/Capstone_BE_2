@@ -44,18 +44,18 @@ namespace Capstone_2_BE.Controllers.Technician
             return StatusCode(result.StatusCode, result.Data);
         }
 
-        /// <summary>
-        /// Lấy chi tiết đầy đủ đánh giá của kỹ thuật viên (overview + feedbacks)
-        /// </summary>
-        [HttpGet("detail/{technicianId}")]
-        public async Task<IActionResult> GetTechnicianRatingDetail(Guid technicianId)
-        {
-            var result = await _technicianRatingService.GetTechnicianRatingDetail(technicianId);
-            if (!result.IsSuccess)
-            {
-                return StatusCode(result.StatusCode, new { message = result.Error });
-            }
-            return StatusCode(result.StatusCode, result.Data);
-        }
+        ///// <summary>
+        ///// Lấy chi tiết đầy đủ đánh giá của kỹ thuật viên (overview + feedbacks)
+        ///// </summary>
+        //[HttpGet("detail/{technicianId}")]
+        //public async Task<IActionResult> GetTechnicianRatingDetail(Guid technicianId)
+        //{
+        //    var result = await _technicianRatingService.GetTechnicianRatingDetail(technicianId);
+        //    if (!result.IsSuccess)
+        //    {
+        //        return StatusCode(result.StatusCode, new { message = result.Error });
+        //    }
+        //    return StatusCode(result.StatusCode, result.Data);
+        //}
     }
 }

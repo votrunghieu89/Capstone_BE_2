@@ -8,8 +8,9 @@
         public string ServiceName { get; set; } = string.Empty;
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-        public decimal Score { get; set; }
+        public decimal AvgScore { get; set; }
         public decimal Total { get; set; }
         public int OrderCount { get; set; }
+        public int RatingCount { get; set; }
     }
 }

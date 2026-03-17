@@ -20,8 +20,8 @@ namespace Capstone_2_BE.DALs
         {
             try
             {
-                var svc = await _context.ServiceCategoriesModel.Where(s => s.Id == serviceId).Select(s => s.ServiceName).FirstOrDefaultAsync();
-                return svc;
+                var svc = await _context.ServiceCategoriesModel.FindAsync(serviceId);
+                return svc?.ServiceName;
             }
             catch (Exception ex)
             {
@@ -49,21 +49,57 @@ namespace Capstone_2_BE.DALs
         {
             try
             {
-               var serviceId = await _context.ServiceCategoriesModel
-                    .Where(s => s.ServiceName == serviceName)
-                    .Select(s => s.Id)
-                    .FirstOrDefaultAsync();
-                if (serviceId == Guid.Empty)
-                {
-                    _logger.LogWarning("Service name {ServiceName} not found", serviceName);
-                    return null;
-                }
-                return serviceId;
+                var svc = await _context.ServiceCategoriesModel.FirstOrDefaultAsync(s => s.ServiceName == serviceName);
+                return svc?.Id;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting service id for {ServiceName}", serviceName);
                 return null;
+            }
+        }
+
+        public async Task<Guid?> AddService(CreateServiceAdminDTO createDTO)
+        {
+            try
+            {
+                var service = new ServiceCategoriesModel
+                {
+                    ServiceName = createDTO.ServiceName,
+                    Description = createDTO.Description,
+                    CreateAt = DateTime.Now,
+                    UpdateAt = DateTime.Now
+                };
+                await _context.ServiceCategoriesModel.AddAsync(service);
+                await _context.SaveChangesAsync();
+                return service.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding service {ServiceName}", createDTO.ServiceName);
+                return null;
+            }
+        }
+
+        public async Task<List<ServiceAdminDTO>> GetAllServicesAdmin()
+        {
+            try
+            {
+                return await _context.ServiceCategoriesModel
+                    .Select(s => new ServiceAdminDTO
+                    {
+                        Id = s.Id,
+                        ServiceName = s.ServiceName,
+                        Description = s.Description,
+                        CreateAt = s.CreateAt,
+                        UpdateAt = s.UpdateAt
+                    })
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all services for admin");
+                return new List<ServiceAdminDTO>();
             }
         }
     }

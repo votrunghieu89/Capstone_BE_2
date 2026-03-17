@@ -84,8 +84,9 @@ namespace Capstone_2_BE.Services.Customer
                     FullName = acceptedTechnician.FullName,
                     avatarURL = acceptedTechnician.avatarURL,
                     ServiceName = acceptedTechnician.ServiceName,
-                    Score = acceptedTechnician.Score,
-                    OrderCount =  acceptedTechnician.OrderCount
+                    Score = acceptedTechnician.AvgScore,
+                    OrderCount =  acceptedTechnician.OrderCount,
+                    RatingCount = acceptedTechnician.RatingCount
                 };
                 techinician.avatarURL = await _aws.ReadImage(acceptedTechnician.avatarURL);
                 return Result<AutoFindFixerResSuccessDTO>.Success(techinician, 200);
