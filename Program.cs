@@ -24,8 +24,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-
-
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Integration System API", Version = "v1" });
@@ -125,6 +123,10 @@ builder.Services.AddScoped<ICustomerProfileRepo, CustomerProfileDAL>();
 builder.Services.AddScoped<CustomerProfileService>();
 builder.Services.AddScoped<ICustomerOrderRepo, CustomerOrderDAL>();
 builder.Services.AddScoped<CustomerOrderService>();
+
+// Register Customer ViewAllTechnician DAL and Service
+builder.Services.AddScoped<ICustomerViewAllTechnicianRepo, CustomerViewAllTechnicianDAL>();
+builder.Services.AddScoped<CustomerViewAllTechnicianService>();
 
 // Register AWS S3
 builder.Services.AddScoped<AWS>();
