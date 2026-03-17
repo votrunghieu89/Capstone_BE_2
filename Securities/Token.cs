@@ -31,7 +31,6 @@ namespace Capstone_2_BE.Securities
                  expires: DateTime.Now.AddHours(2),
                  signingCredentials: credentials
              );
-
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
