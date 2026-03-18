@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260316135541_dbver1")]
+    [Migration("20260318073832_dbver1")]
     partial class dbver1
     {
         /// <inheritdoc />
@@ -312,6 +312,10 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Feedback");
 
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("OrderId");
+
                     b.Property<decimal>("Score")
                         .HasPrecision(3, 2)
                         .HasColumnType("decimal(3,2)")
@@ -328,6 +332,9 @@ namespace Capstone_2_BE.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
 
                     b.HasIndex("TechnicianId");
 
@@ -423,6 +430,16 @@ namespace Capstone_2_BE.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreateAt");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Description");
+
+                    b.Property<string>("Experiences")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Experiences");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -541,6 +558,12 @@ namespace Capstone_2_BE.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Capstone_2_BE.Models.OrderrModel", "Orders")
+                        .WithOne("Rating")
+                        .HasForeignKey("Capstone_2_BE.Models.RatingModel", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Capstone_2_BE.Models.TechnicianProfileModel", "TechnicianProfile")
                         .WithMany("Rating")
                         .HasForeignKey("TechnicianId")
@@ -548,6 +571,8 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("CustomerProfile");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("TechnicianProfile");
                 });
@@ -605,6 +630,9 @@ namespace Capstone_2_BE.Migrations
                     b.Navigation("OrderAttachments");
 
                     b.Navigation("OrderStatusHistory");
+
+                    b.Navigation("Rating")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.ServiceCategoriesModel", b =>

@@ -143,22 +143,20 @@ namespace Capstone_2_BE.Controllers.Technician
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
 
-        /*
         /// <summary>
         /// Hoàn thành đơn hàng (In Progress -> Completed)
-        /// NOTE: CompleteOrder is commented in DAL and Service. Keep commented here for consistency.
+        /// NOTE: CompleteOrder is commented in DAL. Keep commented here for consistency.
         /// </summary>
-        [HttpPost("complete")]
-        public async Task<IActionResult> CompleteOrder([FromBody] OrderActionDTO orderActionDTO)
+        [HttpPost("complete/{orderId}")]
+        public async Task<IActionResult> CompleteOrder(Guid orderId)
         {
-            var result = await _technicianOrderService.CompleteOrder(orderActionDTO);
+            var result = await _technicianOrderService.CompleteOrder(orderId);
             if (!result.IsSuccess)
             {
                 return StatusCode(result.StatusCode, new { message = result.Error });
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
-        */
 
         /// <summary>
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)

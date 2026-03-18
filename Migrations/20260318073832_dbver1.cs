@@ -91,6 +91,8 @@ namespace Capstone_2_BE.Migrations
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     AvatarURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdUnique = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Experiences = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderCount = table.Column<int>(type: "int", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -147,36 +149,6 @@ namespace Capstone_2_BE.Migrations
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Orders_TechnicianProfile_TechnicianId",
-                        column: x => x.TechnicianId,
-                        principalTable: "TechnicianProfile",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Rating",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TechnicianId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Score = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false),
-                    Feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rating", x => x.Id);
-                    table.CheckConstraint("CK_Rating_Score", "[Score] BETWEEN 1 AND 5");
-                    table.ForeignKey(
-                        name: "FK_Rating_CustomerProfile_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "CustomerProfile",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Rating_TechnicianProfile_TechnicianId",
                         column: x => x.TechnicianId,
                         principalTable: "TechnicianProfile",
                         principalColumn: "Id",
@@ -258,6 +230,43 @@ namespace Capstone_2_BE.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Rating",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TechnicianId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false),
+                    Feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rating", x => x.Id);
+                    table.CheckConstraint("CK_Rating_Score", "[Score] BETWEEN 1 AND 5");
+                    table.ForeignKey(
+                        name: "FK_Rating_CustomerProfile_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "CustomerProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Rating_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rating_TechnicianProfile_TechnicianId",
+                        column: x => x.TechnicianId,
+                        principalTable: "TechnicianProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_OrderAttachments_OrderId",
                 table: "OrderAttachments",
@@ -292,6 +301,12 @@ namespace Capstone_2_BE.Migrations
                 name: "IX_Rating_CustomerId",
                 table: "Rating",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rating_OrderId",
+                table: "Rating",
+                column: "OrderId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_TechnicianId",
