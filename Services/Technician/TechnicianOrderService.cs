@@ -161,7 +161,7 @@ namespace Capstone_2_BE.Services.Technician
         /// <summary>
         /// Xác nhận đơn hàng (Pending Confirmation -> Confirmed)
         /// </summary>
-        public async Task<Result<string>> ConfirmOrder(OrderActionDTO orderActionDTO)
+        public async Task<Result<OrderActionResDTO>> ConfirmOrder(OrderActionDTO orderActionDTO)
         {
             try
             {
@@ -180,26 +180,26 @@ namespace Capstone_2_BE.Services.Technician
                     if(isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        return Result<string>.Success("Xác nhận đơn hàng thành công", 200);
+                        return Result<OrderActionResDTO>.Success(result, 200);
                     }
-                    return Result<string>.Failure("Không thể xác nhận đơn hàng. Lỗi hệ thống", 400);
+                    return Result<OrderActionResDTO>.Failure("Không thể xác nhận đơn hàng. Lỗi hệ thống", 400);
                 }
                 else
                 {
-                    return Result<string>.Failure("Không thể xác nhận đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái chờ xác nhận", 400);
+                    return Result<OrderActionResDTO>.Failure("Không thể xác nhận đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái chờ xác nhận", 400);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error confirming order ID: {OrderId}", orderActionDTO.OrderId);
-                return Result<string>.Failure("Lỗi khi xác nhận đơn hàng", 500);
+                return Result<OrderActionResDTO>.Failure("Lỗi khi xác nhận đơn hàng", 500);
             }
         }
 
         /// <summary>
         /// Bắt đầu thực hiện đơn hàng (Confirmed -> In Progress)
         /// </summary>
-        public async Task<Result<string>> StartOrder(OrderActionDTO orderActionDTO)
+        public async Task<Result<OrderActionResDTO>> StartOrder(OrderActionDTO orderActionDTO)
         {
             try
             {
@@ -207,7 +207,7 @@ namespace Capstone_2_BE.Services.Technician
                 var inProgressOrder = await _technicianOrderRepo.GetInProgressOrders(orderActionDTO.AccountId);
                 if (inProgressOrder != null)
                 {
-                    return Result<string>.Failure("Bạn đang có một đơn hàng đang thực hiện. Vui lòng hoàn thành đơn hàng hiện tại trước", 400);
+                    return Result<OrderActionResDTO>.Failure("Bạn đang có một đơn hàng đang thực hiện. Vui lòng hoàn thành đơn hàng hiện tại trước", 400);
                 }
 
                 OrderActionResDTO result = await _technicianOrderRepo.StartOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
@@ -225,55 +225,67 @@ namespace Capstone_2_BE.Services.Technician
                     if (isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        return Result<string>.Success("Bắt đầu thực hiện đơn hàng thành công", 200);
+                        return Result<OrderActionResDTO>.Success(result, 200);
                     }
-                    return Result<string>.Failure("Không thể bắt đầu đơn hàng. Lỗi hệ thống", 400);
+                    return Result<OrderActionResDTO>.Failure("Không thể bắt đầu đơn hàng. Lỗi hệ thống", 400);
                 }
                 else
                 {
-                    return Result<string>.Failure("Không thể bắt đầu đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái đã xác nhận", 400);
+                    return Result<OrderActionResDTO>.Failure("Không thể bắt đầu đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái đã xác nhận", 400);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error starting order ID: {OrderId}", orderActionDTO.OrderId);
-                return Result<string>.Failure("Lỗi khi bắt đầu thực hiện đơn hàng", 500);
+                return Result<OrderActionResDTO>.Failure("Lỗi khi bắt đầu thực hiện đơn hàng", 500);
             }
         }
 
-        /*
+        
         /// <summary>
         /// Hoàn thành đơn hàng (In Progress -> Completed)
         /// NOTE: CompleteOrder is commented in DAL. Keep commented here for consistency.
         /// </summary>
-        //public async Task<Result<string>> CompleteOrder(OrderActionDTO orderActionDTO)
-        //{
-        //    try
-        //    {
-        //        var result = await _technicianOrderRepo.CompleteOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
-        //        
-        //        if (result)
-        //        {
-        //            return Result<string>.Success("Hoàn thành đơn hàng thành công", 200);
-        //        }
-        //        else
-        //        {
-        //            return Result<string>.Failure("Không thể hoàn thành đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái đang thực hiện", 400);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error completing order ID: {OrderId}", orderActionDTO.OrderId);
-        //        return Result<string>.Failure("Lỗi khi hoàn thành đơn hàng", 500);
-        //    }
-        //}
-        */
+        public async Task<Result<string>> CompleteOrder(Guid orderId)
+        {
+            try
+            {
+                var result = await _technicianOrderRepo.CompletedOrder(orderId);
+                
+                if (result != null)
+                {
+                    InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
+                    {
+                        SenderId = result.SenderId,
+                        ReceiverId = result.ReceiverId,
+                        Message = $"Đơn hàng {result.OrderName} đã được hoàn thành. Vui lòng xác nhận.",
+                        CratedAt = result.CreatedAt
+                    };
+                    var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
+                    if (isInsert)
+                    {
+                        await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        return Result<string>.Success("Hoàn thành đơn hàng thành công", 200);
+                    }
+                    return Result<string>.Failure("Không thể hoàn thành đơn hàng. Lỗi hệ thống", 400);
+                }
+                else
+                {
+                    return Result<string>.Failure("Không thể hoàn thành đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái đang thực hiện", 400);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failure("Lỗi khi hoàn thành đơn hàng", 500);
+            }
+        }
+        
 
         /// <summary>
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)
         /// Maps to repository's RejectedOrder method
         /// </summary>
-        public async Task<Result<string>> RejectedOrder(OrderActionDTO orderActionDTO)
+        public async Task<Result<OrderActionResDTO>> RejectedOrder(OrderActionDTO orderActionDTO)
         {
             try
             {
@@ -292,19 +304,19 @@ namespace Capstone_2_BE.Services.Technician
                     if (isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        return Result<string>.Success("Hủy đơn hàng thành công", 200);
+                        return Result<OrderActionResDTO>.Success(result, 200);
                     }
-                    return Result<string>.Failure("Không thể hủy đơn hàng. Lỗi hệ thống", 400);
+                    return Result<OrderActionResDTO>.Failure("Không thể hủy đơn hàng. Lỗi hệ thống", 400);
                 }
                 else
                 {
-                    return Result<string>.Failure("Không thể hủy đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái chờ xác nhận", 400);
+                    return Result<OrderActionResDTO>.Failure("Không thể hủy đơn hàng. Đơn hàng không tồn tại hoặc không ở trạng thái chờ xác nhận", 400);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error canceling order ID: {OrderId}", orderActionDTO.OrderId);
-                return Result<string>.Failure("Lỗi khi hủy đơn hàng", 500);
+                return Result<OrderActionResDTO>.Failure("Lỗi khi hủy đơn hàng", 500);
             }
         }
     }

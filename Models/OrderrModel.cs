@@ -40,6 +40,7 @@ namespace Capstone_2_BE.Models
         public CustomerProfileModel  CustomerProfile { get; set; }
         public TechnicianProfileModel TechnicianProfile { get; set; }
         public ServiceCategoriesModel ServiceCategories { get; set; }
+        public RatingModel Rating { get; set; }
         public ICollection<OrderAttachmentsModel> OrderAttachments { get; set; }
         public ICollection<OrderStatusHistoryModel> OrderStatusHistory { get; set; } 
 

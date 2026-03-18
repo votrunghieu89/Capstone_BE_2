@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Technician.Rating;
+﻿using Capstone_2_BE.DTOs.Technician.Orders;
+using Capstone_2_BE.DTOs.Technician.Rating;
 
 namespace Capstone_2_BE.Repositories
 {
@@ -6,5 +7,6 @@ namespace Capstone_2_BE.Repositories
     {
         Task<TechnicianRatingViewDTO> getTechniqueRateOverview(Guid technicianId);
         Task<List<TechnicianFeedbackViewDTO>> getTechniqueFeedBack(Guid technicianId);
+        Task<TechnicianGetOrderFromFeedbackDTO> getDetailOrderofFeedback(Guid feedbackId);
     }
 }

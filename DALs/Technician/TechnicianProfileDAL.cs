@@ -59,7 +59,9 @@ namespace Capstone_2_BE.DALs.Technician
                                             TotalRating = totalRatings,
                                             TotalOrders = t.OrderCount,
                                             CreateAt = t.CreateAt,
-                                            ServiceName = s.ServiceName
+                                            ServiceName = s.ServiceName,
+                                            Description = t.Description,
+                                            Experiences = t.Experiences
                                         }
                                     ).FirstOrDefaultAsync();
 
@@ -85,6 +87,8 @@ namespace Capstone_2_BE.DALs.Technician
                         .SetProperty(p => p.City, technicianProfileUpdateDTO.City)
                         .SetProperty(p => p.Latitude, technicianProfileUpdateDTO.Latitude)
                         .SetProperty(p => p.Longitude, technicianProfileUpdateDTO.Longitude)
+                        .SetProperty(p => p.Description, technicianProfileUpdateDTO.Description)
+                        .SetProperty(p => p.Experiences, technicianProfileUpdateDTO.Experiences)
                     );
                     if (isUpdateInfor == 0)
                     {

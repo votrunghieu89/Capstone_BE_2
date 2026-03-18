@@ -50,6 +50,8 @@ namespace Capstone_2_BE
                 entity.Property(e => e.IdUnique).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
                 entity.Property(e => e.Address);
+                entity.Property(e => e.Description);
+                entity.Property(e => e.Experiences);
                 entity.Property(e => e.OrderCount);
                 entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
@@ -170,6 +172,12 @@ namespace Capstone_2_BE
                     .WithMany(t => t.Rating)
                     .HasForeignKey(e => e.TechnicianId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                // Quan hệ 1-1 với OrderrModel
+                entity.HasOne(e => e.Orders)
+                    .WithOne(o => o.Rating)
+                    .HasForeignKey<RatingModel>(e => e.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // NotificationsModel Configuration

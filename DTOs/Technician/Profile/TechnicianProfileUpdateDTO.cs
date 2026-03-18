@@ -11,5 +11,7 @@
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
         public Guid ServiceId { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string Experiences { get; set; } = string.Empty;
     }
 }

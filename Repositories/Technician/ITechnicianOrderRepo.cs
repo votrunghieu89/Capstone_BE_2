@@ -17,7 +17,7 @@ namespace Capstone_2_BE.Repositories
         // Xem đơn hàng bị từ chối ( do kỹ thuật viên từ chối)
         Task<List<ViewOrderDTO>> GetRejectedOrders(Guid technicianId);
         // View Order Details
-        Task<string> GetOrderDetails(Guid orderId, Guid technicianId);
+        Task<ViewOrderDetailDTO> GetOrderDetails(Guid orderId, Guid technicianId);
         // Change Confirming Order to Confirmed
         Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid AccountId);
         // Changge Confirmed Order to In Progress
@@ -26,5 +26,6 @@ namespace Capstone_2_BE.Repositories
         //Task<bool> CompleteOrder(Guid orderId, Guid AccountId);
         // Cancel Order
         Task<OrderActionResDTO> RejectedOrder(Guid orderId, Guid AccountId);
+        Task<OrderActionResDTO> CompletedOrder(Guid orderId);
     }
 }

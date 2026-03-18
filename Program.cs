@@ -115,7 +115,8 @@ builder.Services.AddScoped<ITechnicianRatingRepo, TechnicianRatingDAL>();
 builder.Services.AddScoped<TechnicianRatingService>();
 builder.Services.AddScoped<ITechnicianOrderRepo, TechnicianOrderDAL>();
 builder.Services.AddScoped<TechnicianOrderService>();
-
+builder.Services.AddScoped<ITechnicianStatisticRepo, TechnicianStatisticDAL>();
+builder.Services.AddScoped<TechnicianStatisticService>();
 // Register Customer repositories and services
 builder.Services.AddScoped<ICustomerAutoFindRepo, CustomerAutoFindDAL>();
 builder.Services.AddScoped<CustomerAutoFindService>();

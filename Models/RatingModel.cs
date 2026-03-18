@@ -13,6 +13,10 @@ namespace Capstone_2_BE.Models
         public Guid TechnicianId { get; set; }
         [Column("CustomerId")]
         public Guid CustomerId { get; set; }
+
+        [Column("OrderId")]
+        public Guid OrderId { get; set; }
+
         [Column("Score")]
         public decimal Score { get; set; }
         [Column("Feedback")]
@@ -25,5 +29,6 @@ namespace Capstone_2_BE.Models
         public DateTime UpdateAt { get; set; }
         public CustomerProfileModel CustomerProfile { get; set; }
         public TechnicianProfileModel TechnicianProfile { get; set; }
+        public OrderrModel Orders { get; set; }
     }
 }

@@ -54,7 +54,6 @@ namespace Capstone_2_BE.Services.Technician
                     return Result<List<TechnicianFeedbackViewDTO>>.Success(new List<TechnicianFeedbackViewDTO>(), 200);
                 }
 
-                // Convert all customer avatar keys to public URLs
                 foreach (var feedback in feedbacks)
                 {
                     if (!string.IsNullOrEmpty(feedback.CustomerAvatarURL))
@@ -72,41 +71,24 @@ namespace Capstone_2_BE.Services.Technician
             }
         }
 
-        //public async Task<Result<TechnicianRatingDetailDTO>> GetTechnicianRatingDetail(Guid technicianId)
-        //{
-        //    try
-        //    {
-        //        // Get rating overview
-        //        var overviewResult = await GetTechnicianRatingOverview(technicianId);
-        //        if (!overviewResult.IsSuccess)
-        //        {
-        //            return Result<TechnicianRatingDetailDTO>.Failure(overviewResult.Error, overviewResult.StatusCode);
-        //        }
+        public async Task<Result<TechnicianGetOrderFromFeedbackDTO>> GetDetailOrderofFeedback(Guid feedbackId)
+        {
+            try
+            {
+                var orderDetail = await _technicianRatingRepo.getDetailOrderofFeedback(feedbackId);
+                
+                if (orderDetail == null)
+                {
+                    return Result<TechnicianGetOrderFromFeedbackDTO>.Failure("Không tìm thấy thông tin đơn hàng từ đánh giá này", 404);
+                }
 
-        //        // Get feedbacks
-        //        var feedbacksResult = await GetTechnicianFeedbacks(technicianId);
-        //        if (!feedbacksResult.IsSuccess)
-        //        {
-        //            return Result<TechnicianRatingDetailDTO>.Failure(feedbacksResult.Error, feedbacksResult.StatusCode);
-        //        }
-
-        //        var detail = new TechnicianRatingDetailDTO
-        //        {
-        //            Id = overviewResult.Data.Id,
-        //            FullName = overviewResult.Data.FullName,
-        //            AvatarURL = overviewResult.Data.AvatarURL,
-        //            AverageScore = overviewResult.Data.AvgScore,
-        //            TotalFeedbacks = feedbacksResult.Data.Count,
-        //            Feedbacks = feedbacksResult.Data
-        //        };
-
-        //        return Result<TechnicianRatingDetailDTO>.Success(detail, 200);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error getting technician rating detail for ID: {TechnicianId}", technicianId);
-        //        return Result<TechnicianRatingDetailDTO>.Failure("Lỗi khi lấy chi tiết đánh giá kỹ thuật viên", 500);
-        //    }
-        //}
+                return Result<TechnicianGetOrderFromFeedbackDTO>.Success(orderDetail, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting order details for feedback ID: {FeedbackId}", feedbackId);
+                return Result<TechnicianGetOrderFromFeedbackDTO>.Failure("Lỗi khi lấy thông tin đơn hàng từ đánh giá", 500);
+            }
+        }
     }
 }

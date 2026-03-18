@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Technician.Rating;
+﻿using Capstone_2_BE.DTOs.Technician.Orders;
+using Capstone_2_BE.DTOs.Technician.Rating;
 using Capstone_2_BE.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,14 +7,43 @@ namespace Capstone_2_BE.DALs.Technician
 {
     public class TechnicianRatingDAL : ITechnicianRatingRepo
     {
-        public readonly AppDbContext _context;
-        public readonly ILogger<TechnicianRatingDAL> _logger;
+        private readonly AppDbContext _context;
+        private readonly ILogger<TechnicianRatingDAL> _logger;
 
         public TechnicianRatingDAL(AppDbContext context, ILogger<TechnicianRatingDAL> logger)
         {
             _context = context;
             _logger = logger;
         }
+
+        public async Task<TechnicianGetOrderFromFeedbackDTO> getDetailOrderofFeedback(Guid feedbackId)
+        {
+            try
+            {
+                var result = await (from r in _context.RatingModel
+                                    join o in _context.OrderrModel on r.OrderId equals o.Id
+                                    join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                    where r.Id == feedbackId
+                                    select new TechnicianGetOrderFromFeedbackDTO
+                                    {
+                                        OrderId = o.Id,
+                                        CustomerName = c.FullName,
+                                        Title = o.Title,
+                                        Description = o.Description,
+                                        Address = o.Address,
+                                        City = o.City,
+                                        Status = o.Status,
+                                        OrderDate = o.CreateAt
+                                    }).FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting order details for feedback ID: {FeedbackId}", feedbackId);
+                throw;
+            }
+        }
+
         public async Task<List<TechnicianFeedbackViewDTO>> getTechniqueFeedBack(Guid technicianId)
         {
             try
@@ -23,6 +53,8 @@ namespace Capstone_2_BE.DALs.Technician
                                        where r.TechnicianId == technicianId
                                        select new TechnicianFeedbackViewDTO
                                        {
+                                           FeedbackId = r.Id,
+                                           OrderId = r.OrderId,
                                            CustomerId = c.Id,
                                            CustomerFullName = c.FullName,
                                            CustomerAvatarURL = c.AvatarURL,
@@ -35,7 +67,7 @@ namespace Capstone_2_BE.DALs.Technician
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting technician feedback for ID: {TechnicianId}", technicianId);
-                return null;
+                throw;
             }
         }
 
@@ -43,7 +75,8 @@ namespace Capstone_2_BE.DALs.Technician
         {
             try
             {
-                var result = await _context.TechnicianProfileModel.Where(t => t.Id == technicianId)
+                var result = await _context.TechnicianProfileModel
+                    .Where(t => t.Id == technicianId)
                     .Select(t => new TechnicianRatingViewDTO
                     {
                         Id = t.Id,
@@ -54,12 +87,13 @@ namespace Capstone_2_BE.DALs.Technician
                         TotalOrders = t.OrderCount
                     })
                     .FirstOrDefaultAsync();
+
                 return result;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting technician rating overview for ID: {TechnicianId}", technicianId);
-                return null;
+                throw;
             }
         }
     }

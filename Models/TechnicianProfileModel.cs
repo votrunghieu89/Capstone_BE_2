@@ -16,6 +16,11 @@ namespace Capstone_2_BE.Models
 
         [Column("IdUnique")]
         public string IdUnique { get; set; }
+
+        [Column("Description")]
+        public string Description { get; set; } = string.Empty;
+        [Column("Experiences")]
+        public string Experiences { get; set; } = string.Empty;
         [Column("OrderCount")]
         public int OrderCount { get; set; }
         [Column("Address")]

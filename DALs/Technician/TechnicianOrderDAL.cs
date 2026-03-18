@@ -253,7 +253,7 @@ namespace Capstone_2_BE.DALs.Technician
                 {
                     try
                     {
-                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "Pending Confirmation").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Refuse"));
+                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "Pending Confirmation").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Rejected"));
                         if (isUpdated > 0)
                         {
                             OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
@@ -320,9 +320,33 @@ namespace Capstone_2_BE.DALs.Technician
             }
         }
 
-        public Task<string> GetOrderDetails(Guid orderId, Guid technicianId)
+        public Task<ViewOrderDetailDTO> GetOrderDetails(Guid orderId, Guid technicianId)
         {
             throw new NotImplementedException();
+        }
+        public async Task<OrderActionResDTO> CompletedOrder(Guid orderId)
+        {
+            try
+            {
+                var order = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "In Progress").Select(
+                    o => new OrderActionResDTO
+                    {
+                        OrderId = o.Id,
+                        SenderId = o.TechnicianId,
+                        ReceiverId = o.CustomerId,
+                        OrderName = o.Title,
+                        CreatedAt = o.CreateAt,
+                    }).FirstOrDefaultAsync();
+                if (order == null)
+                {
+                    return null;
+                }
+                return order;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }

@@ -55,7 +55,9 @@ namespace Capstone_2_BE.Services.Technician
                     Address = updateDTO.Address,
                     Latitude = updateDTO.Latitude,
                     Longitude = updateDTO.Longitude,
-                    ServiceId = updateDTO.ServiceId
+                    ServiceId = updateDTO.ServiceId,
+                    Description = updateDTO.Description,
+                    Experiences = updateDTO.Experiences
                 };
 
                 // Xử lý upload avatar nếu có
