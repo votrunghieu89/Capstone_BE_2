@@ -51,9 +51,9 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string q)
+        public async Task<IActionResult> Search([FromQuery] string TechnicianName)
         {
-            var result = await _service.SearchByName(q);
+            var result = await _service.SearchByName(TechnicianName);
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
             return StatusCode(result.StatusCode, result.Data);
         }
