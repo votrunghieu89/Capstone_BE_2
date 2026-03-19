@@ -4,7 +4,7 @@
     {
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-        public string City { get; set; }
+        public Guid CityId { get; set; }
         public Guid ServiceId { get; set; }
     }
 }

@@ -25,8 +25,8 @@ namespace Capstone_2_BE.Models
         public int OrderCount { get; set; }
         [Column("Address")]
         public string Address { get; set; } = string.Empty;
-        [Column("City")]
-        public string City { get; set; } = string.Empty;
+        [Column("CityId")]
+        public Guid CityId { get; set; } 
         [Column("Latitude")]
         public decimal Latitude { get; set; } 
         [Column("Longtitude")]
@@ -39,6 +39,7 @@ namespace Capstone_2_BE.Models
         [Column("UpdateAt")]
         public DateTime UpdateAt { get; set; }
         public AccountsModel Accounts { get; set; }
+        public CitiesModel CitiesModel { get; set; }
         public ICollection<Service_ProfileModel> Service_Profiles { get; set; }
         public ICollection<OrderrModel> Orders { get; set; }
         public ICollection<RatingModel> Rating { get; set; }

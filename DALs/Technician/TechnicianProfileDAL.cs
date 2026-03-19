@@ -59,6 +59,9 @@ namespace Capstone_2_BE.DALs.Technician
                                           on t.Id equals a.Id into aGroup
                                       from a in aGroup.DefaultIfEmpty()
 
+                                      join ct in _context.CitiesModel
+                                          on t.CityId equals ct.Id into cGroup
+                                      from ct in cGroup.DefaultIfEmpty()
                                       where t.Id == technicianId
                                       select new TechnicianProfileViewDTO
                                       {
@@ -67,7 +70,7 @@ namespace Capstone_2_BE.DALs.Technician
                                           AvatarURL = t.AvatarURl,
                                           PhoneNumber = t.PhoneNumber,
                                           Address = t.Address,
-                                          City = t.City,
+                                          City = ct.CityName,
                                           AverageRating = (decimal)avgScore,
                                           TotalRating = totalRatings,
                                           TotalOrders = t.OrderCount,
@@ -97,7 +100,7 @@ namespace Capstone_2_BE.DALs.Technician
                         .SetProperty(p => p.FullName, technicianProfileUpdateDTO.FullName)
                         .SetProperty(p => p.PhoneNumber, technicianProfileUpdateDTO.PhoneNumber)
                         .SetProperty(p => p.Address, technicianProfileUpdateDTO.Address)
-                        .SetProperty(p => p.City, technicianProfileUpdateDTO.City)
+                        .SetProperty(p => p.CityId, technicianProfileUpdateDTO.CityId)
                         .SetProperty(p => p.Latitude, technicianProfileUpdateDTO.Latitude)
                         .SetProperty(p => p.Longitude, technicianProfileUpdateDTO.Longitude)
                         .SetProperty(p => p.Description, technicianProfileUpdateDTO.Description)

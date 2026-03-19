@@ -27,9 +27,9 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("by-area/{city}")]
-        public async Task<IActionResult> ByArea(string city)
+        public async Task<IActionResult> ByArea(Guid cityId)
         {
-            var result = await _service.FilterByArea(city);
+            var result = await _service.FilterByArea(cityId);
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
             return StatusCode(result.StatusCode, result.Data);
         }

@@ -124,6 +124,8 @@ builder.Services.AddScoped<ICustomerProfileRepo, CustomerProfileDAL>();
 builder.Services.AddScoped<CustomerProfileService>();
 builder.Services.AddScoped<ICustomerOrderRepo, CustomerOrderDAL>();
 builder.Services.AddScoped<CustomerOrderService>();
+builder.Services.AddScoped<ICustomerRatingRepo, CustomerRatingDAL>();
+builder.Services.AddScoped<CustomerRatingService>();
 
 // Register Customer ViewAllTechnician DAL and Service
 builder.Services.AddScoped<ICustomerViewAllTechnicianRepo, CustomerViewAllTechnicianDAL>();

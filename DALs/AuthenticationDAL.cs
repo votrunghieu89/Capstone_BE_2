@@ -238,7 +238,7 @@ namespace Capstone_2_BE.DALs
                             PhoneNumber = authRegisterDTO.PhoneNumber,
                             IdUnique = UniqueId,
                             Address = authRegisterDTO.Address,
-                            City = authRegisterDTO.City,
+                            CityId = authRegisterDTO.CityId,
                             Latitude = authRegisterDTO.Latitude,
                             Longitude = authRegisterDTO.Longitude,
                             CreateAt = DateTime.Now,

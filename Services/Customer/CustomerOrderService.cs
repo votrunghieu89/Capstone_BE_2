@@ -1,4 +1,4 @@
-using Capstone_2_BE.DTOs.Customer.Order;
+Ôªøusing Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.Repositories.Customer;
@@ -40,7 +40,7 @@ namespace Capstone_2_BE.Services.Customer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting current orders for customer {CustomerId}", customerId);
-                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh s·ch ??n hi?n t?i", 500);
+                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh s√°ch ??n hi?n t?i", 500);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Capstone_2_BE.Services.Customer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting order history for customer {CustomerId}", customerId);
-                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y l?ch s? ??n h‡ng", 500);
+                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y l?ch s? ??n h√†ng", 500);
             }
         }
 
@@ -76,7 +76,7 @@ namespace Capstone_2_BE.Services.Customer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting cancelled orders for customer {CustomerId}", customerId);
-                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh s·ch ??n ?„ h?y", 500);
+                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh s√°ch ??n ?√£ h?y", 500);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Capstone_2_BE.Services.Customer
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting rejected orders for customer {CustomerId}", customerId);
-                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh s·ch ??n b? t? ch?i", 500);
+                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh s√°ch ??n b? t? ch?i", 500);
             }
         }
 
@@ -110,7 +110,7 @@ namespace Capstone_2_BE.Services.Customer
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = "Kh·ch h‡ng ?„ h?y ??n h‡ng c?a b?n.",
+                        Message = "Kh√°ch h√†ng ?√£ h?y ??n h√†ng c?a b?n.",
                         CratedAt = result.CreatedAt
                     };
 
@@ -118,17 +118,17 @@ namespace Capstone_2_BE.Services.Customer
                     if (isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        return Result<string>.Success("H?y ??n h‡ng th‡nh cÙng", 200);
+                        return Result<string>.Success("H?y ??n h√†ng th√†nh c√¥ng", 200);
                     }
 
-                    return Result<string>.Failure("KhÙng th? h?y ??n h‡ng. L?i h? th?ng", 400);
+                    return Result<string>.Failure("Kh√¥ng th? h?y ??n h√†ng. L?i h? th?ng", 400);
                 }
-                return Result<string>.Failure("KhÙng th? h?y ??n h‡ng", 400);
+                return Result<string>.Failure("Kh√¥ng th? h?y ??n h√†ng", 400);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error cancelling order {OrderId}", orderActionDTO.OrderId);
-                return Result<string>.Failure("L?i khi h?y ??n h‡ng", 500);
+                return Result<string>.Failure("L?i khi h?y ??n h√†ng", 500);
             }
         }
 
@@ -143,7 +143,7 @@ namespace Capstone_2_BE.Services.Customer
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = "Kh·ch h‡ng ?„ x·c nh?n ho‡n th‡nh ??n h‡ng.",
+                        Message = "Kh√°ch h√†ng ?√£ x√°c nh?n ho√†n th√†nh ??n h√†ng.",
                         CratedAt = result.CreatedAt
                     };
 
@@ -151,17 +151,17 @@ namespace Capstone_2_BE.Services.Customer
                     if (isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        return Result<string>.Success("X·c nh?n ho‡n th‡nh ??n h‡ng th‡nh cÙng", 200);
+                        return Result<string>.Success("X√°c nh?n ho√†n th√†nh ??n h√†ng th√†nh c√¥ng", 200);
                     }
 
-                    return Result<string>.Failure("KhÙng th? x·c nh?n ??n h‡ng. L?i h? th?ng", 400);
+                    return Result<string>.Failure("Kh√¥ng th? x√°c nh?n ??n h√†ng. L?i h? th?ng", 400);
                 }
-                return Result<string>.Failure("KhÙng th? x·c nh?n ??n h‡ng", 400);
+                return Result<string>.Failure("Kh√¥ng th? x√°c nh?n ??n h√†ng", 400);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error confirming completed order {OrderId}", orderActionDTO.OrderId);
-                return Result<string>.Failure("L?i khi x·c nh?n ho‡n th‡nh ??n h‡ng", 500);
+                return Result<string>.Failure("L?i khi x√°c nh?n ho√†n th√†nh ??n h√†ng", 500);
             }
         }
 
@@ -177,7 +177,7 @@ namespace Capstone_2_BE.Services.Customer
                     Title = createOrderDTO.Title,
                     Description = createOrderDTO.Description,
                     Address = createOrderDTO.Address,
-                    City = createOrderDTO.City,
+                    CityId = createOrderDTO.City,
                     Latitude = createOrderDTO.Latitude,
                     Longitude = createOrderDTO.Longitude,
                     videoUrl = createOrderDTO.VideoFileName,
@@ -186,12 +186,12 @@ namespace Capstone_2_BE.Services.Customer
 
                 var ok = await _customerOrderRepo.InsertOrder(dalDto);
                 if (ok) return Result<bool>.Success(true, 200);
-                return Result<bool>.Failure("??t ??n h‡ng th?t b?i", 400);
+                return Result<bool>.Failure("??t ??n h√†ng th?t b?i", 400);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error inserting order for customer {CustomerId}", createOrderDTO.CustomerId);
-                return Result<bool>.Failure("L?i khi ??t ??n h‡ng", 500);
+                return Result<bool>.Failure("L?i khi ??t ??n h√†ng", 500);
             }
         }
 
@@ -207,7 +207,7 @@ namespace Capstone_2_BE.Services.Customer
                     Title = form.Title,
                     Description = form.Description,
                     Address = form.Address,
-                    City = form.City,
+                    CityId = form.CityId,
                     Latitude = form.Latitude,
                     Longitude = form.Longitude,
                     ImageOrderUrl = new List<string>(),
@@ -240,18 +240,48 @@ namespace Capstone_2_BE.Services.Customer
 
                 var ok = await _customerOrderRepo.InsertOrder(dalDto);
                 if (ok) return Result<bool>.Success(true, 200);
-                return Result<bool>.Failure("??t ??n h‡ng th?t b?i", 400);
+                return Result<bool>.Failure("??t ??n h√†ng th?t b?i", 400);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error inserting order for customer {CustomerId}", form.CustomerId);
-                return Result<bool>.Failure("L?i khi ??t ??n h‡ng", 500);
+                return Result<bool>.Failure("L?i khi ??t ??n h√†ng", 500);
             }
         }
 
-        public Task<Result<List<OrderOverviewDTO>>> GetOrderDetail(Guid orderId)
+        public async Task<Result<OrderDetailDTO>> GetOrderDetail(Guid orderId)
         {
-            return Task.FromResult(Result<List<OrderOverviewDTO>>.Failure("Ch?a tri?n khai", 501));
+            try
+            {
+                var order = await _customerOrderRepo.GetOrderDetail(orderId);
+                if(order.videoUrl != null)
+                {
+                    order.videoUrl = await _aws.ReadImage(order.videoUrl);
+                }
+                if(order.ImageUrls != null && order.ImageUrls.Count > 0)
+                {
+                    var imageUrls = new List<string>();
+                    foreach(var url in order.ImageUrls)
+                    {
+                        var imageUrl = await _aws.ReadImage(url);
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            imageUrls.Add(imageUrl);
+                        }
+                    }
+                    order.ImageUrls = imageUrls;
+                }
+                if (order == null)
+                {
+                    return Result<OrderDetailDTO>.Failure("Kh√¥ng t√¨m th·∫•y ƒë∆°n h√†ng", 404);
+                }
+                return Result<OrderDetailDTO>.Success(order, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting order detail for order {OrderId}", orderId);
+                return Result<OrderDetailDTO>.Failure("L·ªói khi l·∫•y chi ti·∫øt ƒë∆°n h√†ng", 500);
+            }
         }
 
         public Task<Result<string>> UpdateOrder(OrderActionDTO orderActionDTO)

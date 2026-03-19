@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260318073832_dbver1")]
-    partial class dbver1
+    [Migration("20260319081101_dbver_2")]
+    partial class dbver_2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,24 @@ namespace Capstone_2_BE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Account");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.CitiesModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("CityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("CityName");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.CustomerProfileModel", b =>
@@ -225,11 +243,9 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Address");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("City");
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CityId");
 
                     b.Property<DateTime>("CompleteAt")
                         .HasColumnType("datetime2")
@@ -282,6 +298,8 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnName("Title");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CityId");
 
                     b.HasIndex("CustomerId");
 
@@ -421,11 +439,9 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("AvatarURL");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("City");
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CityId");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -479,6 +495,8 @@ namespace Capstone_2_BE.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CityId");
+
                     b.ToTable("TechnicianProfile");
                 });
 
@@ -525,6 +543,12 @@ namespace Capstone_2_BE.Migrations
 
             modelBuilder.Entity("Capstone_2_BE.Models.OrderrModel", b =>
                 {
+                    b.HasOne("Capstone_2_BE.Models.CitiesModel", "Cities")
+                        .WithMany("orderrModels")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Capstone_2_BE.Models.CustomerProfileModel", "CustomerProfile")
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
@@ -542,6 +566,8 @@ namespace Capstone_2_BE.Migrations
                         .HasForeignKey("TechnicianId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Cities");
 
                     b.Navigation("CustomerProfile");
 
@@ -598,6 +624,12 @@ namespace Capstone_2_BE.Migrations
 
             modelBuilder.Entity("Capstone_2_BE.Models.TechnicianProfileModel", b =>
                 {
+                    b.HasOne("Capstone_2_BE.Models.CitiesModel", "CitiesModel")
+                        .WithMany("technicianProfileModels")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Capstone_2_BE.Models.AccountsModel", "Accounts")
                         .WithOne("TechnicianProfile")
                         .HasForeignKey("Capstone_2_BE.Models.TechnicianProfileModel", "Id")
@@ -605,6 +637,8 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Accounts");
+
+                    b.Navigation("CitiesModel");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.AccountsModel", b =>
@@ -616,6 +650,13 @@ namespace Capstone_2_BE.Migrations
 
                     b.Navigation("TechnicianProfile")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.CitiesModel", b =>
+                {
+                    b.Navigation("orderrModels");
+
+                    b.Navigation("technicianProfileModels");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.CustomerProfileModel", b =>

@@ -11,7 +11,7 @@ namespace Capstone_2_BE.Repositories.Customer
         Task<bool> PlaceOrderForTechnician(CreateOrderDALDTO placeOrderDALDTO);
         // Lọc ( rate, khu vực, dịch vụ
         Task<List<ViewAllTechnicianDTO>> FilterTechnicianbyRate(decimal startRate, decimal endRate);
-        Task<List<ViewAllTechnicianDTO>> FilterTechnicianbyArea(string City);
+        Task<List<ViewAllTechnicianDTO>> FilterTechnicianbyArea(Guid CityId);
         Task<List<ViewAllTechnicianDTO>> FilterTechnicianbyService(Guid ServiceId);
         // Tìm kiếm theo họ và tên
         Task<List<ViewAllTechnicianDTO>> SearchTechnicianbyName(string FullName);

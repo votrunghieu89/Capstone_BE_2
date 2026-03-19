@@ -21,8 +21,8 @@ namespace Capstone_2_BE.Models
         public string Description { get; set; } = string.Empty;
         [Column("Address")]
         public string Address { get; set; } = string.Empty;
-        [Column("City")]
-        public string City { get; set; } = string.Empty;
+        [Column("CityId")]
+        public Guid CityId { get; set; }
         [Column("Status")]
         public string Status { get; set; }
         [Column("Price")]
@@ -41,6 +41,7 @@ namespace Capstone_2_BE.Models
         public TechnicianProfileModel TechnicianProfile { get; set; }
         public ServiceCategoriesModel ServiceCategories { get; set; }
         public RatingModel Rating { get; set; }
+        public CitiesModel Cities { get; set; }
         public ICollection<OrderAttachmentsModel> OrderAttachments { get; set; }
         public ICollection<OrderStatusHistoryModel> OrderStatusHistory { get; set; } 
 

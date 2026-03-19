@@ -41,7 +41,12 @@ namespace Capstone_2_BE
                 entity.Property(e => e.IdUnique).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
             });
-
+            // CitiesModel Configuration
+            modelBuilder.Entity<CitiesModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CityName).IsRequired().HasMaxLength(100);
+            });
             // TechnicianProfileModel Configuration
             modelBuilder.Entity<TechnicianProfileModel>(entity =>
             {
@@ -53,9 +58,14 @@ namespace Capstone_2_BE
                 entity.Property(e => e.Description);
                 entity.Property(e => e.Experiences);
                 entity.Property(e => e.OrderCount);
-                entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
                 entity.Property(e => e.Longitude).HasPrecision(10, 7);
+
+                // FK với CitiesModel
+                entity.HasOne(e => e.CitiesModel)
+                    .WithMany(c => c.technicianProfileModels)
+                    .HasForeignKey(e => e.CityId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ServiceCategoriesModel Configuration
@@ -93,10 +103,9 @@ namespace Capstone_2_BE
                      .HasMaxLength(30)
                     .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
                 entity.Property(e => e.Price).HasPrecision(18, 2);
-                entity.Property(e => e.City).HasMaxLength(100);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7);
                 entity.Property(e => e.Longitude).HasPrecision(10, 7);
-                
+
                 // FK với CustomerProfile
                 entity.HasOne(e => e.CustomerProfile)
                     .WithMany(c => c.Orders)
@@ -113,6 +122,12 @@ namespace Capstone_2_BE
                 entity.HasOne(e => e.ServiceCategories)
                     .WithMany()
                     .HasForeignKey(e => e.ServiceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // FK với CitiesModel
+                entity.HasOne(e => e.Cities)
+                    .WithMany(c => c.orderrModels)
+                    .HasForeignKey(e => e.CityId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -190,6 +205,7 @@ namespace Capstone_2_BE
             });
         }
         public DbSet<AccountsModel> AccountsModel { get; set; }
+        public DbSet<CitiesModel> CitiesModel { get; set; }
         public DbSet<CustomerProfileModel> CustomerProfileModel { get; set; }
         public DbSet<TechnicianProfileModel> TechnicianProfileModel { get; set; }
         public DbSet<ServiceCategoriesModel> ServiceCategoriesModel { get; set; }

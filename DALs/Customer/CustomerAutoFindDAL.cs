@@ -24,7 +24,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                         join t in _context.TechnicianProfileModel on a.Id equals t.Id
                                                         join sp in _context.Service_ProfileModel on t.Id equals sp.TechnicianId
                                                         join sc in _context.ServiceCategoriesModel on sp.ServiceId equals sc.Id
-                                                        where a.IsOnline == 1 && t.City == autoFindFixerDTO.City && sp.ServiceId == autoFindFixerDTO.ServiceId
+                                                        where a.IsOnline == 1 && t.CityId == autoFindFixerDTO.CityId && sp.ServiceId == autoFindFixerDTO.ServiceId
                                                         select new
                                                         {
                                                             TechnicianId = t.Id,
@@ -78,7 +78,7 @@ namespace Capstone_2_BE.DALs.Customer
                             Title = placeOrderDALDTO.Title,
                             Description = placeOrderDALDTO.Description,
                             Address = placeOrderDALDTO.Address,
-                            City = placeOrderDALDTO.City,
+                            CityId = placeOrderDALDTO.CityId,
                             Latitude = placeOrderDALDTO.Latitude,
                             Longitude = placeOrderDALDTO.Longitude,
                             CreateAt = DateTime.Now,

@@ -53,7 +53,7 @@ namespace Capstone_2_BE.Services.Technician
                     FullName = updateDTO.FullName,
                     PhoneNumber = updateDTO.PhoneNumber,
                     Address = updateDTO.Address,
-                    City = updateDTO.City,
+                    CityId = updateDTO.CityId,
                     Latitude = updateDTO.Latitude,
                     Longitude = updateDTO.Longitude,
                     ServiceId = updateDTO.ServiceId,

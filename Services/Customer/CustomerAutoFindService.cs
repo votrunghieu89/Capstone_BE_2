@@ -47,7 +47,7 @@ namespace Capstone_2_BE.Services.Customer
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
                 if (technicians == null)
                 {
-                    _logger.LogWarning("No technicians found for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.City, autoFindFixerDTO.ServiceId);
+                    _logger.LogWarning("No technicians found for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.CityId, autoFindFixerDTO.ServiceId);
                     return Result<string>.Failure("No technicians found in your area for the selected service.", 400);
                 }
                 foreach (var tech in technicians)
@@ -62,7 +62,7 @@ namespace Capstone_2_BE.Services.Customer
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in AutoFindCustomer for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.City, autoFindFixerDTO.ServiceId);
+                _logger.LogError(ex, "Error in AutoFindCustomer for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.CityId, autoFindFixerDTO.ServiceId);
                 return Result<string>.Failure("An error occurred while trying to find technicians. Please try again later.", 500);
             }
         }
@@ -125,7 +125,7 @@ namespace Capstone_2_BE.Services.Customer
                     Title = form.Title,
                     Description = form.Description,
                     Address = form.Address,
-                    City = form.City,
+                    CityId = form.CityId,
                     Latitude = form.Latitude,
                     Longitude = form.Longitude,
                     ImageOrderUrl = new List<string>(),

@@ -44,18 +44,18 @@ namespace Capstone_2_BE.Services.Customer
             }
         }
 
-        public async Task<Result<List<ViewAllTechnicianDTO>>> FilterByArea(string city)
+        public async Task<Result<List<ViewAllTechnicianDTO>>> FilterByArea(Guid cityId)
         {
             try
             {
-                var list = await _repo.FilterTechnicianbyArea(city);
+                var list = await _repo.FilterTechnicianbyArea(cityId);
                 if (list == null) return Result<List<ViewAllTechnicianDTO>>.Failure("L?i khi l?c theo khu v?c", 500);
                 foreach (var t in list) if (!string.IsNullOrEmpty(t.AvatarUrl)) { try { t.AvatarUrl = await _aws.ReadImage(t.AvatarUrl); } catch { } }
                 return Result<List<ViewAllTechnicianDTO>>.Success(list, 200);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in FilterByArea for city {City}", city);
+                _logger.LogError(ex, "Error in FilterByArea for city {City}", cityId);
                 return Result<List<ViewAllTechnicianDTO>>.Failure("L?i khi l?c theo khu v?c", 500);
             }
         }
@@ -120,7 +120,7 @@ namespace Capstone_2_BE.Services.Customer
                     Title = form.Title,
                     Description = form.Description,
                     Address = form.Address,
-                    City = form.City,
+                    CityId = form.CityId,
                     Latitude = form.Latitude,
                     Longitude = form.Longitude,
                     ImageOrderUrl = new List<string>(),

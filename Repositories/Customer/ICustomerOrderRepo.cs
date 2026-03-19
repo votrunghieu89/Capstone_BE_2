@@ -16,7 +16,7 @@ namespace Capstone_2_BE.Repositories.Customer
         // Xem đơn hàng bị từ chối
         Task<List<OrderOverviewDTO>> GetRejectedOrder(Guid customerId);
         // Xem chi tiết đơn hàng
-        Task<List<OrderOverviewDTO>> GetOrderDetail(Guid orderId);
+        Task<OrderDetailDTO> GetOrderDetail(Guid orderId);
         // Huỷ đơn hàng
         Task<OrderActionResDTO> CancelOrder(OrderActionDTO orderActionDTO);
         // Sửa đơn hàng ( chỉ được sửa khi đơn hàng đang chờ hoặc đang xử lý)

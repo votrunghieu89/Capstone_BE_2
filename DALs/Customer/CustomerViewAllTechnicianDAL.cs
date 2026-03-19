@@ -20,7 +20,7 @@ namespace Capstone_2_BE.DALs.Customer
             _SQLconnection = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<List<ViewAllTechnicianDTO>> FilterTechnicianbyArea(string City)
+        public async Task<List<ViewAllTechnicianDTO>> FilterTechnicianbyArea(Guid CityId)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Capstone_2_BE.DALs.Customer
                                           on sp.ServiceId equals s.Id into sGroup
                                       from s in sGroup.DefaultIfEmpty()
 
-                                      where tp.City == City
+                                      where tp.CityId == CityId
 
                                       select new ViewAllTechnicianDTO
                                       {
@@ -182,7 +182,7 @@ namespace Capstone_2_BE.DALs.Customer
                             Title = placeOrderDALDTO.Title,
                             Description = placeOrderDALDTO.Description,
                             Address = placeOrderDALDTO.Address,
-                            City = placeOrderDALDTO.City,
+                            CityId = placeOrderDALDTO.CityId,
                             Latitude = placeOrderDALDTO.Latitude,
                             Longitude = placeOrderDALDTO.Longitude,
                             CreateAt = DateTime.Now,

@@ -23,6 +23,7 @@ namespace Capstone_2_BE.DALs.Technician
                 var result = await (from r in _context.RatingModel
                                     join o in _context.OrderrModel on r.OrderId equals o.Id
                                     join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                    join ct in _context.CitiesModel on o.CityId equals ct.Id
                                     where r.Id == feedbackId
                                     select new TechnicianGetOrderFromFeedbackDTO
                                     {
@@ -31,7 +32,7 @@ namespace Capstone_2_BE.DALs.Technician
                                         Title = o.Title,
                                         Description = o.Description,
                                         Address = o.Address,
-                                        City = o.City,
+                                        City = ct.CityName,
                                         Status = o.Status,
                                         OrderDate = o.CreateAt
                                     }).FirstOrDefaultAsync();

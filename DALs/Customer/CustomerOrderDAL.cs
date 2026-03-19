@@ -187,9 +187,41 @@ namespace Capstone_2_BE.DALs.Customer
             }
         }
 
-        public Task<List<OrderOverviewDTO>> GetOrderDetail(Guid orderId)
+        public async Task<OrderDetailDTO> GetOrderDetail(Guid orderId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await (from o in _context.OrderrModel
+                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                            join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                            join a in _context.OrderAttachmentsModel on o.Id equals a.OrderId into attachments
+                            join ct in _context.CitiesModel on o.CityId equals ct.Id
+                                    where o.Id == orderId
+                            select new OrderDetailDTO
+                            {
+                                OrderId = o.Id,
+                                ServiceName = s.ServiceName,
+                                TechnicianName = c.FullName,
+                                Title = o.Title,
+                                Description = o.Description,
+                                Address = o.Address,
+                                City = ct.CityName,
+                                Status = o.Status,
+                                videoUrl = attachments.Where(att => att.FileType == "Video").Select(att => att.FileName).FirstOrDefault(),
+                                ImageUrls = attachments.Where(att => att.FileType == "Image").Select(att => att.FileName).ToList(),
+                                CreateAt = o.CreateAt,
+                            }).FirstOrDefaultAsync();
+                if(result == null)
+                {
+                    _logger.LogWarning("Order with ID {OrderId} not found.", orderId);
+                    return null;
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         public async Task<List<OrderOverviewDTO>> GetOrderHistory(Guid customerId)
@@ -258,7 +290,7 @@ namespace Capstone_2_BE.DALs.Customer
                             Title = placeOrderDALDTO.Title,
                             Description = placeOrderDALDTO.Description,
                             Address = placeOrderDALDTO.Address,
-                            City = placeOrderDALDTO.City,
+                            CityId = placeOrderDALDTO.CityId,
                             Latitude = placeOrderDALDTO.Latitude,
                             Longitude = placeOrderDALDTO.Longitude,
                             CreateAt = DateTime.Now,
