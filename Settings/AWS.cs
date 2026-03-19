@@ -42,7 +42,7 @@ namespace Capstone_2_BE.Settings
         {
             try
             {
-                string key = $"quiz/{Guid.NewGuid()}_{file.FileName}";
+                string key = $"profile/{Guid.NewGuid()}_{file.FileName}";
 
                 using var stream = file.OpenReadStream();
 

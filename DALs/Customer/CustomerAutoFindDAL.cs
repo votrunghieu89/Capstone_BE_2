@@ -103,6 +103,7 @@ namespace Capstone_2_BE.DALs.Customer
                                 OrderId = newOrder.Id,
                                 FileType = "Video",
                                 FileName = placeOrderDALDTO.videoUrl,
+                                CreateAt = DateTime.Now,
                             };
                             await _context.OrderAttachmentsModel.AddAsync(videoAttachment);
                             await _context.SaveChangesAsync();

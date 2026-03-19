@@ -53,6 +53,7 @@ namespace Capstone_2_BE.Services.Technician
                     FullName = updateDTO.FullName,
                     PhoneNumber = updateDTO.PhoneNumber,
                     Address = updateDTO.Address,
+                    City = updateDTO.City,
                     Latitude = updateDTO.Latitude,
                     Longitude = updateDTO.Longitude,
                     ServiceId = updateDTO.ServiceId,
@@ -65,7 +66,7 @@ namespace Capstone_2_BE.Services.Technician
                 {
                     // Lấy avatar cũ để xóa (nếu có)
                     var oldProfile = await _technicianProfileRepo.GetOldAvatar(updateDTO.Id);
-                    
+
                     // Upload avatar mới lên S3
                     var avatarKey = await _aws.UploadProfile(updateDTO.AvatarURl);
                     if (string.IsNullOrEmpty(avatarKey))
@@ -82,8 +83,9 @@ namespace Capstone_2_BE.Services.Technician
                     }
                 }
 
-                // Cập nhật profile
                 var result = await _technicianProfileRepo.UpdateTechnicianProfile(dalDTO);
+                // Cập nhật profile
+               
                 if (result)
                 {
                     return Result<string>.Success("Cập nhật thông tin kỹ thuật viên thành công", 200);

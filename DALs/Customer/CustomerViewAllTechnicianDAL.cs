@@ -25,25 +25,33 @@ namespace Capstone_2_BE.DALs.Customer
             try
             {
                 var result = await (
-                from tp in _context.TechnicianProfileModel
-                join sp in _context.Service_ProfileModel on tp.Id equals sp.TechnicianId
-                join s in _context.ServiceCategoriesModel on sp.ServiceId equals s.Id
-                where tp.City == City
-                select new ViewAllTechnicianDTO
-                {
-                    TechnicianId = tp.Id,
-                    TechnicianName = tp.FullName,
-                    AvatarUrl = tp.AvatarURl,
-                    ServiceId = s.Id,
-                    ServiceName = s.ServiceName,
-                    OrderCount = tp.OrderCount,
-                    RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
-                    AverageRating = _context.RatingModel
-                        .Where(r => r.TechnicianId == tp.Id)
-                        .Select(r => (decimal?)r.Score)
-                        .Average() ?? 0
-                }
-                ).ToListAsync();
+                                      from tp in _context.TechnicianProfileModel
+
+                                      join sp in _context.Service_ProfileModel
+                                          on tp.Id equals sp.TechnicianId into spGroup
+                                      from sp in spGroup.DefaultIfEmpty()
+
+                                      join s in _context.ServiceCategoriesModel
+                                          on sp.ServiceId equals s.Id into sGroup
+                                      from s in sGroup.DefaultIfEmpty()
+
+                                      where tp.City == City
+
+                                      select new ViewAllTechnicianDTO
+                                      {
+                                          TechnicianId = tp.Id,
+                                          TechnicianName = tp.FullName,
+                                          AvatarUrl = tp.AvatarURl,
+                                          ServiceId = s != null ? s.Id : Guid.Empty,
+                                          ServiceName = s != null ? s.ServiceName : "",
+                                          OrderCount = tp.OrderCount,
+                                          RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
+                                          AverageRating = _context.RatingModel
+                                              .Where(r => r.TechnicianId == tp.Id)
+                                              .Select(r => (decimal?)r.Score)
+                                              .Average() ?? 0
+                                      }
+                                  ).ToListAsync();
 
                 return result;
             }
@@ -123,25 +131,33 @@ namespace Capstone_2_BE.DALs.Customer
             try
             {
                 var result = await (
-                from tp in _context.TechnicianProfileModel
-                join sp in _context.Service_ProfileModel on tp.Id equals sp.TechnicianId
-                join s in _context.ServiceCategoriesModel on sp.ServiceId equals s.Id
-                where sp.ServiceId == serviceId   
-                select new ViewAllTechnicianDTO
-                {
-                    TechnicianId = tp.Id,
-                    TechnicianName = tp.FullName,
-                    AvatarUrl = tp.AvatarURl,
-                    ServiceId = s.Id,
-                    ServiceName = s.ServiceName,
-                    OrderCount = tp.OrderCount,
-                    RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
-                    AverageRating = _context.RatingModel
-                        .Where(r => r.TechnicianId == tp.Id)
-                        .Select(r => (decimal?)r.Score)
-                        .Average() ?? 0
-                    }
-                ).ToListAsync();
+                                     from tp in _context.TechnicianProfileModel
+
+                                     join sp in _context.Service_ProfileModel
+                                         on tp.Id equals sp.TechnicianId into spGroup
+                                     from sp in spGroup.DefaultIfEmpty()
+
+                                     join s in _context.ServiceCategoriesModel
+                                         on sp.ServiceId equals s.Id into sGroup
+                                     from s in sGroup.DefaultIfEmpty()
+
+                                     where sp != null && sp.ServiceId == serviceId
+
+                                     select new ViewAllTechnicianDTO
+                                     {
+                                         TechnicianId = tp.Id,
+                                         TechnicianName = tp.FullName,
+                                         AvatarUrl = tp.AvatarURl,
+                                         ServiceId = s != null ? s.Id : Guid.Empty,
+                                         ServiceName = s != null ? s.ServiceName : "",
+                                         OrderCount = tp.OrderCount,
+                                         RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
+                                         AverageRating = _context.RatingModel
+                                             .Where(r => r.TechnicianId == tp.Id)
+                                             .Select(r => (decimal?)r.Score)
+                                             .Average() ?? 0
+                                     }
+                                 ).ToListAsync();
 
                 return result;
             }
@@ -203,6 +219,7 @@ namespace Capstone_2_BE.DALs.Customer
                                 OrderId = newOrder.Id,
                                 FileType = "Image",
                                 FileName = imageUrl,
+                                CreateAt = DateTime.Now
                             }).ToList();
                             await _context.OrderAttachmentsModel.AddRangeAsync(imageAttachments);
                             await _context.SaveChangesAsync();
@@ -228,25 +245,33 @@ namespace Capstone_2_BE.DALs.Customer
             try
             {
                 var result = await (
-                from tp in _context.TechnicianProfileModel
-                join sp in _context.Service_ProfileModel on tp.Id equals sp.TechnicianId
-                join s in _context.ServiceCategoriesModel on sp.ServiceId equals s.Id
-                where tp.FullName.ToLower().Contains(FullName.ToLower())
-                select new ViewAllTechnicianDTO
-                {
-                    TechnicianId = tp.Id,
-                    TechnicianName = tp.FullName,
-                    AvatarUrl = tp.AvatarURl,
-                    ServiceId = s.Id,
-                    ServiceName = s.ServiceName,
-                    OrderCount = tp.OrderCount,
-                    RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
-                    AverageRating = _context.RatingModel
-                        .Where(r => r.TechnicianId == tp.Id)
-                        .Select(r => (decimal?)r.Score)
-                        .Average() ?? 0
-                }
-                ).ToListAsync();
+                                     from tp in _context.TechnicianProfileModel
+
+                                     join sp in _context.Service_ProfileModel
+                                         on tp.Id equals sp.TechnicianId into spGroup
+                                     from sp in spGroup.DefaultIfEmpty()
+
+                                     join s in _context.ServiceCategoriesModel
+                                         on sp.ServiceId equals s.Id into sGroup
+                                     from s in sGroup.DefaultIfEmpty()
+
+                                     where tp.FullName.ToLower().Contains(FullName.ToLower())
+
+                                     select new ViewAllTechnicianDTO
+                                     {
+                                         TechnicianId = tp.Id,
+                                         TechnicianName = tp.FullName,
+                                         AvatarUrl = tp.AvatarURl,
+                                         ServiceId = s != null ? s.Id : Guid.Empty,
+                                         ServiceName = s != null ? s.ServiceName : "",
+                                         OrderCount = tp.OrderCount,
+                                         RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
+                                         AverageRating = _context.RatingModel
+                                             .Where(r => r.TechnicianId == tp.Id)
+                                             .Select(r => (decimal?)r.Score)
+                                             .Average() ?? 0
+                                     }
+                                 ).ToListAsync();
 
                 return result;
             }
@@ -261,25 +286,31 @@ namespace Capstone_2_BE.DALs.Customer
             try
             {
                 var result = await (
-               from tp in _context.TechnicianProfileModel
-               join sp in _context.Service_ProfileModel on tp.Id equals sp.TechnicianId
-               join s in _context.ServiceCategoriesModel on sp.ServiceId equals s.Id
-               select new ViewAllTechnicianDTO
-               {
-                   TechnicianId = tp.Id,
-                   TechnicianName = tp.FullName,
-                   AvatarUrl = tp.AvatarURl,
-                   ServiceId = s != null ? s.Id : Guid.Empty,
-                   ServiceName = s != null ? s.ServiceName : "",
-                   OrderCount = tp.OrderCount,
-                   RatingCount = _context.RatingModel
-                       .Count(r => r.TechnicianId == tp.Id),
-                   AverageRating = _context.RatingModel
-                       .Where(r => r.TechnicianId == tp.Id)
-                       .Select(r => (decimal?)r.Score)
-                       .Average() ?? 0
-               }
-           ).ToListAsync();
+                                     from tp in _context.TechnicianProfileModel
+
+                                     join sp in _context.Service_ProfileModel
+                                         on tp.Id equals sp.TechnicianId into spGroup
+                                     from sp in spGroup.DefaultIfEmpty()
+
+                                     join s in _context.ServiceCategoriesModel
+                                         on sp.ServiceId equals s.Id into sGroup
+                                     from s in sGroup.DefaultIfEmpty()
+
+                                     select new ViewAllTechnicianDTO
+                                     {
+                                         TechnicianId = tp.Id,
+                                         TechnicianName = tp.FullName,
+                                         AvatarUrl = tp.AvatarURl,
+                                         ServiceId = s != null ? s.Id : Guid.Empty,
+                                         ServiceName = s != null ? s.ServiceName : "",
+                                         OrderCount = tp.OrderCount,
+                                         RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
+                                         AverageRating = _context.RatingModel
+                                             .Where(r => r.TechnicianId == tp.Id)
+                                             .Select(r => (decimal?)r.Score)
+                                             .Average() ?? 0
+                                     }
+                                 ).ToListAsync();
 
                 return result;
             }

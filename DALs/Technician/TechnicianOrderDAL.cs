@@ -18,7 +18,7 @@ namespace Capstone_2_BE.DALs.Technician
         }
         
         //// Thợ xác nhận đơn hàng
-        public async Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid AccountId)
+        public async Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid technicianId)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace Capstone_2_BE.DALs.Technician
                             {
                                 OrderId = orderId,
                                 Status = "Confirmed",
-                                ChangeBy = AccountId,
+                                ChangeBy = technicianId,
                                 ChangeAt = DateTime.UtcNow,
                             };
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
@@ -68,7 +68,7 @@ namespace Capstone_2_BE.DALs.Technician
             }
         }
         // Bắt đầy làm đơn hàng đã xác nhận
-        public async Task<OrderActionResDTO> StartOrder(Guid orderId, Guid AccountId)
+        public async Task<OrderActionResDTO> StartOrder(Guid orderId, Guid technicianId)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Capstone_2_BE.DALs.Technician
                             {
                                 OrderId = orderId,
                                 Status = "In Progress",
-                                ChangeBy = AccountId,
+                                ChangeBy = technicianId,
                                 ChangeAt = DateTime.UtcNow,
                             };
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);

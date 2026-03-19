@@ -50,12 +50,12 @@ namespace Capstone_2_BE.Controllers
             return StatusCode(result.StatusCode, new { serviceId = result.Data });
         }
 
-        [HttpGet("admin/all")]
-        public async Task<IActionResult> GetAllServicesAdmin()
-        {
-            var result = await _serviceType.GetAllServicesAdmin();
-            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
-            return StatusCode(result.StatusCode, result.Data);
-        }
+        //[HttpGet("admin/all")]
+        //public async Task<IActionResult> GetAllServicesAdmin()
+        //{
+        //    var result = await _serviceType.GetAllServicesAdmin();
+        //    if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+        //    return StatusCode(result.StatusCode, result.Data);
+        //}
     }
 }

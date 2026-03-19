@@ -84,17 +84,17 @@ namespace Capstone_2_BE.Controllers.Customer
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
 
-        [HttpPost("place")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> PlaceOrder([FromForm] CreateOrderFormDTO createOrderFormDTO)
-        {
-            var result = await _customerOrderService.InsertOrder(createOrderFormDTO);
-            if (!result.IsSuccess)
-            {
-                return StatusCode(result.StatusCode, new { message = result.Error });
-            }
-            return StatusCode(result.StatusCode, new { message = "??t ??n hàng thành công" });
-        }
+        //[HttpPost("place")]
+        //[Consumes("multipart/form-data")]
+        //public async Task<IActionResult> PlaceOrder([FromForm] CreateOrderFormDTO createOrderFormDTO)
+        //{
+        //    var result = await _customerOrderService.InsertOrder(createOrderFormDTO);
+        //    if (!result.IsSuccess)
+        //    {
+        //        return StatusCode(result.StatusCode, new { message = result.Error });
+        //    }
+        //    return StatusCode(result.StatusCode, new { message = "??t ??n hàng thành công" });
+        //}
 
         [HttpGet("detail/{orderId}")]
         public async Task<IActionResult> GetOrderDetail(Guid orderId)

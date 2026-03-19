@@ -35,7 +35,7 @@ namespace Capstone_2_BE.DALs.Customer
                             {
                                 OrderId = orderActionDTO.OrderId,
                                 Status = "Cancelled",
-                                ChangeBy = orderActionDTO.AccountId,
+                                ChangeBy = orderActionDTO.technicianId,
                                 ChangeAt = DateTime.UtcNow,
                             };
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
@@ -79,14 +79,19 @@ namespace Capstone_2_BE.DALs.Customer
                     {
                         try
                         {
-                            int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderActionDTO.OrderId && o.Status == "In Progress").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Confirmed"));
+                            int isUpdated = await _context.OrderrModel
+                                                            .Where(o => o.Id == orderActionDTO.OrderId && o.Status == "In Progress")
+                                                            .ExecuteUpdateAsync(s => s
+                                                                .SetProperty(o => o.Status, "Completed")
+                                                                .SetProperty(o => o.CompleteAt, DateTime.Now)
+                                                            );
                             if (isUpdated > 0)
                             {
                                 OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
                                 {
                                     OrderId = orderActionDTO.OrderId,
                                     Status = "Completed",
-                                    ChangeBy = orderActionDTO.AccountId,
+                                    ChangeBy = orderActionDTO.technicianId,
                                     ChangeAt = DateTime.UtcNow,
                                 };
                                 await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
@@ -278,6 +283,7 @@ namespace Capstone_2_BE.DALs.Customer
                                 OrderId = newOrder.Id,
                                 FileType = "Video",
                                 FileName = placeOrderDALDTO.videoUrl,
+                                CreateAt = DateTime.Now,
                             };
                             await _context.OrderAttachmentsModel.AddAsync(videoAttachment);
                             await _context.SaveChangesAsync();

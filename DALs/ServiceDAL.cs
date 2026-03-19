@@ -35,7 +35,7 @@ namespace Capstone_2_BE.DALs
             try
             {
                 return await _context.ServiceCategoriesModel
-                    .Select(s => new ServiceDTO { Id = s.Id, ServiceName = s.ServiceName })
+                    .Select(s => new ServiceDTO { Id = s.Id, ServiceName = s.ServiceName, Description = s.Description })
                     .ToListAsync();
             }
             catch (Exception ex)

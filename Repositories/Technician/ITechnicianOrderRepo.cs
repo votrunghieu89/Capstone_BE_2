@@ -19,13 +19,13 @@ namespace Capstone_2_BE.Repositories
         // View Order Details
         Task<ViewOrderDetailDTO> GetOrderDetails(Guid orderId, Guid technicianId);
         // Change Confirming Order to Confirmed
-        Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid AccountId);
+        Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid technicianId);
         // Changge Confirmed Order to In Progress
-        Task<OrderActionResDTO> StartOrder(Guid orderId, Guid AccountId);
+        Task<OrderActionResDTO> StartOrder(Guid orderId, Guid technicianId);
         //// Change In Progress Order to Completed
         //Task<bool> CompleteOrder(Guid orderId, Guid AccountId);
         // Cancel Order
-        Task<OrderActionResDTO> RejectedOrder(Guid orderId, Guid AccountId);
+        Task<OrderActionResDTO> RejectedOrder(Guid orderId, Guid technicianId);
         Task<OrderActionResDTO> CompletedOrder(Guid orderId);
     }
 }

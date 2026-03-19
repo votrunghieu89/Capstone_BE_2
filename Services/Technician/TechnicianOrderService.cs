@@ -165,8 +165,8 @@ namespace Capstone_2_BE.Services.Technician
         {
             try
             {
-                OrderActionResDTO result = await _technicianOrderRepo.ConfirmOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
-                
+                OrderActionResDTO result = await _technicianOrderRepo.ConfirmOrder(orderActionDTO.OrderId, orderActionDTO.technicianId);
+
                 if (result != null)
                 {
                     InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
@@ -204,13 +204,13 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 // Kiểm tra xem có đơn hàng đang thực hiện không
-                var inProgressOrder = await _technicianOrderRepo.GetInProgressOrders(orderActionDTO.AccountId);
+                var inProgressOrder = await _technicianOrderRepo.GetInProgressOrders(orderActionDTO.technicianId);
                 if (inProgressOrder != null)
                 {
                     return Result<OrderActionResDTO>.Failure("Bạn đang có một đơn hàng đang thực hiện. Vui lòng hoàn thành đơn hàng hiện tại trước", 400);
                 }
 
-                OrderActionResDTO result = await _technicianOrderRepo.StartOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
+                OrderActionResDTO result = await _technicianOrderRepo.StartOrder(orderActionDTO.OrderId, orderActionDTO.technicianId);
                 
                 if (result != null)
                 {
@@ -289,8 +289,8 @@ namespace Capstone_2_BE.Services.Technician
         {
             try
             {
-                OrderActionResDTO result = await _technicianOrderRepo.RejectedOrder(orderActionDTO.OrderId, orderActionDTO.AccountId);
-                
+                OrderActionResDTO result = await _technicianOrderRepo.RejectedOrder(orderActionDTO.OrderId, orderActionDTO.technicianId);
+
                 if (result != null)
                 {
                     InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
