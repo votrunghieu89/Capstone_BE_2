@@ -300,55 +300,123 @@ namespace Capstone_2_BE.Services.Customer
                     videoUrl = null,
                     ImageUrls = new List<string>()
                 };
-                if(OrderUpdateFormDTO.videoUrl != null)
+                // Upload song song ( chỗ when all là chạy nhiều task cùng lúc, có thêm await nên phải đợi hoàn thành hết rồi mới tiếp tục, nếu có task nào lỗi thì sẽ vào catch luôn)
+                Task<string> videoTask = null; // “Một công việc bất đồng bộ (async) mà khi xong sẽ trả về string" 1 công việc sẽ có kq trong tương lai, 1 biến đặc biệt có trạng thái(fail, success) và khi có kq thì gán vào videoTask
+                if (OrderUpdateFormDTO.videoUrl != null)
                 {
-                    var videoKey = await _aws.UploadVideoOrder(OrderUpdateFormDTO.videoUrl);
-                    if (string.IsNullOrEmpty(videoKey))
+                    videoTask = _aws.UploadVideoOrder(OrderUpdateFormDTO.videoUrl);
+                }
+                Task<string[]> imageTask = null;
+                if (OrderUpdateFormDTO.ImageUrls != null && OrderUpdateFormDTO.ImageUrls.Count > 0)
+                {
+                    imageTask = Task.WhenAll(OrderUpdateFormDTO.ImageUrls.Select(img => _aws.UploadImageOrder(img)));
+                }
+                await Task.WhenAll(videoTask ?? Task.CompletedTask,imageTask ?? Task.CompletedTask); // đợi 2 công việc chạy xong ms chạy tiếp
+                string videoKey = videoTask?.Result;
+                string[] imageKeys = imageTask?.Result;
+                if (videoTask != null && string.IsNullOrEmpty(videoKey))
+                {
+                    // cleanup images nếu có
+                    if (imageKeys != null)
                     {
-                        return Result<string>.Failure("Upload video thất bại", 400);
+                        foreach (var key in imageKeys.Where(x => !string.IsNullOrEmpty(x)))
+                        {
+                            await _aws.DeleteImage(key);
+                        }
                     }
+                    return Result<string>.Failure("Upload video thất bại", 400);
+                }
+                if (imageKeys != null && imageKeys.Any(x => string.IsNullOrEmpty(x)))
+                {
+                    foreach (var key in imageKeys.Where(x => !string.IsNullOrEmpty(x)))
+                    {
+                        await _aws.DeleteImage(key);
+                    }
+
+                    if (!string.IsNullOrEmpty(videoKey))
+                    {
+                        await _aws.DeleteImage(videoKey);
+                    }
+
+                    return Result<string>.Failure("Upload ảnh thất bại", 400);
+                }
+                if(videoKey != null)
+                {
                     updateDTO.videoUrl = videoKey;
                 }
-                if(OrderUpdateFormDTO.ImageUrls != null && OrderUpdateFormDTO.ImageUrls.Count > 0)
+
+                if (imageKeys != null)
                 {
-                    foreach (var image in OrderUpdateFormDTO.ImageUrls)
+                   foreach(var key in imageKeys)
                     {
-                        var imageKey = await _aws.UploadImageOrder(image);
-                        if (!string.IsNullOrEmpty(imageKey))
+                        if(!string.IsNullOrEmpty(key))
                         {
-                            updateDTO.ImageUrls.Add(imageKey);
+                            updateDTO.ImageUrls.Add(key);
                         }
                     }
                 }
                 var result = await _customerOrderRepo.updateOrder(updateDTO);
                 if(result != null)
                 {
-                    if(result.VideoUrl != null)
-                    {
-                        bool isDeleteVideo = await _aws.DeleteImage(result.VideoUrl);
+                   Task<bool> TDeleteOldVideo = null;
+                   Task<bool[]> TDeleteOldImages = null;
+                   if (result.VideoUrl != null)
+                   {
+                        TDeleteOldVideo = _aws.DeleteImage(result.VideoUrl);
+                   }
+                   if (result.ImageUrls != null && result.ImageUrls.Count > 0)
+                   {
+                        TDeleteOldImages = Task.WhenAll(result.ImageUrls.Select(img => _aws.DeleteImage(img)));
+                   }
+                   await Task.WhenAll(TDeleteOldVideo ?? Task.CompletedTask, TDeleteOldImages ?? Task.CompletedTask);
+                   bool isDeleteOldVideo = TDeleteOldVideo != null && await TDeleteOldVideo;
+                   bool[] isDeleteOldImages = TDeleteOldImages != null
+                        ? await TDeleteOldImages
+                        : Array.Empty<bool>();
+                   if (TDeleteOldVideo != null && !isDeleteOldVideo)
+                   {
+                        _logger.LogWarning("Delete old video failed: {Video}", result.VideoUrl);
+                        return Result<string>.Failure("Cập nhật đơn hàng thất bại do lỗi xóa video cũ", 400);
                     }
-                    if(result.ImageUrls != null && result.ImageUrls.Count > 0)
-                    {
-                        foreach(var image in result.ImageUrls)
-                        {
-                            bool isDeleteImage = await _aws.DeleteImage(image);
-                        }
+                   if (isDeleteOldImages.Any(x => x == false))
+                   {
+                        _logger.LogWarning("Some old images failed to delete");
+                        return Result<string>.Failure("Cập nhật đơn hàng thất bại do lỗi xóa ảnh cũ", 400);
                     }
                     return Result<string>.Success("Cập nhật đơn hàng thành công", 200);
                 }
                 else
                 {
-                    if(updateDTO.videoUrl != null)
+                    Task<bool> deleteNewVideoTask = null;
+                    Task<bool[]> deleteNewImagesTask = null;
+                    if (!string.IsNullOrEmpty(updateDTO.videoUrl))
                     {
-                        bool isDeleteVideo = await _aws.DeleteImage(updateDTO.videoUrl);
+                        deleteNewVideoTask = _aws.DeleteImage(updateDTO.videoUrl);
                     }
                     if (updateDTO.ImageUrls != null && updateDTO.ImageUrls.Count > 0)
                     {
-                        foreach(var image in updateDTO.ImageUrls)
-                        {
-                            bool isDeleteNewImage = await _aws.DeleteImage(image);
-                        }
+                        deleteNewImagesTask = Task.WhenAll(
+                            updateDTO.ImageUrls.Select(img => _aws.DeleteImage(img))
+                        );
                     }
+                    await Task.WhenAll(
+                        deleteNewVideoTask ?? Task.CompletedTask,
+                        deleteNewImagesTask ?? Task.CompletedTask
+                    );
+                    bool isDeleteVideo = deleteNewVideoTask != null && await deleteNewVideoTask;
+
+                    bool[] isDeleteImages = deleteNewImagesTask != null
+                        ? await deleteNewImagesTask
+                        : Array.Empty<bool>(); 
+                    if (deleteNewVideoTask != null && !isDeleteVideo)
+                    {
+                        _logger.LogWarning("Failed to delete new video: {Video}", updateDTO.videoUrl);
+                    }
+                    if (isDeleteImages.Any(x => x == false))
+                    {
+                        _logger.LogWarning("Some new images failed to delete");
+                    }
+
                     return Result<string>.Failure("Cập nhật đơn hàng thất bại", 400);
                 }
             }
