@@ -108,9 +108,10 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderActionDTO orderActionDTO)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderUpdateFormDTO updateOrderDTO)
         {
-            var result = await _customerOrderService.UpdateOrder(orderActionDTO);
+            var result = await _customerOrderService.UpdateOrder(updateOrderDTO);
             if (!result.IsSuccess)
             {
                 return StatusCode(result.StatusCode, new { message = result.Error });

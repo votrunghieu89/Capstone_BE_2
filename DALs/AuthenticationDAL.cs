@@ -151,9 +151,27 @@ namespace Capstone_2_BE.DALs
                 };
             }
         }
-        public Task<bool> RegisterAccountAdmin(string email, string password)
+        public async Task<bool> RegisterAccountAdmin(string email, string passwordHash)
         {
-            throw new NotImplementedException();
+            try
+            {
+                AccountsModel newAccountAdmin = new AccountsModel()
+                {
+                    Email = email,
+                    Password = passwordHash,
+                    Role = "Admin",
+                    IsActive = 1,
+                    IsOnline = 1,
+                    CreateAt = DateTime.Now,
+                };
+                await _context.AccountsModel.AddAsync(newAccountAdmin);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
         }
 
         public async Task<AuthenticationEnum.Register> RegisterCustomer(RegisterCustomerDTO authRegisterDTO)

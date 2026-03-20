@@ -29,6 +29,20 @@ namespace Capstone_2_BE.Services
             _google = google;
         }
 
+        public async Task<Result<string>> RegisterAccountAdmin(DTOs.LoginDTO loginDTO)
+        {
+            try
+            {
+                var ok = await _authenticationDAL.RegisterAccountAdmin(loginDTO.Email, loginDTO.Password);
+                if (ok) return Result<string>.Success("Tạo tài khoản admin thành công", 201);
+                return Result<string>.Failure("Tạo tài khoản admin thất bại", 400);
+            }
+            catch (Exception ex)
+            {
+                return Result<string>.Failure("Lỗi khi tạo tài khoản admin", 500);
+            }
+        }
+
         public static string GenerateOTP(int length = 6)
         {
             if (length <= 0) throw new ArgumentException("Length must be positive", nameof(length));

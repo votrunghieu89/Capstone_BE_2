@@ -111,7 +111,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                       CreatedAt = o.CreateAt,
                                                   }).FirstOrDefaultAsync();
                             int isUpdateCount = await _context.TechnicianProfileModel.Where(t => t.Id == OrderRes.ReceiverId).ExecuteUpdateAsync(t => t.SetProperty(tp => tp.OrderCount, tp => tp.OrderCount + 1));
-                            if(isUpdateCount == 0)
+                            if (isUpdateCount == 0)
                             {
                                 _logger.LogWarning("Failed to update order count for technician ID: {TechnicianId}", OrderRes.ReceiverId);
                                 await transaction.RollbackAsync();
@@ -138,19 +138,19 @@ namespace Capstone_2_BE.DALs.Customer
         {
             try
             {
-                List<OrderOverviewDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                               join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                               join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
-                                                               where o.CustomerId == customerId && o.Status == "Cancelled"
-                                                               select new OrderOverviewDTO
-                                                               {
-                                                                   OrderId = o.Id,
-                                                                   TechnicianName = c.FullName,
-                                                                   ServiceName = s.ServiceName,
-                                                                   Title = o.Title,
-                                                                   Status = o.Status,
-                                                                   OrderDate = o.CreateAt,
-                                                               }).ToListAsync();
+                List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                                join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                                join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                where o.CustomerId == customerId && o.Status == "Cancelled"
+                                                                select new OrderOverviewDTO
+                                                                {
+                                                                    OrderId = o.Id,
+                                                                    TechnicianName = c.FullName,
+                                                                    ServiceName = s.ServiceName,
+                                                                    Title = o.Title,
+                                                                    Status = o.Status,
+                                                                    OrderDate = o.CreateAt,
+                                                                }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -163,22 +163,22 @@ namespace Capstone_2_BE.DALs.Customer
         {
             try
             {
-                List<OrderOverviewDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                               join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                               join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
-                                                               where o.CustomerId == customerId &&
-                                                                                                   (o.Status == "Pending Confirmation" ||
-                                                                                                    o.Status == "Confirmed" ||
-                                                                                                    o.Status == "In Progress")
-                                                               select new OrderOverviewDTO
-                                                               {
-                                                                   OrderId = o.Id,
-                                                                   TechnicianName = c.FullName,
-                                                                   ServiceName = s.ServiceName,
-                                                                   Title = o.Title,
-                                                                   Status = o.Status,
-                                                                   OrderDate = o.CreateAt,
-                                                               }).ToListAsync();
+                List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                                join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                                join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                where o.CustomerId == customerId &&
+                                                                                                    (o.Status == "Pending Confirmation" ||
+                                                                                                     o.Status == "Confirmed" ||
+                                                                                                     o.Status == "In Progress")
+                                                                select new OrderOverviewDTO
+                                                                {
+                                                                    OrderId = o.Id,
+                                                                    TechnicianName = c.FullName,
+                                                                    ServiceName = s.ServiceName,
+                                                                    Title = o.Title,
+                                                                    Status = o.Status,
+                                                                    OrderDate = o.CreateAt,
+                                                                }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -192,26 +192,26 @@ namespace Capstone_2_BE.DALs.Customer
             try
             {
                 var result = await (from o in _context.OrderrModel
-                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                            join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
-                            join a in _context.OrderAttachmentsModel on o.Id equals a.OrderId into attachments
-                            join ct in _context.CitiesModel on o.CityId equals ct.Id
+                                    join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                    join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                    join a in _context.OrderAttachmentsModel on o.Id equals a.OrderId into attachments
+                                    join ct in _context.CitiesModel on o.CityId equals ct.Id
                                     where o.Id == orderId
-                            select new OrderDetailDTO
-                            {
-                                OrderId = o.Id,
-                                ServiceName = s.ServiceName,
-                                TechnicianName = c.FullName,
-                                Title = o.Title,
-                                Description = o.Description,
-                                Address = o.Address,
-                                City = ct.CityName,
-                                Status = o.Status,
-                                videoUrl = attachments.Where(att => att.FileType == "Video").Select(att => att.FileName).FirstOrDefault(),
-                                ImageUrls = attachments.Where(att => att.FileType == "Image").Select(att => att.FileName).ToList(),
-                                CreateAt = o.CreateAt,
-                            }).FirstOrDefaultAsync();
-                if(result == null)
+                                    select new OrderDetailDTO
+                                    {
+                                        OrderId = o.Id,
+                                        ServiceName = s.ServiceName,
+                                        TechnicianName = c.FullName,
+                                        Title = o.Title,
+                                        Description = o.Description,
+                                        Address = o.Address,
+                                        City = ct.CityName,
+                                        Status = o.Status,
+                                        videoUrl = attachments.Where(att => att.FileType == "Video").Select(att => att.FileName).FirstOrDefault(),
+                                        ImageUrls = attachments.Where(att => att.FileType == "Image").Select(att => att.FileName).ToList(),
+                                        CreateAt = o.CreateAt,
+                                    }).FirstOrDefaultAsync();
+                if (result == null)
                 {
                     _logger.LogWarning("Order with ID {OrderId} not found.", orderId);
                     return null;
@@ -228,19 +228,19 @@ namespace Capstone_2_BE.DALs.Customer
         {
             try
             {
-                List<OrderOverviewDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                               join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                               join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
-                                                               where o.CustomerId == customerId && o.Status == "Completed"
-                                                               select new OrderOverviewDTO
-                                                               {
-                                                                   OrderId = o.Id,
-                                                                   TechnicianName = c.FullName,
-                                                                   ServiceName = s.ServiceName,
-                                                                   Title = o.Title,
-                                                                   Status = o.Status,
-                                                                   OrderDate = o.CreateAt,
-                                                               }).ToListAsync();
+                List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                                join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                                join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                where o.CustomerId == customerId && o.Status == "Completed"
+                                                                select new OrderOverviewDTO
+                                                                {
+                                                                    OrderId = o.Id,
+                                                                    TechnicianName = c.FullName,
+                                                                    ServiceName = s.ServiceName,
+                                                                    Title = o.Title,
+                                                                    Status = o.Status,
+                                                                    OrderDate = o.CreateAt,
+                                                                }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -253,19 +253,19 @@ namespace Capstone_2_BE.DALs.Customer
         {
             try
             {
-                List<OrderOverviewDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                               join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                               join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
-                                                               where o.CustomerId == customerId && o.Status == "Rejected"
-                                                               select new OrderOverviewDTO
-                                                               {
-                                                                   OrderId = o.Id,
-                                                                   TechnicianName = c.FullName,
-                                                                   ServiceName = s.ServiceName,
-                                                                   Title = o.Title,
-                                                                   Status = o.Status,
-                                                                   OrderDate = o.CreateAt,
-                                                               }).ToListAsync();
+                List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                                join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                                join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                where o.CustomerId == customerId && o.Status == "Rejected"
+                                                                select new OrderOverviewDTO
+                                                                {
+                                                                    OrderId = o.Id,
+                                                                    TechnicianName = c.FullName,
+                                                                    ServiceName = s.ServiceName,
+                                                                    Title = o.Title,
+                                                                    Status = o.Status,
+                                                                    OrderDate = o.CreateAt,
+                                                                }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -307,8 +307,8 @@ namespace Capstone_2_BE.DALs.Customer
                         };
                         await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                         await _context.SaveChangesAsync();
-                       // Video
-                       if(!string.IsNullOrEmpty(placeOrderDALDTO.videoUrl))
+                        // Video
+                        if (!string.IsNullOrEmpty(placeOrderDALDTO.videoUrl))
                         {
                             OrderAttachmentsModel videoAttachment = new OrderAttachmentsModel
                             {
@@ -320,7 +320,7 @@ namespace Capstone_2_BE.DALs.Customer
                             await _context.OrderAttachmentsModel.AddAsync(videoAttachment);
                             await _context.SaveChangesAsync();
                         }
-                       // Images
+                        // Images
                         if (placeOrderDALDTO.ImageOrderUrl != null && placeOrderDALDTO.ImageOrderUrl.Count > 0)
                         {
                             List<OrderAttachmentsModel> imageAttachments = placeOrderDALDTO.ImageOrderUrl.Select(imageUrl => new OrderAttachmentsModel
@@ -328,6 +328,7 @@ namespace Capstone_2_BE.DALs.Customer
                                 OrderId = newOrder.Id,
                                 FileType = "Image",
                                 FileName = imageUrl,
+                                CreateAt = DateTime.Now,
                             }).ToList();
                             await _context.OrderAttachmentsModel.AddRangeAsync(imageAttachments);
                             await _context.SaveChangesAsync();
@@ -347,11 +348,81 @@ namespace Capstone_2_BE.DALs.Customer
                 return false;
             }
         }
-
-        public Task<OrderActionResDTO> updateOrder(OrderActionDTO orderActionDTO)
+        public async Task<OrderOldImageVideo> updateOrder(UpdateOrderDALDTO updateOrderDTO)
         {
-            throw new NotImplementedException();
+            // nếu Video null thì xoá hết video cũ, nếu có video mới thì thêm vào
+            // Nếu ImageUrls null hoặc rỗng thì xoá hết ảnh cũ, nếu có ảnh mới thì thêm vào
+            try
+            {
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        var videoUrl = await _context.OrderAttachmentsModel.Where(o => o.OrderId == updateOrderDTO.OrderId && o.FileType == "Video").Select(o => o.FileName).FirstOrDefaultAsync();
+                        var imgUrls = await _context.OrderAttachmentsModel.Where(o => o.OrderId == updateOrderDTO.OrderId && o.FileType == "Image").Select(o => o.FileName).ToListAsync();
+                        OrderOldImageVideo oldImageVideo = new OrderOldImageVideo
+                        {
+                            ImageUrls = imgUrls,
+                            VideoUrl = videoUrl,
+                        };
+                        int isUpdate = await _context.OrderrModel.Where(o => o.Id == updateOrderDTO.OrderId && (o.Status == "Pending Confirmation" || o.Status == "Rejected" || o.Status == "Cancelled"))
+                            .ExecuteUpdateAsync(s => s
+                                .SetProperty(o => o.Title, updateOrderDTO.Title)
+                                .SetProperty(o => o.Description, updateOrderDTO.Description)
+                                .SetProperty(o => o.Address, updateOrderDTO.Address)
+                                .SetProperty(o => o.CityId, updateOrderDTO.CityId)
+                                .SetProperty(o => o.Latitude, updateOrderDTO.Latitude)
+                                .SetProperty(o => o.Longitude, updateOrderDTO.Longitude)
+                            );
+                        if (isUpdate > 0)
+                        {
+                            int isDelete = await _context.OrderAttachmentsModel.Where(o => o.OrderId == updateOrderDTO.OrderId).ExecuteDeleteAsync();
+                            if (updateOrderDTO.videoUrl != null)
+                            {
+                                OrderAttachmentsModel videoAttachment = new OrderAttachmentsModel
+                                {
+                                    OrderId = updateOrderDTO.OrderId,
+                                    FileType = "Video",
+                                    FileName = updateOrderDTO.videoUrl,
+                                    CreateAt = DateTime.Now,
+                                };
+                                await _context.OrderAttachmentsModel.AddAsync(videoAttachment);
+                                await _context.SaveChangesAsync();
+                            }
+                            if (updateOrderDTO.ImageUrls != null && updateOrderDTO.ImageUrls.Count > 0)
+                            {
+                                List<OrderAttachmentsModel> imageAttachments = updateOrderDTO.ImageUrls.Select(imageUrl => new OrderAttachmentsModel
+                                {
+                                    OrderId = updateOrderDTO.OrderId,
+                                    FileType = "Image",
+                                    FileName = imageUrl,
+                                    CreateAt = DateTime.Now,
+                                }).ToList();
+                                await _context.OrderAttachmentsModel.AddRangeAsync(imageAttachments);
+                                await _context.SaveChangesAsync();
+                            }
+                            await transaction.CommitAsync();
+                            return oldImageVideo;
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Failed to update order with ID: {OrderId}. Order may not be in an updatable state.", updateOrderDTO.OrderId);
+                            await transaction.RollbackAsync();
+                            return null;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
-    }
 
+    }
 }

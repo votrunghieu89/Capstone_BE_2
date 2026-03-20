@@ -62,6 +62,16 @@ namespace Capstone_2_BE.Controllers
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
+        [HttpPost("register/admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] LoginDTO loginDTO)
+        {
+            var result = await _authenticationService.RegisterAccountAdmin(loginDTO);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, new { message = result.Data });
+        }
 
         [HttpPost("send-otp")]
         public async Task<IActionResult> SendOTP([FromBody] SendOTPDTO sendOTPDTO)

@@ -254,14 +254,14 @@ namespace Capstone_2_BE.Services.Customer
             try
             {
                 var order = await _customerOrderRepo.GetOrderDetail(orderId);
-                if(order.videoUrl != null)
+                if (order.videoUrl != null)
                 {
                     order.videoUrl = await _aws.ReadImage(order.videoUrl);
                 }
-                if(order.ImageUrls != null && order.ImageUrls.Count > 0)
+                if (order.ImageUrls != null && order.ImageUrls.Count > 0)
                 {
                     var imageUrls = new List<string>();
-                    foreach(var url in order.ImageUrls)
+                    foreach (var url in order.ImageUrls)
                     {
                         var imageUrl = await _aws.ReadImage(url);
                         if (!string.IsNullOrEmpty(imageUrl))
@@ -284,9 +284,79 @@ namespace Capstone_2_BE.Services.Customer
             }
         }
 
-        public Task<Result<string>> UpdateOrder(OrderActionDTO orderActionDTO)
+        public async Task<Result<string>> UpdateOrder(OrderUpdateFormDTO OrderUpdateFormDTO)
         {
-            return Task.FromResult(Result<string>.Failure("Ch?a tri?n khai", 501));
+
+            try
+            {
+                UpdateOrderDALDTO updateDTO = new UpdateOrderDALDTO
+                {   OrderId = OrderUpdateFormDTO.OrderId,
+                    Title = OrderUpdateFormDTO.Title,
+                    Description = OrderUpdateFormDTO.Description,
+                    Address = OrderUpdateFormDTO.Address,
+                    CityId = OrderUpdateFormDTO.CityId,
+                    Latitude = OrderUpdateFormDTO.Latitude,
+                    Longitude = OrderUpdateFormDTO.Longitude,
+                    videoUrl = null,
+                    ImageUrls = new List<string>()
+                };
+                if(OrderUpdateFormDTO.videoUrl != null)
+                {
+                    var videoKey = await _aws.UploadVideoOrder(OrderUpdateFormDTO.videoUrl);
+                    if (string.IsNullOrEmpty(videoKey))
+                    {
+                        return Result<string>.Failure("Upload video thất bại", 400);
+                    }
+                    updateDTO.videoUrl = videoKey;
+                }
+                if(OrderUpdateFormDTO.ImageUrls != null && OrderUpdateFormDTO.ImageUrls.Count > 0)
+                {
+                    foreach (var image in OrderUpdateFormDTO.ImageUrls)
+                    {
+                        var imageKey = await _aws.UploadImageOrder(image);
+                        if (!string.IsNullOrEmpty(imageKey))
+                        {
+                            updateDTO.ImageUrls.Add(imageKey);
+                        }
+                    }
+                }
+                var result = await _customerOrderRepo.updateOrder(updateDTO);
+                if(result != null)
+                {
+                    if(result.VideoUrl != null)
+                    {
+                        bool isDeleteVideo = await _aws.DeleteImage(result.VideoUrl);
+                    }
+                    if(result.ImageUrls != null && result.ImageUrls.Count > 0)
+                    {
+                        foreach(var image in result.ImageUrls)
+                        {
+                            bool isDeleteImage = await _aws.DeleteImage(image);
+                        }
+                    }
+                    return Result<string>.Success("Cập nhật đơn hàng thành công", 200);
+                }
+                else
+                {
+                    if(updateDTO.videoUrl != null)
+                    {
+                        bool isDeleteVideo = await _aws.DeleteImage(updateDTO.videoUrl);
+                    }
+                    if (updateDTO.ImageUrls != null && updateDTO.ImageUrls.Count > 0)
+                    {
+                        foreach(var image in updateDTO.ImageUrls)
+                        {
+                            bool isDeleteNewImage = await _aws.DeleteImage(image);
+                        }
+                    }
+                    return Result<string>.Failure("Cập nhật đơn hàng thất bại", 400);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating order for order {OrderId}", OrderUpdateFormDTO.OrderId);
+                return Result<string>.Failure("Lỗi khi cập nhật", 500);
+            }
         }
     }
 }

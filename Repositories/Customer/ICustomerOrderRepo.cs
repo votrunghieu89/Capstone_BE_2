@@ -19,8 +19,8 @@ namespace Capstone_2_BE.Repositories.Customer
         Task<OrderDetailDTO> GetOrderDetail(Guid orderId);
         // Huỷ đơn hàng
         Task<OrderActionResDTO> CancelOrder(OrderActionDTO orderActionDTO);
-        // Sửa đơn hàng ( chỉ được sửa khi đơn hàng đang chờ hoặc đang xử lý)
-        Task<OrderActionResDTO> updateOrder(OrderActionDTO orderActionDTO);
+        // Sửa đơn hàng ( chỉ được sửa khi đơn hàng đang chờ hoặc từ chối, bị huỷ)
+        Task<OrderOldImageVideo> updateOrder(UpdateOrderDALDTO updateOrderDTO);
         // Xác nhận đơn hàng đã hoàn thành
         Task<OrderActionResDTO> ConfirmCompletedOrder(OrderActionDTO orderActionDTO);
     }
