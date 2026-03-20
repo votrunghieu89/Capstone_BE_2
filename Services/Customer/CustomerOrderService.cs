@@ -309,11 +309,11 @@ namespace Capstone_2_BE.Services.Customer
                 Task<string[]> imageTask = null;
                 if (OrderUpdateFormDTO.ImageUrls != null && OrderUpdateFormDTO.ImageUrls.Count > 0)
                 {
-                    imageTask = Task.WhenAll(OrderUpdateFormDTO.ImageUrls.Select(img => _aws.UploadImageOrder(img)));
+                    imageTask = Task.WhenAll(OrderUpdateFormDTO.ImageUrls.Select(img => _aws.UploadImageOrder(img))); // chạy tất cả các task upload ảnh cùng lúc, khi nào xong hết sẽ trả về mảng string chứa key của ảnh, nếu có task nào lỗi thì sẽ vào catch luôn
                 }
                 await Task.WhenAll(videoTask ?? Task.CompletedTask,imageTask ?? Task.CompletedTask); // đợi 2 công việc chạy xong ms chạy tiếp
-                string videoKey = videoTask?.Result;
-                string[] imageKeys = imageTask?.Result;
+                string? videoKey = videoTask?.Result;
+                string[]? imageKeys = imageTask?.Result;
                 if (videoTask != null && string.IsNullOrEmpty(videoKey))
                 {
                     // cleanup images nếu có
@@ -358,8 +358,8 @@ namespace Capstone_2_BE.Services.Customer
                 var result = await _customerOrderRepo.updateOrder(updateDTO);
                 if(result != null)
                 {
-                   Task<bool> TDeleteOldVideo = null;
-                   Task<bool[]> TDeleteOldImages = null;
+                   Task<bool>? TDeleteOldVideo = null;
+                   Task<bool[]>? TDeleteOldImages = null;
                    if (result.VideoUrl != null)
                    {
                         TDeleteOldVideo = _aws.DeleteImage(result.VideoUrl);
@@ -387,8 +387,8 @@ namespace Capstone_2_BE.Services.Customer
                 }
                 else
                 {
-                    Task<bool> deleteNewVideoTask = null;
-                    Task<bool[]> deleteNewImagesTask = null;
+                    Task<bool>? deleteNewVideoTask = null;
+                    Task<bool[]>? deleteNewImagesTask = null;
                     if (!string.IsNullOrEmpty(updateDTO.videoUrl))
                     {
                         deleteNewVideoTask = _aws.DeleteImage(updateDTO.videoUrl);
