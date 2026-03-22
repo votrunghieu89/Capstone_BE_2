@@ -25,8 +25,8 @@ namespace Capstone_2_BE.Models
         public Guid CityId { get; set; }
         [Column("Status")]
         public string Status { get; set; }
-        [Column("Price")]
-        public decimal Price { get; set; }
+        //[Column("Price")]
+        //public decimal Price { get; set; }
         [Column("Latitude")]
         public decimal Latitude { get; set; }
         [Column("Longtitude")]
