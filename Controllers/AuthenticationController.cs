@@ -41,16 +41,40 @@ namespace Capstone_2_BE.Controllers
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
 
-        [HttpPost("register/customer")]
-        public async Task<IActionResult> RegisterCustomer([FromBody] RegisterCustomerDTO registerDTO)
+        // Save registration info temporarily (Redis)
+        [HttpPost("register/save")]
+        public async Task<IActionResult> SaveRegisterInformation([FromBody] RegisterCustomerDTO registerDTO)
         {
-            var result = await _authenticationService.RegisterCustomer(registerDTO);
+            var saved = await _authenticationService.saveRegisterInformation(registerDTO);
+            if (saved)
+            {
+                return Ok(new { message = "Lưu thông tin đăng ký tạm thời thành công" });
+            }
+            return BadRequest(new { message = "Lưu thông tin đăng ký thất bại" });
+        }
+
+        // Finalize registration by email (reads from Redis)
+        [HttpPost("register/customer/confirm")]
+        public async Task<IActionResult> RegisterCustomerConfirm([FromBody] CheckEmailDTO emailDTO)
+        {
+            var result = await _authenticationService.RegisterCustomer(emailDTO.Email);
             if (!result.IsSuccess)
             {
                 return StatusCode(result.StatusCode, new { message = result.Error });
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
+
+        //[HttpPost("register/customer")]
+        //public async Task<IActionResult> RegisterCustomer([FromBody] RegisterCustomerDTO registerDTO)
+        //{
+        //    var result = await _authenticationService.RegisterCustomer(registerDTO);
+        //    if (!result.IsSuccess)
+        //    {
+        //        return StatusCode(result.StatusCode, new { message = result.Error });
+        //    }
+        //    return StatusCode(result.StatusCode, new { message = result.Data });
+        //}
 
         [HttpPost("register/technician")]
         public async Task<IActionResult> RegisterTechnician([FromBody] RegisterFixerDTO registerDTO)

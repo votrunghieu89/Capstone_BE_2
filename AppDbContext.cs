@@ -31,6 +31,17 @@ namespace Capstone_2_BE
                     .WithOne(t => t.Accounts)
                     .HasForeignKey<TechnicianProfileModel>(t => t.Id)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                // One-to-Many: Accounts -> SentRooms / ReceivedRooms
+                entity.HasMany(e => e.SentRooms)
+                    .WithOne(r => r.Sender)
+                    .HasForeignKey(r => r.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(e => e.ReceivedRooms)
+                    .WithOne(r => r.Receiver)
+                    .HasForeignKey(r => r.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // CustomerProfileModel Configuration
@@ -203,6 +214,46 @@ namespace Capstone_2_BE
                 entity.Property(e => e.IsRead)
                     .HasComment("0, 1");
             });
+
+            // RoomsModel Configuration
+            modelBuilder.Entity<RoomsModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreateAt);
+
+                // Sender relationship (Account -> SentRooms)
+                entity.HasOne(e => e.Sender)
+                    .WithMany(a => a.SentRooms)
+                    .HasForeignKey(e => e.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Receiver relationship (Account -> ReceivedRooms)
+                entity.HasOne(e => e.Receiver)
+                    .WithMany(a => a.ReceivedRooms)
+                    .HasForeignKey(e => e.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Messages in room
+                entity.HasMany(e => e.Messenger)
+                    .WithOne(m => m.Rooms)
+                    .HasForeignKey(m => m.RoomId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // MessengerModel Configuration
+            modelBuilder.Entity<MessengerModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).IsRequired();
+                entity.Property(e => e.IsRead).HasDefaultValue(false);
+                entity.Property(e => e.CreateAt);
+
+                // Sender relationship (Message -> Account)
+                entity.HasOne(e => e.Sender)
+                    .WithMany()
+                    .HasForeignKey(e => e.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
         public DbSet<AccountsModel> AccountsModel { get; set; }
         public DbSet<CitiesModel> CitiesModel { get; set; }
@@ -215,6 +266,8 @@ namespace Capstone_2_BE
         public DbSet<OrderStatusHistoryModel> OrderStatusHistoryModel { get; set; }
         public DbSet<RatingModel> RatingModel { get; set; }
         public DbSet<NotificationsModel> NotificationsModel { get; set; }
+        public DbSet<RoomsModel> RoomsModel { get; set; }
+        public DbSet<MessengerModel> MessengerModel { get; set; }
 
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Capstone_2_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class dbver_2 : Migration
+    public partial class newDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -96,6 +96,32 @@ namespace Capstone_2_BE.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReceiverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rooms_Account_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Rooms_Account_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TechnicianProfile",
                 columns: table => new
                 {
@@ -132,6 +158,35 @@ namespace Capstone_2_BE.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Messengers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoomId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messengers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messengers_Account_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messengers_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
@@ -144,7 +199,6 @@ namespace Capstone_2_BE.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed"),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
                     Longtitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -292,6 +346,16 @@ namespace Capstone_2_BE.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messengers_RoomId",
+                table: "Messengers",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messengers_SenderId",
+                table: "Messengers",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderAttachments_OrderId",
                 table: "OrderAttachments",
                 column: "OrderId");
@@ -343,6 +407,16 @@ namespace Capstone_2_BE.Migrations
                 column: "TechnicianId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Rooms_ReceiverId",
+                table: "Rooms",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_SenderId",
+                table: "Rooms",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Service_Profile_ServiceId",
                 table: "Service_Profile",
                 column: "ServiceId");
@@ -362,6 +436,9 @@ namespace Capstone_2_BE.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Messengers");
+
+            migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
@@ -375,6 +452,9 @@ namespace Capstone_2_BE.Migrations
 
             migrationBuilder.DropTable(
                 name: "Service_Profile");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "Orders");

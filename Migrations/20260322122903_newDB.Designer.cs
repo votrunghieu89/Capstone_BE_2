@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260319081101_dbver_2")]
-    partial class dbver_2
+    [Migration("20260322122903_newDB")]
+    partial class newDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,6 +130,49 @@ namespace Capstone_2_BE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomerProfile");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.MessengerModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Content");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsRead");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ReadAt");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("RoomId");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SenderId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messengers");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.NotificationsModel", b =>
@@ -273,11 +316,6 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("decimal(10,7)")
                         .HasColumnName("Longtitude");
 
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("Price");
-
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uniqueidentifier");
 
@@ -360,6 +398,34 @@ namespace Capstone_2_BE.Migrations
                         {
                             t.HasCheckConstraint("CK_Rating_Score", "[Score] BETWEEN 1 AND 5");
                         });
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.RoomsModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ReceiverId");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SenderId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.ServiceCategoriesModel", b =>
@@ -511,6 +577,25 @@ namespace Capstone_2_BE.Migrations
                     b.Navigation("Accounts");
                 });
 
+            modelBuilder.Entity("Capstone_2_BE.Models.MessengerModel", b =>
+                {
+                    b.HasOne("Capstone_2_BE.Models.RoomsModel", "Rooms")
+                        .WithMany("Messenger")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Capstone_2_BE.Models.AccountsModel", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Rooms");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Capstone_2_BE.Models.OrderAttachmentsModel", b =>
                 {
                     b.HasOne("Capstone_2_BE.Models.OrderrModel", "Orders")
@@ -603,6 +688,25 @@ namespace Capstone_2_BE.Migrations
                     b.Navigation("TechnicianProfile");
                 });
 
+            modelBuilder.Entity("Capstone_2_BE.Models.RoomsModel", b =>
+                {
+                    b.HasOne("Capstone_2_BE.Models.AccountsModel", "Receiver")
+                        .WithMany("ReceivedRooms")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Capstone_2_BE.Models.AccountsModel", "Sender")
+                        .WithMany("SentRooms")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Capstone_2_BE.Models.Service_ProfileModel", b =>
                 {
                     b.HasOne("Capstone_2_BE.Models.ServiceCategoriesModel", "ServiceCategories")
@@ -648,6 +752,10 @@ namespace Capstone_2_BE.Migrations
 
                     b.Navigation("OrderStatusHistory");
 
+                    b.Navigation("ReceivedRooms");
+
+                    b.Navigation("SentRooms");
+
                     b.Navigation("TechnicianProfile")
                         .IsRequired();
                 });
@@ -674,6 +782,11 @@ namespace Capstone_2_BE.Migrations
 
                     b.Navigation("Rating")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.RoomsModel", b =>
+                {
+                    b.Navigation("Messenger");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.ServiceCategoriesModel", b =>

@@ -28,8 +28,11 @@ namespace Capstone_2_BE.Models
 
         public TechnicianProfileModel TechnicianProfile { get; set; }
         public CustomerProfileModel CustomerProfile { get; set; }
-
         public ICollection<OrderStatusHistoryModel> OrderStatusHistory { get; set; }
+
+        public ICollection<RoomsModel> SentRooms { get; set; }
+        public ICollection<RoomsModel> ReceivedRooms { get; set; }
+
 
 
     }

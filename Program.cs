@@ -4,6 +4,7 @@ using Capstone_2_BE.DALs.Customer;
 using Capstone_2_BE.DALs.Technician;
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Repositories.Administrator;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
@@ -126,6 +127,8 @@ builder.Services.AddScoped<ICustomerOrderRepo, CustomerOrderDAL>();
 builder.Services.AddScoped<CustomerOrderService>();
 builder.Services.AddScoped<ICustomerRatingRepo, CustomerRatingDAL>();
 builder.Services.AddScoped<CustomerRatingService>();
+builder.Services.AddScoped<ICityRepo, CityDAL>();
+builder.Services.AddScoped<CityService>();
 
 // Register Customer ViewAllTechnician DAL and Service
 builder.Services.AddScoped<ICustomerViewAllTechnicianRepo, CustomerViewAllTechnicianDAL>();

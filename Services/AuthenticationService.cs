@@ -8,6 +8,8 @@ using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System.Security.Cryptography;
 
 namespace Capstone_2_BE.Services
@@ -144,6 +146,23 @@ namespace Capstone_2_BE.Services
             }
         }
 
+        public async Task<bool> saveRegisterInformation(RegisterCustomerDTO authRegisterDTO)
+        {
+            try
+            {
+                string key = $"Register:{authRegisterDTO.Email}";
+                bool isSave = await _redis.SetStringAsync(key, JsonConvert.SerializeObject(authRegisterDTO), TimeSpan.FromMinutes(5));
+                if (isSave) { 
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<string> getNewAccessToken(GetNewAccessTokenDTO getAccessToken)
         {
             string? refreshTokenInDb = await _redis.GetStringAsync($"RefressToken_{getAccessToken.Id}");
@@ -175,11 +194,14 @@ namespace Capstone_2_BE.Services
                 return Result<string>.Failure("Đăng xuất thất bại", 500);
             }
         }
-
-        public async Task<Result<string>> RegisterCustomer(RegisterCustomerDTO authRegisterDTO)
+        // này là để lưu vào Redis
+        public async Task<Result<string>> RegisterCustomer(string Email )
         {
             try
             {
+                string key = $"Register:{Email}";
+                var authRegisterStuidentDTOJson = await _redis.GetStringAsync(key);
+                var authRegisterDTO = JsonConvert.DeserializeObject<RegisterCustomerDTO>(authRegisterStuidentDTOJson ?? string.Empty);
                 var result = await _authenticationDAL.RegisterCustomer(authRegisterDTO);
                 switch (result) {
                     case AuthenticationEnum.Register.Success:
