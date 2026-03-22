@@ -4,10 +4,12 @@ using Capstone_2_BE.DALs.Customer;
 using Capstone_2_BE.DALs.Technician;
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Repositories.Admin;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Services;
+using Capstone_2_BE.Services.Admin;
 using Capstone_2_BE.Services.Customer;
 using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
@@ -17,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using System.Text;
+using Capstone_2_BE.DALs.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -143,6 +146,9 @@ builder.Services.AddScoped<ServiceType>();
 
 // Register NotificationService
 builder.Services.AddScoped<NotificationService>();
+
+builder.Services.AddScoped<IAdminRepo, AdminDAL>();
+builder.Services.AddScoped<AdminService>();
 
 var app = builder.Build();
 
