@@ -408,6 +408,14 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedAt");
 
+                    b.Property<string>("LastMessage")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("LastMessage");
+
+                    b.Property<DateTime>("LastMessageTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastMessageTime");
+
                     b.Property<Guid>("ReceiverId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("ReceiverId");

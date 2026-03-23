@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260322122903_newDB")]
+    [Migration("20260323035951_newDB")]
     partial class newDB
     {
         /// <inheritdoc />
@@ -410,6 +410,14 @@ namespace Capstone_2_BE.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedAt");
+
+                    b.Property<string>("LastMessage")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("LastMessage");
+
+                    b.Property<DateTime>("LastMessageTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastMessageTime");
 
                     b.Property<Guid>("ReceiverId")
                         .HasColumnType("uniqueidentifier")

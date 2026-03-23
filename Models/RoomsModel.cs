@@ -13,6 +13,10 @@ namespace Capstone_2_BE.Models
         public Guid SenderId { get; set; }
         [Column("ReceiverId")]
         public Guid ReceiverId { get; set; }
+        [Column("LastMessage")]
+        public string? LastMessage { get; set; }
+        [Column("LastMessageTime")]
+        public DateTime LastMessageTime { get; set; }
         [Column("CreatedAt")]
         public DateTime CreateAt { get; set; }
 

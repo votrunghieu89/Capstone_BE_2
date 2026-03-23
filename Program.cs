@@ -1,11 +1,12 @@
 using Capstone_2_BE;
 using Capstone_2_BE.DALs;
+using Capstone_2_BE.DALs.Admin;
 using Capstone_2_BE.DALs.Customer;
 using Capstone_2_BE.DALs.Technician;
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.Repositories;
-using Capstone_2_BE.Repositories.Administrator;
 using Capstone_2_BE.Repositories.Admin;
+using Capstone_2_BE.Repositories.Administrator;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
@@ -14,13 +15,13 @@ using Capstone_2_BE.Services.Admin;
 using Capstone_2_BE.Services.Customer;
 using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
+using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using System.Text;
-using Capstone_2_BE.DALs.Admin;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -133,6 +134,8 @@ builder.Services.AddScoped<ICustomerRatingRepo, CustomerRatingDAL>();
 builder.Services.AddScoped<CustomerRatingService>();
 builder.Services.AddScoped<ICityRepo, CityDAL>();
 builder.Services.AddScoped<CityService>();
+builder.Services.AddScoped<IChatRealTimeRepo, ChatRealTimeDAL>();
+builder.Services.AddScoped<ChatRealTimeService>();
 
 // Register Customer ViewAllTechnician DAL and Service
 builder.Services.AddScoped<ICustomerViewAllTechnicianRepo, CustomerViewAllTechnicianDAL>();
@@ -168,5 +171,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<NotificationHub>("/NotificationHub");
+app.MapHub<ChatHub>("/ChatHub");
 app.Run();
