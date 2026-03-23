@@ -188,7 +188,7 @@ namespace Capstone_2_BE.DALs
             }
         }
 
-        public async Task<bool> InsertMessage(CreateMessageDTO createMessageDTO)
+        public async Task<string> InsertMessage(CreateMessageDTO createMessageDTO)
         {
             try
             {
@@ -196,6 +196,25 @@ namespace Capstone_2_BE.DALs
                 {
                     try
                     {
+                        string? avatar = null;
+                        var Role = await _context.AccountsModel
+                            .Where(a => a.Id == createMessageDTO.SenderId)
+                            .Select(a => a.Role)
+                            .FirstOrDefaultAsync();
+                        if (Role == "Technician" )
+                        {
+                             avatar = await _context.TechnicianProfileModel
+                                .Where(t => t.Id == createMessageDTO.SenderId)
+                                .Select(t => t.AvatarURl)
+                                .FirstOrDefaultAsync();
+                        }
+                        else
+                        {
+                             avatar = await _context.CustomerProfileModel
+                                .Where(c => c.Id == createMessageDTO.SenderId)
+                                .Select(c => c.AvatarURL)
+                                .FirstOrDefaultAsync();
+                        }
                         MessengerModel newMess = new MessengerModel
                         {
                             RoomId = createMessageDTO.RoomId,
@@ -214,27 +233,27 @@ namespace Capstone_2_BE.DALs
                         if (UpdateLastMessage > 0)
                         {
                             await transaction.CommitAsync();
-                            return true;
+                            return avatar;
                         }
                         else
                         {
                             _logger.LogWarning("Failed to update last message for RoomId: {RoomId} after inserting message for SenderId: {SenderId}", createMessageDTO.RoomId, createMessageDTO.SenderId);
                             await transaction.RollbackAsync();
-                            return false;
+                            return null;
                         }
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error during transaction for inserting message for RoomId: {RoomId}, SenderId: {SenderId}", createMessageDTO.RoomId, createMessageDTO.SenderId);
                         await transaction.RollbackAsync();
-                        return false;
+                        return null;
                     }
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error inserting message for RoomId: {RoomId}, SenderId: {SenderId}", createMessageDTO.RoomId, createMessageDTO.SenderId);
-                return false;
+                return null;
             }
         }
 

@@ -15,7 +15,7 @@ namespace Capstone_2_BE.Models
         [Column("SenderId")]
         public Guid SenderId { get; set; }
         [Column("Content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
         [Column("IsRead")]
         public bool IsRead { get; set; }
         [Column("CreatedAt")]

@@ -183,6 +183,7 @@ namespace Capstone_2_BE.DALs
                 {
                     try
                     {
+                        string avatarURL = "profile/Default.jpg";
                         AccountsModel newAccount = new AccountsModel()
                         {
                             Email = authRegisterDTO.Email,
@@ -201,6 +202,7 @@ namespace Capstone_2_BE.DALs
                             Id = newAccount.Id,
                             FullName = authRegisterDTO.FullName,
                             PhoneNumber = authRegisterDTO.PhoneNumber,
+                            AvatarURL = avatarURL,
                             IdUnique = UniqueId,
                             CreateAt = DateTime.Now,
                         };
@@ -231,6 +233,7 @@ namespace Capstone_2_BE.DALs
 
             try
             {
+                string avatarURL = "profile/Default.jpg";
                 var passwordHash = Hash.HashPassword(authRegisterDTO.Password);
                 using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
@@ -255,6 +258,7 @@ namespace Capstone_2_BE.DALs
                             FullName = authRegisterDTO.FullName,
                             PhoneNumber = authRegisterDTO.PhoneNumber,
                             IdUnique = UniqueId,
+                            AvatarURl = avatarURL,
                             Address = authRegisterDTO.Address,
                             CityId = authRegisterDTO.CityId,
                             Latitude = authRegisterDTO.Latitude,

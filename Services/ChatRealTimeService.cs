@@ -1,5 +1,6 @@
 ﻿using Capstone_2_BE.DTOs.ChatRealTime;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Settings;
 using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.SignalR;
 
@@ -10,12 +11,14 @@ namespace Capstone_2_BE.Services
         private readonly IChatRealTimeRepo _chatRealTimeRepository;
         private readonly ILogger<ChatRealTimeService> _logger;
         private readonly IHubContext<ChatHub> _chatHubContext;
+        private readonly AWS _aws;
 
-        public ChatRealTimeService(IChatRealTimeRepo chatRealTimeRepository, ILogger<ChatRealTimeService> logger, IHubContext<ChatHub> chatHubContext)
+        public ChatRealTimeService(IChatRealTimeRepo chatRealTimeRepository, ILogger<ChatRealTimeService> logger, IHubContext<ChatHub> chatHubContext, AWS aws)
         {
             _chatRealTimeRepository = chatRealTimeRepository;
             _logger = logger;
             _chatHubContext = chatHubContext;
+            _aws = aws;
         }
 
         public async Task<Result<string>> MarkAsRead(Guid roomId, Guid AccountId)
@@ -44,6 +47,13 @@ namespace Capstone_2_BE.Services
             try
             {
                 List<ViewAllRoomDTO> rooms = await _chatRealTimeRepository.GetAllRooms(AccountId, page, pageSize);
+                foreach (var room in rooms)
+                {
+                    if(room.AvatarUrl != null)
+                    {
+                        room.AvatarUrl = await _aws.ReadImage(room.AvatarUrl);
+                    }
+                }
                 if (rooms == null || rooms.Count == 0)
                 {
                     return Result<List<ViewAllRoomDTO>>.Failure("No rooms found for this account.", 404);
@@ -62,6 +72,13 @@ namespace Capstone_2_BE.Services
             try
             {
                 List<ViewAllMessageDTO> messages = await _chatRealTimeRepository.GetAllMessages(RoomId, page, pageSize);
+                foreach (var message in messages)
+                {
+                    if (message.AvatarUrl != null)
+                    {
+                        message.AvatarUrl = await _aws.ReadImage(message.AvatarUrl);
+                    }
+                }
                 if (messages == null || messages.Count == 0)
                 {
                     return Result<List<ViewAllMessageDTO>>.Failure("No messages found for this room.", 404);
@@ -106,8 +123,8 @@ namespace Capstone_2_BE.Services
                     SenderId = createMessageFormDTO.SenderId,
                     Content = createMessageFormDTO.Content
                 };
-                bool success = await _chatRealTimeRepository.InsertMessage(createMessageDTO);
-                if (success)
+                string avatarURL = await _chatRealTimeRepository.InsertMessage(createMessageDTO);
+                if (avatarURL != null)
                 {
                     await _chatHubContext.Clients.Group(roomId.ToString())
                                                 .SendAsync("ChatMessage", new
@@ -115,6 +132,7 @@ namespace Capstone_2_BE.Services
                                                     RoomId = roomId,
                                                     SenderId = createMessageFormDTO.SenderId,
                                                     Content = createMessageFormDTO.Content,
+                                                    avatarURL = await _aws.ReadImage(avatarURL),
                                                     CreatedAt = DateTime.Now
                                                 });
                     return Result<string>.Success("Message sent successfully.", 200);
