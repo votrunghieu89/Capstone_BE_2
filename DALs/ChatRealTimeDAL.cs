@@ -23,23 +23,26 @@ namespace Capstone_2_BE.DALs
             {
                 // B1: Lấy messages + role (1 query)
                 var messages = await (
-                    from m in _context.MessengerModel
-                    join u in _context.AccountsModel on m.SenderId equals u.Id
-                    where m.RoomId == RoomId
-                    orderby m.CreateAt ascending
-                    select new
-                    {
-                        m.Id,
-                        m.Content,
-                        m.SenderId,
-                        u.Role,
-                        m.CreateAt
-                    }
-                )
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
+                from m in _context.MessengerModel
+                join u in _context.AccountsModel on m.SenderId equals u.Id
+                join ma in _context.MessAttachmentModel on m.Id equals ma.MessageId into maGroup
+                from ma in maGroup.DefaultIfEmpty()
+                where m.RoomId == RoomId
+                orderby m.CreateAt ascending
+                select new
+                {
+                    m.Id,
+                    m.Content,
+                    m.SenderId,
+                    u.Role,
+                    FileType = ma != null ? ma.FileType : null,
+                    FileName = ma != null ? ma.FileName : null,
+                    m.CreateAt
+                }
+            )
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
                 // B2: lấy danh sách senderId
                 var senderIds = messages.Select(x => x.SenderId).Distinct().ToList();
 
@@ -94,16 +97,18 @@ namespace Capstone_2_BE.DALs
                             avatar = cus.AvatarURL;
                         }
                     }
-
-                    result.Add(new ViewAllMessageDTO
+                    ViewAllMessageDTO dto = new ViewAllMessageDTO
                     {
                         MessengerId = msg.Id,
                         Content = msg.Content,
                         SenderId = msg.SenderId,
                         SentTime = msg.CreateAt,
                         SenderName = senderName,
-                        AvatarUrl = avatar
-                    });
+                        AvatarUrl = avatar,
+                        ImageUrls = msg.FileType == "Image" ? new List<string> { msg.FileName } : new List<string>(),
+                        videoUrl = msg.FileType == "Video" ? msg.FileName : null
+                    };
+                    result.Add(dto);
                 }
 
                 return result;
@@ -188,7 +193,7 @@ namespace Capstone_2_BE.DALs
             }
         }
 
-        public async Task<string> InsertMessage(CreateMessageDTO createMessageDTO)
+        public async Task<InsertResDTO> InsertMessage(CreateMessageDTO createMessageDTO)
         {
             try
             {
@@ -226,14 +231,48 @@ namespace Capstone_2_BE.DALs
                         await _context.MessengerModel.AddAsync(newMess);
                         await _context.SaveChangesAsync();
 
+                        if(createMessageDTO.ImageUrls != null && createMessageDTO.ImageUrls.Count > 0)
+                        {
+                            var attachments = createMessageDTO.ImageUrls.Select(url => new MessAttachmentModel
+                            {
+                                MessageId = newMess.Id,
+                                FileName = url,
+                                FileType = "Image",
+                                CreateAt = DateTime.Now
+                            }).ToList();
+                            await _context.MessAttachmentModel.AddRangeAsync(attachments);
+                            await _context.SaveChangesAsync();
+                        }
+                        if(!string.IsNullOrEmpty(createMessageDTO.VideoUrl))
+                        {
+                            MessAttachmentModel videoAttachment = new MessAttachmentModel
+                            {
+                                MessageId = newMess.Id,
+                                FileName = createMessageDTO.VideoUrl,
+                                FileType = "Video",
+                                CreateAt = DateTime.Now
+                            };
+                            await _context.MessAttachmentModel.AddAsync(videoAttachment);
+                            await _context.SaveChangesAsync();
+                        }
                         int UpdateLastMessage = await _context.RoomsModel
                             .Where(r => r.Id == createMessageDTO.RoomId)
                             .ExecuteUpdateAsync(r => r.SetProperty(room => room.LastMessage, newMess.Content)
                                                       .SetProperty(room => room.LastMessageTime, newMess.CreateAt));
+                        InsertResDTO newOutput = new InsertResDTO
+                        {
+                            MessengerId = newMess.Id,
+                            RoomId = newMess.RoomId,
+                            SenderId = newMess.SenderId,
+                            Content = newMess.Content,
+                            VideoUrl = createMessageDTO.VideoUrl,
+                            ImageUrls = createMessageDTO.ImageUrls,
+                            AvatarUrl = avatar
+                        };
                         if (UpdateLastMessage > 0)
                         {
                             await transaction.CommitAsync();
-                            return avatar;
+                            return newOutput;
                         }
                         else
                         {
