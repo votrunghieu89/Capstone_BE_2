@@ -166,6 +166,93 @@ namespace Capstone_2_BE.DALs.Customer
                 return new List<ViewAllTechnicianDTO>();
             }
         }
+
+        public async Task<List<ViewAllTechnicianDTO>> FilterTechnicians(
+      decimal? startRate,
+      decimal? endRate,
+      Guid? cityId,
+      Guid? serviceId)
+        {
+            try
+            {
+                var query =
+                    from tp in _context.TechnicianProfileModel
+
+                    join sp in _context.Service_ProfileModel
+                        on tp.Id equals sp.TechnicianId into spGroup
+                    from sp in spGroup.DefaultIfEmpty()
+
+                    join s in _context.ServiceCategoriesModel
+                        on sp.ServiceId equals s.Id into sGroup
+                    from s in sGroup.DefaultIfEmpty()
+
+                    join r in _context.RatingModel
+                        on tp.Id equals r.TechnicianId into ratingGroup
+
+                    select new
+                    {
+                        tp,
+                        sp,
+                        s,
+                        ratingGroup
+                    };
+
+                // 🔥 FILTER DYNAMIC
+                if (cityId.HasValue)
+                {
+                    query = query.Where(x => x.tp.CityId == cityId.Value);
+                }
+
+                if (serviceId.HasValue)
+                {
+                    query = query.Where(x => x.sp != null && x.sp.ServiceId == serviceId.Value);
+                }
+
+                // 🔥 GROUP lại để tính AVG, COUNT
+                var resultQuery =
+                    from q in query
+                    group q by new
+                    {
+                        q.tp.Id,
+                        q.tp.FullName,
+                        q.tp.AvatarURl,
+                        q.tp.OrderCount,
+                        ServiceId = q.s != null ? q.s.Id : Guid.Empty,
+                        ServiceName = q.s != null ? q.s.ServiceName : ""
+                    }
+                    into g
+                    let avgRate = g.SelectMany(x => x.ratingGroup).Select(r => (decimal?)r.Score).Average()
+                    let ratingCount = g.SelectMany(x => x.ratingGroup).Count()
+
+                    select new ViewAllTechnicianDTO
+                    {
+                        TechnicianId = g.Key.Id,
+                        TechnicianName = g.Key.FullName,
+                        AvatarUrl = g.Key.AvatarURl,
+                        ServiceId = g.Key.ServiceId,
+                        ServiceName = g.Key.ServiceName,
+                        OrderCount = g.Key.OrderCount,
+                        RatingCount = ratingCount,
+                        AverageRating = avgRate ?? 0
+                    };
+
+                // 🔥 FILTER RATE (sau khi đã tính AVG)
+                if (startRate.HasValue && endRate.HasValue)
+                {
+                    resultQuery = resultQuery.Where(x =>
+                        x.AverageRating >= startRate.Value &&
+                        x.AverageRating <= endRate.Value);
+                }
+
+                return await resultQuery.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in FilterTechnicians");
+                return new List<ViewAllTechnicianDTO>();
+            }
+        }
+
         public async Task<bool> PlaceOrderForTechnician(CreateOrderDALDTO placeOrderDALDTO)
         {
             try

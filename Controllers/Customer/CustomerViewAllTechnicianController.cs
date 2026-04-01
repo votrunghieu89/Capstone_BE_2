@@ -26,11 +26,14 @@ namespace Capstone_2_BE.Controllers.Customer
             return StatusCode(result.StatusCode, result.Data);
         }
 
-        [HttpGet("by-area/{city}")]
-        public async Task<IActionResult> ByArea(Guid cityId)
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterTechnicians([FromQuery] TechnicianFilterRequestDTO filter)
         {
-            var result = await _service.FilterByArea(cityId);
-            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            var result = await _service.FilterTechnicianCombination(filter);
+
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, new { message = result.Error });
+
             return StatusCode(result.StatusCode, result.Data);
         }
 

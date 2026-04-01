@@ -173,6 +173,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                 select new OrderOverviewDTO
                                                                 {
                                                                     OrderId = o.Id,
+                                                                    TechnicianId = c.Id,
                                                                     TechnicianName = c.FullName,
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
@@ -235,6 +236,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                 select new OrderOverviewDTO
                                                                 {
                                                                     OrderId = o.Id,
+                                                                    TechnicianId = c.Id,
                                                                     TechnicianName = c.FullName,
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
@@ -260,6 +262,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                 select new OrderOverviewDTO
                                                                 {
                                                                     OrderId = o.Id,
+                                                                    TechnicianId = c.Id,
                                                                     TechnicianName = c.FullName,
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
