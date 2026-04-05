@@ -191,6 +191,7 @@ namespace Capstone_2_BE.DALs
                             Role = "Customer",
                             IsActive = 1,
                             CreateAt = DateTime.Now,
+                            IsOnline= 1,
                         };
 
                         await _context.AccountsModel.AddAsync(newAccount);
@@ -245,6 +246,7 @@ namespace Capstone_2_BE.DALs
                             Password = passwordHash,
                             Role = "Technician",
                             IsActive = 1,
+                            IsOnline = 1,
                             CreateAt = DateTime.Now,
                         };
 

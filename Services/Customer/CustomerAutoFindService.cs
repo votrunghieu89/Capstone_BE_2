@@ -45,7 +45,7 @@ namespace Capstone_2_BE.Services.Customer
             try
             {
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
-                if (technicians == null)
+                if (technicians == null || !technicians.Any())
                 {
                     _logger.LogWarning("No technicians found for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.CityId, autoFindFixerDTO.ServiceId);
                     return Result<string>.Failure("No technicians found in your area for the selected service.", 400);
@@ -80,7 +80,7 @@ namespace Capstone_2_BE.Services.Customer
                 var acceptedTechnician = System.Text.Json.JsonSerializer.Deserialize<AutoFindFixerResDTO>(firstTechnicianJson);
                 AutoFindFixerResSuccessDTO techinician = new AutoFindFixerResSuccessDTO
                 {
-
+                    TechnicianId = acceptedTechnician.TechnicianId,
                     FullName = acceptedTechnician.FullName,
                     avatarURL = acceptedTechnician.avatarURL,
                     ServiceName = acceptedTechnician.ServiceName,
