@@ -44,6 +44,23 @@ namespace Capstone_2_BE.Services.Customer
             }
         }
 
+        public async Task<Result<List<OrderOverviewDTO>>> GetInProgressOrders(Guid customerId)
+        {
+            try
+            {
+                var orders = await _customerOrderRepo.GetInProgressOrders(customerId);
+                if (orders == null || orders.Count == 0)
+                {
+                    return Result<List<OrderOverviewDTO>>.Success(new List<OrderOverviewDTO>(), 200);
+                }
+                return Result<List<OrderOverviewDTO>>.Success(orders, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting in-progress orders for customer {CustomerId}", customerId);
+                return Result<List<OrderOverviewDTO>>.Failure("L?i khi l?y danh sách ??n đang x? lý", 500);
+            }
+        }
         public async Task<Result<List<OrderOverviewDTO>>> GetOrderHistory(Guid customerId)
         {
             try

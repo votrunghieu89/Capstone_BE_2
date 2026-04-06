@@ -187,6 +187,31 @@ namespace Capstone_2_BE.DALs.Customer
                 return null;
             }
         }
+        public async Task<List<OrderOverviewDTO>> GetInProgressOrders(Guid customerId)
+        {
+            try
+            {
+                List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                                join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                                join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                where o.CustomerId == customerId && o.Status == "In Progress"
+                                                                select new OrderOverviewDTO
+                                                                {
+                                                                    OrderId = o.Id,
+                                                                    TechnicianId = c.Id,
+                                                                    TechnicianName = c.FullName,
+                                                                    ServiceName = s.ServiceName,
+                                                                    Title = o.Title,
+                                                                    Status = o.Status,
+                                                                    OrderDate = o.CreateAt,
+                                                                }).ToListAsync();
+                return InProgressOrder;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
 
         public async Task<OrderDetailDTO> GetOrderDetail(Guid orderId)
         {

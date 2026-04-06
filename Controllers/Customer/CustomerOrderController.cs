@@ -28,7 +28,16 @@ namespace Capstone_2_BE.Controllers.Customer
             }
             return StatusCode(result.StatusCode, result.Data);
         }
-
+        [HttpGet("in-progress/{customerId}")]
+        public async Task<IActionResult> GetInProgressOrders(Guid customerId)
+        {
+            var result = await _customerOrderService.GetInProgressOrders(customerId);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, result.Data);
+        }
         [HttpGet("history/{customerId}")]
         public async Task<IActionResult> GetOrderHistory(Guid customerId)
         {
@@ -95,6 +104,7 @@ namespace Capstone_2_BE.Controllers.Customer
         //    }
         //    return StatusCode(result.StatusCode, new { message = "??t ??n hàng thành công" });
         //}
+        
 
         [HttpGet("detail/{orderId}")]
         public async Task<IActionResult> GetOrderDetail(Guid orderId)
