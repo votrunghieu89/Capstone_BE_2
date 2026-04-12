@@ -87,5 +87,37 @@ namespace Capstone_2_BE.Services
                 return Result<List<ServiceAdminDTO>>.Failure("Error retrieving services", 500);
             }
         }
+
+        // New: update service
+        public async Task<Result<string>> UpdateService(ServiceDTO updateService)
+        {
+            try
+            {
+                var ok = await _serviceRepo.UpdateService(updateService);
+                if (ok) return Result<string>.Success("Cập nhật dịch vụ thành công", 200);
+                return Result<string>.Failure("Cập nhật dịch vụ thất bại", 400);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating service {ServiceId}", updateService.Id);
+                return Result<string>.Failure("Lỗi khi cập nhật dịch vụ", 500);
+            }
+        }
+
+        // New: delete service
+        public async Task<Result<string>> DeleteService(Guid serviceId)
+        {
+            try
+            {
+                var ok = await _serviceRepo.DeleteService(serviceId);
+                if (ok) return Result<string>.Success("Xóa dịch vụ thành công", 200);
+                return Result<string>.Failure("Xóa dịch vụ thất bại", 400);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting service {ServiceId}", serviceId);
+                return Result<string>.Failure("Lỗi khi xóa dịch vụ", 500);
+            }
+        }
     }
 }

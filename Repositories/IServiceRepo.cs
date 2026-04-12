@@ -13,5 +13,8 @@ namespace Capstone_2_BE.Repositories
 
         // Lấy tất cả service but with description for Admin
         Task<List<ServiceAdminDTO>> GetAllServicesAdmin();
+
+        Task<bool> UpdateService(ServiceDTO updateService);
+        Task<bool> DeleteService(Guid serviceId);
     }
 }

@@ -50,6 +50,22 @@ namespace Capstone_2_BE.Controllers
             return StatusCode(result.StatusCode, new { serviceId = result.Data });
         }
 
+        [HttpPut("admin/update")]
+        public async Task<IActionResult> UpdateService([FromBody] ServiceDTO updateDTO)
+        {
+            var result = await _serviceType.UpdateService(updateDTO);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, new { message = result.Data });
+        }
+
+        [HttpDelete("admin/{serviceId}")]
+        public async Task<IActionResult> DeleteService(Guid serviceId)
+        {
+            var result = await _serviceType.DeleteService(serviceId);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, new { message = result.Data });
+        }
+
         //[HttpGet("admin/all")]
         //public async Task<IActionResult> GetAllServicesAdmin()
         //{

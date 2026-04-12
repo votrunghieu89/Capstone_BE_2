@@ -49,6 +49,8 @@ namespace Capstone_2_BE.Controllers.Technician
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, new { message = result.Error });
         }
 
+       
+
         [HttpGet("{technicianId}/canceled/total")]
         public async Task<IActionResult> GetCanceledOrdersTotal(Guid technicianId)
         {
@@ -102,6 +104,26 @@ namespace Capstone_2_BE.Controllers.Technician
         public async Task<IActionResult> GetTodayCompletedOrders(Guid technicianId)
         {
             var result = await _service.GetTodayCompletedOrders(technicianId);
+            return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, new { message = result.Error });
+        }
+
+        [HttpGet("{technicianId}/completed/total")]
+        public async Task<IActionResult> GetTotalCompletedOrders(Guid technicianId)
+        {
+            var result = await _service.GetTotalCompletedOrders(technicianId);
+            return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, new { message = result.Error });
+        }
+
+        [HttpGet("{technicianId}/total")]
+        public async Task<IActionResult> GetTotalOrders(Guid technicianId)
+        {
+            var result = await _service.GetTotalOrders(technicianId);
+            return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, new { message = result.Error });
+        }
+        [HttpGet("{technicianId}/ratings/avg")]
+        public async Task<IActionResult> GetAverageRating(Guid technicianId)
+        {
+            var result = await _service.GetAvgRate(technicianId);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, new { message = result.Error });
         }
     }

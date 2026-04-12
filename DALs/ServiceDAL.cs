@@ -102,5 +102,41 @@ namespace Capstone_2_BE.DALs
                 return new List<ServiceAdminDTO>();
             }
         }
+
+        public async Task<bool> UpdateService(ServiceDTO updateService)
+        {
+            try
+            {
+                var isUpdate = await _context.ServiceCategoriesModel.Where(s => s.Id == updateService.Id).ExecuteUpdateAsync(eu => eu.SetProperty(a => a.ServiceName, updateService.ServiceName)
+                                                                                                                                     .SetProperty(a => a.Description, updateService.Description)
+                                                                                                                                     .SetProperty(a => a.UpdateAt, DateTime.Now));
+                if(isUpdate == 0)
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteService(Guid serviceId)
+        {
+            try
+            {
+                var isDelete = await _context.ServiceCategoriesModel.Where(s => s.Id ==  serviceId).ExecuteDeleteAsync();
+                if (isDelete == 0)
+                {
+                    return false;
+                }
+                return true;
+
+            }
+            catch (Exception ex) { 
+                return false;
+            }
+        }
     }
 }

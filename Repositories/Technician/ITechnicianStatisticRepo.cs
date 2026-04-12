@@ -27,5 +27,9 @@ namespace Capstone_2_BE.Repositories.Technician
         Task<int> GetTodayReceivedOrders(Guid technicianId);
         // Đơn hàng đã hoàn thành hôm nay
         Task<int> GetTodayCompletedOrders(Guid technicianId);
+
+        Task<int> GetTotalCompletedOrders(Guid technicianId);
+        Task<int> GetTotalOrders(Guid technicianId);
+        Task<decimal> getAvgRate(Guid technicianId);
     }
 }

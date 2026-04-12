@@ -93,5 +93,23 @@ namespace Capstone_2_BE.Services.Technician
             try { return Result<int>.Success(await _repo.GetTodayCompletedOrders(technicianId), 200); }
             catch (Exception ex) { _logger.LogError(ex, "Error"); return Result<int>.Failure("Lỗi lấy dữ liệu thống kê", 500); }
         }
+
+        public async Task<Result<int>> GetTotalCompletedOrders(Guid technicianId)
+        {
+            try { return Result<int>.Success(await _repo.GetTotalCompletedOrders(technicianId), 200); }
+            catch (Exception ex) { _logger.LogError(ex, "Error"); return Result<int>.Failure("Lỗi lấy dữ liệu thống kê", 500); }
+        }
+
+        public async Task<Result<int>> GetTotalOrders(Guid technicianId)
+        {
+            try { return Result<int>.Success(await _repo.GetTotalOrders(technicianId), 200); }
+            catch (Exception ex) { _logger.LogError(ex, "Error"); return Result<int>.Failure("Lỗi lấy dữ liệu thống kê", 500); }
+        }
+
+        public async Task<Result<decimal>> GetAvgRate(Guid technicianId)
+        {
+            try { return Result<decimal>.Success(await _repo.getAvgRate(technicianId), 200); }
+            catch (Exception ex) { _logger.LogError(ex, "Error"); return Result<decimal>.Failure("Lỗi lấy dữ liệu thống kê", 500); }
+        }
     }
 }

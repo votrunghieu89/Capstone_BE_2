@@ -250,5 +250,46 @@ namespace Capstone_2_BE.DALs.Technician
                 .Where(o => o.TechnicianId == technicianId && o.Status == "Completed" && o.CompleteAt >= today)
                 .CountAsync();
         }
+
+        public async Task<int> GetTotalCompletedOrders(Guid technicianId)
+        {
+            try
+            {
+                int result = await _context.OrderrModel.Where(o => o.TechnicianId==technicianId && o.Status == "Completed").CountAsync();
+                return result;
+            }
+            catch (Exception ex) {
+                return 0;
+            }
+        }
+
+        public async Task<int> GetTotalOrders(Guid technicianId)
+        {
+            try
+            {
+                int result = await _context.OrderrModel.Where(o => o.TechnicianId == technicianId).CountAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        public async Task<decimal> getAvgRate(Guid technicianId)
+        {
+            try
+            {
+                var result = (decimal) await _context.RatingModel
+                                             .Where(o => o.TechnicianId == technicianId)
+                                             .Select(o => (decimal?)o.Score) // hoặc field rating của bạn
+                                             .AverageAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
     }
 }
