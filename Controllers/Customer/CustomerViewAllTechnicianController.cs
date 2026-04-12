@@ -1,4 +1,4 @@
-using Capstone_2_BE.DTOs.Customer.FindTechnician;
+﻿using Capstone_2_BE.DTOs.Customer.FindTechnician;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.Services.Customer;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +67,7 @@ namespace Capstone_2_BE.Controllers.Customer
         {
             var result = await _service.PlaceOrder(form);
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
-            return StatusCode(result.StatusCode, new { message = "??t ??n th�nh c�ng" });
+            return StatusCode(result.StatusCode, new { message = "Đặt đơn thành công" });
         }
     }
 }

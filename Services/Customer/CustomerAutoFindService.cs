@@ -1,7 +1,8 @@
 ﻿using Capstone_2_BE.DTOs.Customer.AutoFind;
+using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Settings;
-using Capstone_2_BE.DTOs.Customer.Order;
+using System.Globalization;
 
 namespace Capstone_2_BE.Services.Customer
 {
@@ -117,6 +118,18 @@ namespace Capstone_2_BE.Services.Customer
         {
             try
             {
+                if (!decimal.TryParse(form.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                    return Result<bool>.Failure("Latitude không hợp lệ", 400);
+
+                if (!decimal.TryParse(form.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                    return Result<bool>.Failure("Longitude không hợp lệ", 400);
+
+                // ✅ Validate GPS
+                if (lat < -90 || lat > 90)
+                    return Result<bool>.Failure("Latitude ngoài phạm vi", 400);
+
+                if (lng < -180 || lng > 180)
+                    return Result<bool>.Failure("Longitude ngoài phạm vi", 400);
                 var dalDto = new CreateOrderDALDTO
                 {
                     CustomerId = form.CustomerId,
@@ -126,8 +139,8 @@ namespace Capstone_2_BE.Services.Customer
                     Description = form.Description,
                     Address = form.Address,
                     CityId = form.CityId,
-                    Latitude = form.Latitude,
-                    Longitude = form.Longitude,
+                    Latitude = lat,
+                    Longitude = lng,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };
