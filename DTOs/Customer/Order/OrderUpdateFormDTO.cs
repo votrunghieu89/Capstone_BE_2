@@ -7,8 +7,8 @@
         public string? Description { get; set; }
         public string? Address { get; set; }
         public Guid CityId { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
         public IFormFile? videoUrl { get; set; }
         public List<IFormFile> ImageUrls { get; set; } = new List<IFormFile>();
     }

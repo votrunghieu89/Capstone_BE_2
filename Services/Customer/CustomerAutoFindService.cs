@@ -45,6 +45,21 @@ namespace Capstone_2_BE.Services.Customer
         {
             try
             {
+                if (!decimal.TryParse(autoFindFixerDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                    return Result<string>.Failure("Latitude không hợp lệ", 400);
+
+                if (!decimal.TryParse(autoFindFixerDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                    return Result<string>.Failure("Longitude không hợp lệ", 400);
+
+                // ✅ Validate GPS
+                if (lat < -90 || lat > 90)
+                    return Result<string>.Failure("Latitude ngoài phạm vi", 400);   
+                if (lng < -180 || lng > 180)
+                    return Result<string>.Failure("Longitude ngoài phạm vi", 400);
+
+                // ✅ Làm tròn 2 chữ số
+                lat = Math.Round(lat, 6);
+                lng = Math.Round(lng, 6);
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
                 if (technicians == null || !technicians.Any())
                 {
@@ -53,7 +68,7 @@ namespace Capstone_2_BE.Services.Customer
                 }
                 foreach (var tech in technicians)
                 {
-                    decimal distance = (decimal)CalculateDistance(autoFindFixerDTO.Latitude, autoFindFixerDTO.Longitude, tech.Latitude, tech.Longitude);
+                    decimal distance = (decimal)CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
                     tech.Total = tech.Total + distance;
                 }
                 var sortedTechnicians = technicians.OrderBy(t => t.Total).ToList();

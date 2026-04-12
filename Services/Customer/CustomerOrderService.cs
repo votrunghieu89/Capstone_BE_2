@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Customer.Order;
+﻿using Capstone_2_BE.DTOs.Customer.AutoFind;
+using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Repositories;
@@ -187,6 +188,21 @@ namespace Capstone_2_BE.Services.Customer
         {
             try
             {
+                if (!decimal.TryParse(createOrderDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                    return Result<bool>.Failure("Latitude không hợp lệ", 400);
+
+                if (!decimal.TryParse(createOrderDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                    return Result<bool>.Failure("Longitude không hợp lệ", 400);
+
+                // ✅ Validate GPS
+                if (lat < -90 || lat > 90)
+                    return Result<bool>.Failure("Latitude ngoài phạm vi", 400);
+                if (lng < -180 || lng > 180)
+                    return Result<bool>.Failure("Longitude ngoài phạm vi", 400);
+
+                // ✅ Làm tròn 6 chữ số
+                lat = Math.Round(lat, 6);
+                lng = Math.Round(lng, 6);
                 var dalDto = new CreateOrderDALDTO
                 {
                     CustomerId = createOrderDTO.CustomerId,
@@ -196,8 +212,8 @@ namespace Capstone_2_BE.Services.Customer
                     Description = createOrderDTO.Description,
                     Address = createOrderDTO.Address,
                     CityId = createOrderDTO.City,
-                    Latitude = createOrderDTO.Latitude,
-                    Longitude = createOrderDTO.Longitude,
+                    Latitude = lat,
+                    Longitude = lng,
                     videoUrl = createOrderDTO.VideoFileName,
                     ImageOrderUrl = createOrderDTO.ImageFileNames
                 };
@@ -317,7 +333,21 @@ namespace Capstone_2_BE.Services.Customer
 
         public async Task<Result<string>> UpdateOrder(OrderUpdateFormDTO OrderUpdateFormDTO)
         {
+            if (!decimal.TryParse(OrderUpdateFormDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                return Result<string>.Failure("Latitude không hợp lệ", 400);
 
+            if (!decimal.TryParse(OrderUpdateFormDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                return Result<string>.Failure("Longitude không hợp lệ", 400);
+            // ✅ Validate GPS
+            if (lat < -90 || lat > 90)
+                return Result<string>.Failure("Latitude ngoài phạm vi", 400);
+
+            if (lng < -180 || lng > 180)
+                return Result<string>.Failure("Longitude ngoài phạm vi", 400);
+
+            // ✅ Làm tròn 2 chữ số
+            lat = Math.Round(lat, 2);
+            lng = Math.Round(lng, 2);
             try
             {
                 UpdateOrderDALDTO updateDTO = new UpdateOrderDALDTO
@@ -326,8 +356,8 @@ namespace Capstone_2_BE.Services.Customer
                     Description = OrderUpdateFormDTO.Description,
                     Address = OrderUpdateFormDTO.Address,
                     CityId = OrderUpdateFormDTO.CityId,
-                    Latitude = OrderUpdateFormDTO.Latitude,
-                    Longitude = OrderUpdateFormDTO.Longitude,
+                    Latitude = lat,
+                    Longitude = lng,
                     videoUrl = null,
                     ImageUrls = new List<string>()
                 };

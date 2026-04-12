@@ -1,7 +1,9 @@
-﻿using Capstone_2_BE.DTOs.Technician.Profile;
+﻿using Capstone_2_BE.DTOs.Customer.AutoFind;
+using Capstone_2_BE.DTOs.Technician.Profile;
 using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories.Technician;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace Capstone_2_BE.DALs.Technician
 {
@@ -94,6 +96,22 @@ namespace Capstone_2_BE.DALs.Technician
         {
             try
             {
+                if (!decimal.TryParse(technicianProfileUpdateDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                    throw new Exception("Latitude không hợp lệ");
+
+                if (!decimal.TryParse(technicianProfileUpdateDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                    throw new Exception("Longitude không hợp lệ");
+
+                // ✅ Validate
+                if (lat < -90 || lat > 90)
+                    throw new Exception("Latitude ngoài phạm vi");
+
+                if (lng < -180 || lng > 180)
+                    throw new Exception("Longitude ngoài phạm vi");
+
+                // ✅ Round
+                lat = Math.Round(lat, 6); // nên dùng 6
+                lng = Math.Round(lng, 6);
                 using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
                    int isUpdateInfor = await _context.TechnicianProfileModel.Where(t => t.Id == technicianProfileUpdateDTO.Id).ExecuteUpdateAsync(t => t
@@ -101,8 +119,8 @@ namespace Capstone_2_BE.DALs.Technician
                         .SetProperty(p => p.PhoneNumber, technicianProfileUpdateDTO.PhoneNumber)
                         .SetProperty(p => p.Address, technicianProfileUpdateDTO.Address)
                         .SetProperty(p => p.CityId, technicianProfileUpdateDTO.CityId)
-                        .SetProperty(p => p.Latitude, technicianProfileUpdateDTO.Latitude)
-                        .SetProperty(p => p.Longitude, technicianProfileUpdateDTO.Longitude)
+                        .SetProperty(p => p.Latitude, lat)
+                        .SetProperty(p => p.Longitude, lng)
                         .SetProperty(p => p.Description, technicianProfileUpdateDTO.Description)
                         .SetProperty(p => p.Experiences, technicianProfileUpdateDTO.Experiences)
                     );

@@ -2,8 +2,8 @@
 {
     public class AutoFindFixerDTO
     {
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
         public Guid CityId { get; set; }
         public Guid ServiceId { get; set; }
     }

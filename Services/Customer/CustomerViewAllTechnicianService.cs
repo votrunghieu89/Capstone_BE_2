@@ -181,8 +181,8 @@ namespace Capstone_2_BE.Services.Customer
                     return Result<bool>.Failure("Longitude ngoài phạm vi", 400);
 
                 // ✅ Làm tròn 2 chữ số
-                lat = Math.Round(lat, 2);
-                lng = Math.Round(lng, 2);
+                lat = Math.Round(lat, 6);
+                lng = Math.Round(lng, 6);
                 var dalDto = new CreateOrderDALDTO
                 {
                     CustomerId = form.CustomerId,
