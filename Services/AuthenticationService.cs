@@ -99,6 +99,8 @@ namespace Capstone_2_BE.Services
             {
                 case AuthenticationEnum.Login.Success:
                     var accessToken = _token.generateAccessToken(loginResult.Id, loginResult.Role, loginResult.Email);
+                    Console.WriteLine("5S");
+                    Console.WriteLine(accessToken);
                     var refressToken = _token.generateRefreshToken();
                     bool setRefresh = await _redis.SetStringAsync($"RefressToken:{loginResult.Id}", refressToken, TimeSpan.FromDays(7));
                     return Result<LoginResultDTO>.Success(new LoginResultDTO

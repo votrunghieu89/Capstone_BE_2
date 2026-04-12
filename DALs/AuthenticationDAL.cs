@@ -155,10 +155,11 @@ namespace Capstone_2_BE.DALs
         {
             try
             {
+
                 AccountsModel newAccountAdmin = new AccountsModel()
                 {
                     Email = email,
-                    Password = passwordHash,
+                    Password = Hash.HashPassword(passwordHash),
                     Role = "Admin",
                     IsActive = 1,
                     IsOnline = 1,
