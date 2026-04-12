@@ -25,5 +25,7 @@ namespace Capstone_2_BE.Repositories
         // Cancel Order
         Task<OrderActionResDTO> RejectedOrder(Guid orderId, Guid technicianId);
         Task<OrderActionResDTO> CompletedOrder(Guid orderId);
+
+        Task<int> GetOrderInProgressToday(Guid technicianId);
     }
 }

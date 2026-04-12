@@ -51,12 +51,10 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 var orders = await _technicianOrderRepo.GetConfirmingOrders(technicianId);
-                
                 if (orders == null || orders.Count == 0)
                 {
                     return Result<List<ViewOrderDTO>>.Success(new List<ViewOrderDTO>(), 200);
                 }
-
                 return Result<List<ViewOrderDTO>>.Success(orders, 200);
             }
             catch (Exception ex)
@@ -74,12 +72,10 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 var orders = await _technicianOrderRepo.GetConfirmedOrders(technicianId);
-                
                 if (orders == null || orders.Count == 0)
                 {
                     return Result<List<ViewOrderDTO>>.Success(new List<ViewOrderDTO>(), 200);
                 }
-
                 return Result<List<ViewOrderDTO>>.Success(orders, 200);
             }
             catch (Exception ex)
@@ -97,12 +93,10 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 var orders = await _technicianOrderRepo.GetHistoryOrders(technicianId);
-                
                 if (orders == null || orders.Count == 0)
                 {
                     return Result<List<ViewOrderDTO>>.Success(new List<ViewOrderDTO>(), 200);
                 }
-
                 return Result<List<ViewOrderDTO>>.Success(orders, 200);
             }
             catch (Exception ex)
@@ -120,12 +114,10 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 var orders = await _technicianOrderRepo.GetCanceledOrders(technicianId);
-                
                 if (orders == null || orders.Count == 0)
                 {
                     return Result<List<ViewOrderDTO>>.Success(new List<ViewOrderDTO>(), 200);
                 }
-
                 return Result<List<ViewOrderDTO>>.Success(orders, 200);
             }
             catch (Exception ex)
@@ -279,11 +271,9 @@ namespace Capstone_2_BE.Services.Technician
                 return Result<string>.Failure("Lỗi khi hoàn thành đơn hàng", 500);
             }
         }
-        
 
         /// <summary>
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)
-        /// Maps to repository's RejectedOrder method
         /// </summary>
         public async Task<Result<OrderActionResDTO>> RejectedOrder(OrderActionDTO orderActionDTO)
         {
@@ -317,6 +307,23 @@ namespace Capstone_2_BE.Services.Technician
             {
                 _logger.LogError(ex, "Error canceling order ID: {OrderId}", orderActionDTO.OrderId);
                 return Result<OrderActionResDTO>.Failure("Lỗi khi hủy đơn hàng", 500);
+            }
+        }
+
+        /// <summary>
+        /// Lấy số lượng đơn hàng đang thực hiện trong hôm nay
+        /// </summary>
+        public async Task<Result<int>> GetOrderInProgressToday(Guid technicianId)
+        {
+            try
+            {
+                var total = await _technicianOrderRepo.GetOrderInProgressToday(technicianId);
+                return Result<int>.Success(total, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting in-progress order count for technician ID: {TechnicianId}", technicianId);
+                return Result<int>.Failure("Lỗi khi lấy số lượng đơn đang thực hiện hôm nay", 500);
             }
         }
     }

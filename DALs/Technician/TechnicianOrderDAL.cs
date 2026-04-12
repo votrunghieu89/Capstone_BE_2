@@ -3,6 +3,7 @@ using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using System;
 
 namespace Capstone_2_BE.DALs.Technician
 {
@@ -345,6 +346,27 @@ namespace Capstone_2_BE.DALs.Technician
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        public async Task<int> GetOrderInProgressToday(Guid technicianId)
+        {
+            try
+            {
+                var start = DateTime.Now.Date;
+                var end = start.AddDays(1);
+
+                var total = await _context.OrderrModel
+                    .Where(o => o.TechnicianId == technicianId
+                             && o.Status == "In Progress" 
+                             && o.CreateAt >= start
+                             && o.CreateAt < end)
+                    .CountAsync();
+                return total;
+            }
+            catch (Exception ex)
+            {
+                return 0;
             }
         }
     }

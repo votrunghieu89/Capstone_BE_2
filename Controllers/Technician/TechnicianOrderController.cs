@@ -46,6 +46,20 @@ namespace Capstone_2_BE.Controllers.Technician
         }
 
         /// <summary>
+        /// Lấy số lượng đơn đang thực hiện hôm nay
+        /// </summary>
+        [HttpGet("in-progress/{technicianId}/count-today")]
+        public async Task<IActionResult> GetOrderInProgressToday(Guid technicianId)
+        {
+            var result = await _technicianOrderService.GetOrderInProgressToday(technicianId);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, new { count = result.Data });
+        }
+
+        /// <summary>
         /// Lấy danh sách đơn hàng chờ xác nhận
         /// </summary>
         [HttpGet("confirming/{technicianId}")]
