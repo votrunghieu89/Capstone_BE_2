@@ -22,8 +22,10 @@ namespace Capstone_2_BE.DALs.Customer
             {
                 var TechList = await (from a in _context.AccountsModel
                                                         join t in _context.TechnicianProfileModel on a.Id equals t.Id
+                                                        join ct in _context.CitiesModel on t.CityId equals ct.Id
                                                         join sp in _context.Service_ProfileModel on t.Id equals sp.TechnicianId
                                                         join sc in _context.ServiceCategoriesModel on sp.ServiceId equals sc.Id
+                                                        
                                                         where a.IsOnline == 1 && t.CityId == autoFindFixerDTO.CityId && sp.ServiceId == autoFindFixerDTO.ServiceId
                                                         select new
                                                         {
@@ -34,6 +36,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                             Latitude = t.Latitude,
                                                             Longitude = t.Longitude,
                                                             OrderCount = t.OrderCount,
+                                                            CityName = ct.CityName,
+                                                            Address = t.Address,
                                                         }).ToListAsync();
                 var result =  new List<AutoFindFixerResDTO>();
                 foreach (var tech in TechList)
@@ -52,6 +56,8 @@ namespace Capstone_2_BE.DALs.Customer
                         Total = score,
                         OrderCount = tech.OrderCount,
                         RatingCount = RatingCount,
+                        City = tech.CityName,
+                        Address = tech.Address,
                     });
                 }
                 return result;

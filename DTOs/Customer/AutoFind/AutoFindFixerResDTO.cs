@@ -12,5 +12,7 @@
         public decimal Total { get; set; }
         public int OrderCount { get; set; }
         public int RatingCount { get; set; }
+        public string Address { get; set; }
+        public string City { get; set; }
     }
 }
