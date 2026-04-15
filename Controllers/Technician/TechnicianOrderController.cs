@@ -185,5 +185,33 @@ namespace Capstone_2_BE.Controllers.Technician
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
+
+        /// <summary>
+        /// Lấy vị trí của kỹ thuật viên (Address, CityName)
+        /// </summary>
+        [HttpGet("location/technician/{technicianId}")]
+        public async Task<IActionResult> GetTechnicianLocation(Guid technicianId)
+        {
+            var result = await _technicianOrderService.GetTechnicianLocation(technicianId);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, result.Data);
+        }
+
+        /// <summary>
+        /// Lấy vị trí của đơn hàng (Address, CityName)
+        /// </summary>
+        [HttpGet("location/order/{orderId}")]
+        public async Task<IActionResult> GetOrderLocation(Guid orderId)
+        {
+            var result = await _technicianOrderService.GetOrderLocation(orderId);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, result.Data);
+        }
     }
 }

@@ -260,6 +260,20 @@ namespace Capstone_2_BE
                     .HasForeignKey(a => a.MessageId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // ChatBotAIModel Configuration
+            modelBuilder.Entity<ChatBotAIModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Message).IsRequired();
+                entity.Property(e => e.CreatedAt);
+
+                // FK with AccountsModel
+                entity.HasOne(e => e.Account)
+                    .WithMany(a => a.ChatMessages)
+                    .HasForeignKey(e => e.AccountId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
         public DbSet<AccountsModel> AccountsModel { get; set; }
         public DbSet<CitiesModel> CitiesModel { get; set; }
@@ -275,6 +289,7 @@ namespace Capstone_2_BE
         public DbSet<RoomsModel> RoomsModel { get; set; }
         public DbSet<MessengerModel> MessengerModel { get; set; }
         public DbSet<MessAttachmentModel> MessAttachmentModel { get; set; }
+        public DbSet<ChatBotAIModel> ChatBotAIModel { get; set; }
 
     }
 }

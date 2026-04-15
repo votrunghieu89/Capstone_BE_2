@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Technician.Orders;
+﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ namespace Capstone_2_BE.DALs.Technician
             _context = context;
             _logger = logger;
         }
-        
+
         //// Thợ xác nhận đơn hàng
         public async Task<OrderActionResDTO> ConfirmOrder(Guid orderId, Guid technicianId)
         {
@@ -78,25 +79,25 @@ namespace Capstone_2_BE.DALs.Technician
                 {
                     try
                     {
-                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId&& o.Status == "Confirmed"&& o.TechnicianId == technicianId&& !_context.OrderrModel.Any(x => x.TechnicianId == technicianId
+                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "Confirmed" && o.TechnicianId == technicianId && !_context.OrderrModel.Any(x => x.TechnicianId == technicianId
                                                     && x.Status == "In Progress")).ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "In Progress"));
                         if (isUpdated == 0)
                         {
                             return null;
                         }
-                        
-                            OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
-                            {
-                                OrderId = orderId,
-                                Status = "In Progress",
-                                ChangeBy = technicianId,
-                                ChangeAt = DateTime.UtcNow,
-                            };
-                            await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                            
-                        
+
+                        OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
+                        {
+                            OrderId = orderId,
+                            Status = "In Progress",
+                            ChangeBy = technicianId,
+                            ChangeAt = DateTime.UtcNow,
+                        };
+                        await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+
                         var OrderRes = await (from o in _context.OrderrModel
                                               join h in _context.OrderStatusHistoryModel on o.Id equals h.OrderId
                                               join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
@@ -114,7 +115,7 @@ namespace Capstone_2_BE.DALs.Technician
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                       return null;
+                        return null;
                     }
                 }
             }
@@ -128,19 +129,19 @@ namespace Capstone_2_BE.DALs.Technician
         {
             try
             {
-                List<ViewOrderDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                           join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                           join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
-                                                           where o.TechnicianId == technicianId && o.Status == "Confirmed"
-                                                           select new ViewOrderDTO
-                                                           {
-                                                               OrderId = o.Id,
-                                                               CustomerName = c.FullName,
-                                                               ServiceName = s.ServiceName,
-                                                               Title = o.Title,
-                                                               Status = o.Status,
-                                                               OrderDate = o.CreateAt,
-                                                           }).ToListAsync();
+                List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            where o.TechnicianId == technicianId && o.Status == "Confirmed"
+                                                            select new ViewOrderDTO
+                                                            {
+                                                                OrderId = o.Id,
+                                                                CustomerName = c.FullName,
+                                                                ServiceName = s.ServiceName,
+                                                                Title = o.Title,
+                                                                Status = o.Status,
+                                                                OrderDate = o.CreateAt,
+                                                            }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -153,19 +154,19 @@ namespace Capstone_2_BE.DALs.Technician
         {
             try
             {
-                List<ViewOrderDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                           join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                           join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
-                                                           where o.TechnicianId == technicianId && o.Status == "Pending Confirmation"
-                                                           select new ViewOrderDTO
-                                                           {
-                                                               OrderId = o.Id,
-                                                               CustomerName = c.FullName,
-                                                               ServiceName = s.ServiceName,
-                                                               Title = o.Title,
-                                                               Status = o.Status,
-                                                               OrderDate = o.CreateAt,
-                                                           }).ToListAsync();
+                List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            where o.TechnicianId == technicianId && o.Status == "Pending Confirmation"
+                                                            select new ViewOrderDTO
+                                                            {
+                                                                OrderId = o.Id,
+                                                                CustomerName = c.FullName,
+                                                                ServiceName = s.ServiceName,
+                                                                Title = o.Title,
+                                                                Status = o.Status,
+                                                                OrderDate = o.CreateAt,
+                                                            }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -179,18 +180,18 @@ namespace Capstone_2_BE.DALs.Technician
             try
             {
                 List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
-                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
-                                            where o.TechnicianId == technicianId && o.Status == "Completed"
-                                            select new ViewOrderDTO
-                                            {
-                                                OrderId = o.Id,
-                                                CustomerName = c.FullName,
-                                                ServiceName = s.ServiceName,
-                                                Title = o.Title,
-                                                Status = o.Status,
-                                                OrderDate = o.CreateAt,
-                                            }).ToListAsync();
+                                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            where o.TechnicianId == technicianId && o.Status == "Completed"
+                                                            select new ViewOrderDTO
+                                                            {
+                                                                OrderId = o.Id,
+                                                                CustomerName = c.FullName,
+                                                                ServiceName = s.ServiceName,
+                                                                Title = o.Title,
+                                                                Status = o.Status,
+                                                                OrderDate = o.CreateAt,
+                                                            }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -204,43 +205,43 @@ namespace Capstone_2_BE.DALs.Technician
             try
             {
                 var InProgressOrder = await (from o in _context.OrderrModel
-                                        join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                        join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
-                                        where o.TechnicianId == technicianId && o.Status == "In Progress"
-                                        select new ViewOrderDTO
-                                        {
-                                            OrderId = o.Id,
-                                            CustomerName = c.FullName,
-                                            ServiceName = s.ServiceName,
-                                            Title = o.Title,
-                                            Status = o.Status,
-                                            OrderDate = o.CreateAt,
-                                        }).FirstOrDefaultAsync();
+                                             join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                             join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                             where o.TechnicianId == technicianId && o.Status == "In Progress"
+                                             select new ViewOrderDTO
+                                             {
+                                                 OrderId = o.Id,
+                                                 CustomerName = c.FullName,
+                                                 ServiceName = s.ServiceName,
+                                                 Title = o.Title,
+                                                 Status = o.Status,
+                                                 OrderDate = o.CreateAt,
+                                             }).FirstOrDefaultAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
             {
-               return null;
-            }   
+                return null;
+            }
         }
         // đơn hàng bị huỷ do khách hàng
         public async Task<List<ViewOrderDTO>> GetCanceledOrders(Guid technicianId)
         {
             try
             {
-                List<ViewOrderDTO> InProgressOrder = await(from o in _context.OrderrModel
-                                                           join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
-                                                           join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
-                                                           where o.TechnicianId == technicianId && o.Status == "Cancelled"
-                                                           select new ViewOrderDTO
-                                                           {
-                                                               OrderId = o.Id,
-                                                               CustomerName = c.FullName,
-                                                               ServiceName = s.ServiceName,
-                                                               Title = o.Title,
-                                                               Status = o.Status,
-                                                               OrderDate = o.CreateAt,
-                                                           }).ToListAsync();
+                List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
+                                                            join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                                            join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            where o.TechnicianId == technicianId && o.Status == "Cancelled"
+                                                            select new ViewOrderDTO
+                                                            {
+                                                                OrderId = o.Id,
+                                                                CustomerName = c.FullName,
+                                                                ServiceName = s.ServiceName,
+                                                                Title = o.Title,
+                                                                Status = o.Status,
+                                                                OrderDate = o.CreateAt,
+                                                            }).ToListAsync();
                 return InProgressOrder;
             }
             catch (Exception ex)
@@ -271,7 +272,7 @@ namespace Capstone_2_BE.DALs.Technician
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                             await _context.SaveChangesAsync();
                             await transaction.CommitAsync();
-                            
+
                         }
                         var OrderRes = await (from o in _context.OrderrModel
                                               join h in _context.OrderStatusHistoryModel on o.Id equals h.OrderId
@@ -358,7 +359,7 @@ namespace Capstone_2_BE.DALs.Technician
 
                 var total = await _context.OrderrModel
                     .Where(o => o.TechnicianId == technicianId
-                             && o.Status == "In Progress" 
+                             && o.Status == "In Progress"
                              && o.CreateAt >= start
                              && o.CreateAt < end)
                     .CountAsync();
@@ -367,6 +368,48 @@ namespace Capstone_2_BE.DALs.Technician
             catch (Exception ex)
             {
                 return 0;
+            }
+        }
+
+        public async Task<GoogleMapDTO> GetTechnicianLocation(Guid technicianId)
+        {
+            try
+            {
+                var location = await (from t in _context.TechnicianProfileModel
+                                      join c in _context.CitiesModel on t.CityId equals c.Id
+                                      where t.Id == technicianId
+                                      select new GoogleMapDTO
+                                      {
+                                          Address = t.Address,
+                                          CityName = c.CityName,
+                                      }).FirstOrDefaultAsync();
+                return location;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<GoogleMapDTO> GetOrderLocation(Guid OrderId)
+        {
+            try
+            {
+                var location = await (from o in _context.OrderrModel
+                                      join c in _context.CitiesModel on o.CityId equals c.Id
+                                      where o.Id == OrderId
+                                      select new GoogleMapDTO
+                                      {
+                                          Address = o.Address,
+                                          CityName = c.CityName,
+                                      }).FirstOrDefaultAsync();
+                return location;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
     }

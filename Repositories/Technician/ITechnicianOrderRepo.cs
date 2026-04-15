@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Technician.Orders;
+﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Technician.Orders;
 
 namespace Capstone_2_BE.Repositories
 {
@@ -27,5 +28,8 @@ namespace Capstone_2_BE.Repositories
         Task<OrderActionResDTO> CompletedOrder(Guid orderId);
 
         Task<int> GetOrderInProgressToday(Guid technicianId);
+
+        Task<GoogleMapDTO> GetTechnicianLocation(Guid technicianId);
+        Task<GoogleMapDTO> GetOrderLocation(Guid OrderId);
     }
 }

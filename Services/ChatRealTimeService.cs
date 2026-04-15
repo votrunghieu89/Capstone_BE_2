@@ -164,7 +164,15 @@ namespace Capstone_2_BE.Services
                                                     VideoUrl = createMessageDTO.VideoUrl,
                                                     CreatedAt = DateTime.Now
                                                 });
-               return Result<string>.Success("Message sent successfully.", 200);
+                await _chatHubContext.Clients.User(createMessageFormDTO.ReceiverId.ToString())
+                                                    .SendAsync("NewMessageNotification", new
+                                                    {
+                                                        RoomId = roomId,
+                                                        SenderId = createMessageFormDTO.SenderId,
+                                                        Content = createMessageFormDTO.Content,
+                                                        CreatedAt = DateTime.Now
+                                                    });
+                return Result<string>.Success("Message sent successfully.", 200);
                 
               
             }

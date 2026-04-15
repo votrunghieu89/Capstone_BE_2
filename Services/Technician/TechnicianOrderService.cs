@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Notification;
+﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Socket;
@@ -324,6 +325,48 @@ namespace Capstone_2_BE.Services.Technician
             {
                 _logger.LogError(ex, "Error getting in-progress order count for technician ID: {TechnicianId}", technicianId);
                 return Result<int>.Failure("Lỗi khi lấy số lượng đơn đang thực hiện hôm nay", 500);
+            }
+        }
+
+        /// <summary>
+        /// Lấy vị trí (địa chỉ, thành phố) của kỹ thuật viên
+        /// </summary>
+        public async Task<Result<Capstone_2_BE.DTOs.GoogleMapDTO>> GetTechnicianLocation(Guid technicianId)
+        {
+            try
+            {
+                var location = await _technicianOrderRepo.GetTechnicianLocation(technicianId);
+                if (location == null)
+                {
+                    return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Failure("Không tìm thấy vị trí kỹ thuật viên", 404);
+                }
+                return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Success(location, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting technician location for ID: {TechnicianId}", technicianId);
+                return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Failure("Lỗi khi lấy vị trí kỹ thuật viên", 500);
+            }
+        }
+
+        /// <summary>
+        /// Lấy vị trí (địa chỉ, thành phố) của đơn hàng
+        /// </summary>
+        public async Task<Result<Capstone_2_BE.DTOs.GoogleMapDTO>> GetOrderLocation(Guid orderId)
+        {
+            try
+            {
+                var location = await _technicianOrderRepo.GetOrderLocation(orderId);
+                if (location == null)
+                {
+                    return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Failure("Không tìm thấy vị trí đơn hàng", 404);
+                }
+                return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Success(location, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting order location for ID: {OrderId}", orderId);
+                return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Failure("Lỗi khi lấy vị trí đơn hàng", 500);
             }
         }
     }

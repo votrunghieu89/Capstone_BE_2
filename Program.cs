@@ -17,6 +17,7 @@ using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
 using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -163,6 +164,8 @@ builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddScoped<IAdminRepo, AdminDAL>();
 builder.Services.AddScoped<AdminService>();
+
+builder.Services.AddSingleton<IUserIdProvider, QueryStringUserIdProvider>();
 
 var app = builder.Build();
 
