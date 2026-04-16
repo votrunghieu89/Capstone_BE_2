@@ -151,7 +151,8 @@ namespace Capstone_2_BE.Services
                 }
                 
                 var Response = await _chatRealTimeRepository.InsertMessage(createMessageDTO);
-                string avatarUrl = await _aws.ReadImage(Response.AvatarUrl);    
+                string avatarUrl = await _aws.ReadImage(Response.AvatarUrl); 
+                // Gửi tin nhắn khi 2 người trong đoạn chat
                 await _chatHubContext.Clients.Group(roomId.ToString())
                                                 .SendAsync("ChatMessage", new
                                                 {
@@ -164,12 +165,17 @@ namespace Capstone_2_BE.Services
                                                     VideoUrl = createMessageDTO.VideoUrl,
                                                     CreatedAt = DateTime.Now
                                                 });
+                // Tạo icon bên phía UserB khi User A chủ động nhắn, và đẩy icon  tin nhắn lên đầu Chat Sidebar
                 await _chatHubContext.Clients.User(createMessageFormDTO.ReceiverId.ToString())
                                                     .SendAsync("NewMessageNotification", new
                                                     {
+                                                        MessId = Response.MessengerId,
                                                         RoomId = roomId,
                                                         SenderId = createMessageFormDTO.SenderId,
                                                         Content = createMessageFormDTO.Content,
+                                                        AvatarUrl = avatarUrl,
+                                                        ImageUrls = createMessageDTO.ImageUrls.Count > 0 ? createMessageDTO.ImageUrls : null,
+                                                        VideoUrl = createMessageDTO.VideoUrl,
                                                         CreatedAt = DateTime.Now
                                                     });
                 return Result<string>.Success("Message sent successfully.", 200);
