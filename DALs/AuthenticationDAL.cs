@@ -7,6 +7,7 @@ using Capstone_2_BE.Securities;
 using Capstone_2_BE.Settings;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
+using System.Globalization;
 
 namespace Capstone_2_BE.DALs
 {
@@ -235,6 +236,7 @@ namespace Capstone_2_BE.DALs
 
             try
             {
+
                 string avatarURL = "profile/Default.jpg";
                 var passwordHash = Hash.HashPassword(authRegisterDTO.Password);
                 using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -255,6 +257,18 @@ namespace Capstone_2_BE.DALs
                         await _context.SaveChangesAsync();
 
                         string UniqueId = GenerateIdUnique(newAccount.CreateAt);
+                        if (!decimal.TryParse(authRegisterDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                            return AuthenticationEnum.Register.Fail;
+
+                        if (!decimal.TryParse(authRegisterDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                            return AuthenticationEnum.Register.Fail;
+
+                        // ✅ Validate GPS
+                        if (lat < -90 || lat > 90)
+                            return AuthenticationEnum.Register.Fail;
+
+                        if (lng < -180 || lng > 180)
+                            return AuthenticationEnum.Register.Fail;
                         TechnicianProfileModel newTechnicianProfile = new TechnicianProfileModel()
                         {
                             Id = newAccount.Id,
@@ -264,8 +278,8 @@ namespace Capstone_2_BE.DALs
                             AvatarURl = avatarURL,
                             Address = authRegisterDTO.Address,
                             CityId = authRegisterDTO.CityId,
-                            Latitude = authRegisterDTO.Latitude,
-                            Longitude = authRegisterDTO.Longitude,
+                            Latitude = lat,
+                            Longitude = lng,
                             CreateAt = DateTime.Now,
                         };
 

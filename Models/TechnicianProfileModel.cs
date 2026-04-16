@@ -24,13 +24,13 @@ namespace Capstone_2_BE.Models
         [Column("OrderCount")]
         public int OrderCount { get; set; }
         [Column("Address")]
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; } = string.Empty;
         [Column("CityId")]
-        public Guid CityId { get; set; } 
+        public Guid? CityId { get; set; } 
         [Column("Latitude")]
-        public decimal Latitude { get; set; } 
+        public decimal? Latitude { get; set; } 
         [Column("Longtitude")]
-        public decimal Longitude { get; set; }
+        public decimal? Longitude { get; set; }
         [Column("PhoneNumber")]
         public string PhoneNumber { get; set; } = string.Empty;
         [Column("CreateAt")]

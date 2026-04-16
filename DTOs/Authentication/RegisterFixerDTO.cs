@@ -6,9 +6,9 @@
         public string Password { get; set; }
         public string FullName { get; set; }
         public string PhoneNumber { get; set; }
-        public string Address { get; set; }
-        public Guid CityId { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public string? Address { get; set; }
+        public Guid? CityId { get; set; }
+        public string?  Latitude { get; set; }
+        public string? Longitude { get; set; }
     }
 }

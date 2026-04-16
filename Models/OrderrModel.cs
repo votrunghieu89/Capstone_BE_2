@@ -22,15 +22,15 @@ namespace Capstone_2_BE.Models
         [Column("Address")]
         public string Address { get; set; } = string.Empty;
         [Column("CityId")]
-        public Guid CityId { get; set; }
+        public Guid? CityId { get; set; }
         [Column("Status")]
         public string Status { get; set; }
         //[Column("Price")]
         //public decimal Price { get; set; }
         [Column("Latitude")]
-        public decimal Latitude { get; set; }
+        public decimal? Latitude { get; set; }
         [Column("Longtitude")]
-        public decimal Longitude { get; set; }
+        public decimal? Longitude { get; set; }
         [Column("CreateAt")]
         public DateTime CreateAt { get; set; }
 
