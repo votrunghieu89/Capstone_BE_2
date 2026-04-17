@@ -27,6 +27,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                         join sc in _context.ServiceCategoriesModel on sp.ServiceId equals sc.Id
                                                         
                                                         where a.IsOnline == 1 && t.CityId == autoFindFixerDTO.CityId && sp.ServiceId == autoFindFixerDTO.ServiceId
+                                                        && t.Latitude != null && t.Longitude != null
                                                         select new
                                                         {
                                                             TechnicianId = t.Id,

@@ -69,8 +69,8 @@ namespace Capstone_2_BE
                 entity.Property(e => e.Description);
                 entity.Property(e => e.Experiences);
                 entity.Property(e => e.OrderCount);
-                entity.Property(e => e.Latitude).HasPrecision(10, 7);
-                entity.Property(e => e.Longitude).HasPrecision(10, 7);
+                entity.Property(e => e.Latitude).HasPrecision(10, 7).IsRequired(false);
+                entity.Property(e => e.Longitude).HasPrecision(10, 7).IsRequired(false);
 
                 // FK với CitiesModel
                 entity.HasOne(e => e.CitiesModel)

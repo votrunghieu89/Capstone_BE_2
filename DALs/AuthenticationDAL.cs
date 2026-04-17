@@ -257,18 +257,28 @@ namespace Capstone_2_BE.DALs
                         await _context.SaveChangesAsync();
 
                         string UniqueId = GenerateIdUnique(newAccount.CreateAt);
-                        if (!decimal.TryParse(authRegisterDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
-                            return AuthenticationEnum.Register.Fail;
 
-                        if (!decimal.TryParse(authRegisterDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
-                            return AuthenticationEnum.Register.Fail;
 
-                        // ✅ Validate GPS
-                        if (lat < -90 || lat > 90)
-                            return AuthenticationEnum.Register.Fail;
+                        decimal? lat = null;
+                        decimal? lng = null;
 
-                        if (lng < -180 || lng > 180)
-                            return AuthenticationEnum.Register.Fail;
+                        if (!string.IsNullOrWhiteSpace(authRegisterDTO.Latitude) && string.IsNullOrWhiteSpace(authRegisterDTO.Longitude))
+                        {
+                            if (!decimal.TryParse(authRegisterDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedLat))
+                                return AuthenticationEnum.Register.Fail;
+
+                            if (!decimal.TryParse(authRegisterDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedLng))
+                                return AuthenticationEnum.Register.Fail;
+
+                            if (parsedLat < -90 || parsedLat > 90)
+                                return AuthenticationEnum.Register.Fail;
+
+                            if (parsedLng < -180 || parsedLng > 180)
+                                return AuthenticationEnum.Register.Fail;
+
+                            lat = parsedLat;
+                            lng = parsedLng;
+                        }
                         TechnicianProfileModel newTechnicianProfile = new TechnicianProfileModel()
                         {
                             Id = newAccount.Id,
