@@ -33,6 +33,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                             FullName = t.FullName,
                                                             AvatarURL = t.AvatarURl,
                                                             ServiceName = sc.ServiceName,
+                                                            // deciaml
                                                             Latitude = t.Latitude,
                                                             Longitude = t.Longitude,
                                                             OrderCount = t.OrderCount,
