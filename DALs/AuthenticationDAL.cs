@@ -262,7 +262,7 @@ namespace Capstone_2_BE.DALs
                         decimal? lat = null;
                         decimal? lng = null;
 
-                        if (!string.IsNullOrWhiteSpace(authRegisterDTO.Latitude) && string.IsNullOrWhiteSpace(authRegisterDTO.Longitude))
+                        if (!string.IsNullOrWhiteSpace(authRegisterDTO.Latitude) && !string.IsNullOrWhiteSpace(authRegisterDTO.Longitude))
                         {
                             if (!decimal.TryParse(authRegisterDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedLat))
                                 return AuthenticationEnum.Register.Fail;

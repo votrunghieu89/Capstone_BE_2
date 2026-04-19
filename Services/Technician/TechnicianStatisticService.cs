@@ -111,5 +111,20 @@ namespace Capstone_2_BE.Services.Technician
             try { return Result<decimal>.Success(await _repo.getAvgRate(technicianId), 200); }
             catch (Exception ex) { _logger.LogError(ex, "Error"); return Result<decimal>.Failure("Lỗi lấy dữ liệu thống kê", 500); }
         }
+
+        // Added: Get completed orders count for a specific day
+        public async Task<Result<int>> GetCompletedOrdersByDays(Guid technicianId, DateTime date)
+        {
+            try
+            {
+                var count = await _repo.GetCompletedOrdersByDays(technicianId, date);
+                return Result<int>.Success(count, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting completed orders by day for technician ID: {TechnicianId} on date: {Date}", technicianId, date);
+                return Result<int>.Failure("Lỗi lấy dữ liệu thống kê", 500);
+            }
+        }
     }
 }

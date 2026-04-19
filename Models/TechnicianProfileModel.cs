@@ -19,8 +19,6 @@ namespace Capstone_2_BE.Models
 
         [Column("Description")]
         public string Description { get; set; } = string.Empty;
-        [Column("Experiences")]
-        public string Experiences { get; set; } = string.Empty;
         [Column("OrderCount")]
         public int OrderCount { get; set; }
         [Column("Address")]
@@ -33,6 +31,8 @@ namespace Capstone_2_BE.Models
         public decimal? Longitude { get; set; }
         [Column("PhoneNumber")]
         public string PhoneNumber { get; set; } = string.Empty;
+        [Column("YearOfExperience")]
+        public double YearOfExperience { get; set; }
         [Column("CreateAt")]
         public DateTime CreateAt { get; set; }
 

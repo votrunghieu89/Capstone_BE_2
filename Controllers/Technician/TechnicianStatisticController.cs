@@ -126,5 +126,13 @@ namespace Capstone_2_BE.Controllers.Technician
             var result = await _service.GetAvgRate(technicianId);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, new { message = result.Error });
         }
+
+        // New endpoint: completed count for a specific date
+        [HttpGet("{technicianId}/completed/by-day")]
+        public async Task<IActionResult> GetCompletedOrdersByDays(Guid technicianId, [FromQuery] DateTime date)
+        {
+            var result = await _service.GetCompletedOrdersByDays(technicianId, date);
+            return result.IsSuccess ? Ok(new { count = result.Data }) : StatusCode(result.StatusCode, new { message = result.Error });
+        }
     }
 }

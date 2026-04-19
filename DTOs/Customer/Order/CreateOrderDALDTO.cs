@@ -11,6 +11,7 @@
         public Guid CityId { get; set; } 
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+        public double? EstimatedTime { get; set; }
         public string videoUrl { get; set; } = string.Empty;
         public List<string> ImageOrderUrl { get; set; }
     }

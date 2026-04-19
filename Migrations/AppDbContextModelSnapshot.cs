@@ -46,7 +46,7 @@ namespace Capstone_2_BE.Migrations
                     b.Property<int>("IsOnline")
                         .HasColumnType("int")
                         .HasColumnName("IsOnline")
-                        .HasComment("0, 1");
+                        .HasComment("0, 1, 2");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -67,6 +67,33 @@ namespace Capstone_2_BE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Account");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.ChatBotAIModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("AccountId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Message");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("ChatBotAI");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.CitiesModel", b =>
@@ -127,6 +154,38 @@ namespace Capstone_2_BE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomerProfile");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.MessAttachmentModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreateAt");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("FileName");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("FileType");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("MessageId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("MessAttachments");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.MessengerModel", b =>
@@ -283,7 +342,7 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Address");
 
-                    b.Property<Guid>("CityId")
+                    b.Property<Guid?>("CityId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CityId");
 
@@ -303,12 +362,16 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Description");
 
-                    b.Property<decimal>("Latitude")
+                    b.Property<double?>("EstimatedTime")
+                        .HasColumnType("float")
+                        .HasColumnName("EstimatedTime");
+
+                    b.Property<decimal?>("Latitude")
                         .HasPrecision(10, 7)
                         .HasColumnType("decimal(10,7)")
                         .HasColumnName("Latitude");
 
-                    b.Property<decimal>("Longitude")
+                    b.Property<decimal?>("Longitude")
                         .HasPrecision(10, 7)
                         .HasColumnType("decimal(10,7)")
                         .HasColumnName("Longtitude");
@@ -501,7 +564,6 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnName("Id");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Address");
 
@@ -510,7 +572,7 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("AvatarURL");
 
-                    b.Property<Guid>("CityId")
+                    b.Property<Guid?>("CityId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CityId");
 
@@ -522,11 +584,6 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Description");
-
-                    b.Property<string>("Experiences")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Experiences");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -540,12 +597,12 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("IdUnique");
 
-                    b.Property<decimal>("Latitude")
+                    b.Property<decimal?>("Latitude")
                         .HasPrecision(10, 7)
                         .HasColumnType("decimal(10,7)")
                         .HasColumnName("Latitude");
 
-                    b.Property<decimal>("Longitude")
+                    b.Property<decimal?>("Longitude")
                         .HasPrecision(10, 7)
                         .HasColumnType("decimal(10,7)")
                         .HasColumnName("Longtitude");
@@ -564,11 +621,26 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("UpdateAt");
 
+                    b.Property<double>("YearOfExperience")
+                        .HasColumnType("float")
+                        .HasColumnName("YearOfExperience");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CityId");
 
                     b.ToTable("TechnicianProfile");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.ChatBotAIModel", b =>
+                {
+                    b.HasOne("Capstone_2_BE.Models.AccountsModel", "Account")
+                        .WithMany("ChatMessages")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.CustomerProfileModel", b =>
@@ -580,6 +652,17 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.MessAttachmentModel", b =>
+                {
+                    b.HasOne("Capstone_2_BE.Models.MessengerModel", "Messenger")
+                        .WithMany("MessAttachments")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Messenger");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.MessengerModel", b =>
@@ -636,8 +719,7 @@ namespace Capstone_2_BE.Migrations
                     b.HasOne("Capstone_2_BE.Models.CitiesModel", "Cities")
                         .WithMany("orderrModels")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Capstone_2_BE.Models.CustomerProfileModel", "CustomerProfile")
                         .WithMany("Orders")
@@ -736,8 +818,7 @@ namespace Capstone_2_BE.Migrations
                     b.HasOne("Capstone_2_BE.Models.CitiesModel", "CitiesModel")
                         .WithMany("technicianProfileModels")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Capstone_2_BE.Models.AccountsModel", "Accounts")
                         .WithOne("TechnicianProfile")
@@ -752,6 +833,8 @@ namespace Capstone_2_BE.Migrations
 
             modelBuilder.Entity("Capstone_2_BE.Models.AccountsModel", b =>
                 {
+                    b.Navigation("ChatMessages");
+
                     b.Navigation("CustomerProfile")
                         .IsRequired();
 
@@ -777,6 +860,11 @@ namespace Capstone_2_BE.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Rating");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.MessengerModel", b =>
+                {
+                    b.Navigation("MessAttachments");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.OrderrModel", b =>

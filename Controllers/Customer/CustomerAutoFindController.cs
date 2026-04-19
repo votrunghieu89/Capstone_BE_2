@@ -28,7 +28,7 @@ namespace Capstone_2_BE.Controllers.Customer
 
         [HttpPost("place-auto-order")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> PlaceAutoOrder([FromForm] CreateOrderFormDTO form)
+        public async Task<IActionResult> PlaceAutoOrder([FromForm] CreateOrderFormAutoFindDTO form)
         {
             var result = await _service.PlaceAutoOrder(form);
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });

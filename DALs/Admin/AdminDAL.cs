@@ -102,7 +102,7 @@ namespace Capstone_2_BE.DALs.Admin
                     t.FullName,
                     t.PhoneNumber,
                     t.Description,
-                    t.Experiences,
+                    t.YearOfExperience,
                     t.OrderCount,
                     City = t.CitiesModel != null ? t.CitiesModel.CityName : null
                 })

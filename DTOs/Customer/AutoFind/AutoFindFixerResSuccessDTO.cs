@@ -9,7 +9,10 @@
         public decimal Score { get; set; }
         public int OrderCount { get; set; }
         public int RatingCount { get; set; }
+        public double YearOfExperience { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
+        public double? EstimatedTime { get; set; }
+
     }
 }

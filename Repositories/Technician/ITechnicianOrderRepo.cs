@@ -31,5 +31,7 @@ namespace Capstone_2_BE.Repositories
 
         Task<GoogleMapDTO> GetTechnicianLocation(Guid technicianId);
         Task<GoogleMapDTO> GetOrderLocation(Guid OrderId);
+
+        Task<ViewOrderDetailDTO> viewOrderDetailDTO(Guid orderId);
     }
 }

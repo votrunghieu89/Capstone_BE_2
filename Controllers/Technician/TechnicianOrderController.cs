@@ -213,5 +213,19 @@ namespace Capstone_2_BE.Controllers.Technician
             }
             return StatusCode(result.StatusCode, result.Data);
         }
+
+        /// <summary>
+        /// Lấy chi tiết đơn hàng
+        /// </summary>
+        [HttpGet("detail/{orderId}")]
+        public async Task<IActionResult> GetOrderDetail(Guid orderId)
+        {
+            var result = await _technicianOrderService.GetOrderDetail(orderId);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, result.Data);
+        }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Capstone_2_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class newDB : Migration
+    public partial class ver24 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,7 @@ namespace Capstone_2_BE.Migrations
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "Admin, Customer, Technician"),
                     IsActive = table.Column<int>(type: "int", nullable: false, comment: "0, 1"),
-                    IsOnline = table.Column<int>(type: "int", nullable: false, comment: "0, 1"),
+                    IsOnline = table.Column<int>(type: "int", nullable: false, comment: "0, 1, 2"),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -70,6 +70,26 @@ namespace Capstone_2_BE.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ServiceCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatBotAI",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatBotAI", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatBotAI_Account_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -132,13 +152,13 @@ namespace Capstone_2_BE.Migrations
                     AvatarURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdUnique = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Experiences = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderCount = table.Column<int>(type: "int", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
-                    Longtitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: true),
+                    Longtitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    YearOfExperience = table.Column<double>(type: "float", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -199,10 +219,11 @@ namespace Capstone_2_BE.Migrations
                     Title = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, comment: "Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed"),
-                    Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
-                    Longtitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: false),
+                    EstimatedTime = table.Column<double>(type: "float", nullable: true),
+                    Latitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: true),
+                    Longtitude = table.Column<decimal>(type: "decimal(10,7)", precision: 10, scale: 7, nullable: true),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CompleteAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -258,6 +279,27 @@ namespace Capstone_2_BE.Migrations
                         name: "FK_Service_Profile_TechnicianProfile_TechnicianId",
                         column: x => x.TechnicianId,
                         principalTable: "TechnicianProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MessAttachments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FileType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MessAttachments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MessAttachments_Messengers_MessageId",
+                        column: x => x.MessageId,
+                        principalTable: "Messengers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -346,6 +388,16 @@ namespace Capstone_2_BE.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatBotAI_AccountId",
+                table: "ChatBotAI",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MessAttachments_MessageId",
+                table: "MessAttachments",
+                column: "MessageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messengers_RoomId",
@@ -438,7 +490,10 @@ namespace Capstone_2_BE.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Messengers");
+                name: "ChatBotAI");
+
+            migrationBuilder.DropTable(
+                name: "MessAttachments");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
@@ -456,10 +511,13 @@ namespace Capstone_2_BE.Migrations
                 name: "Service_Profile");
 
             migrationBuilder.DropTable(
-                name: "Rooms");
+                name: "Messengers");
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "CustomerProfile");

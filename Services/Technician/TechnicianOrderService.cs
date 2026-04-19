@@ -1,7 +1,10 @@
 ﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Repositories;
+using Capstone_2_BE.Repositories.Customer;
+using Capstone_2_BE.Settings;
 using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.SignalR;
 
@@ -13,13 +16,15 @@ namespace Capstone_2_BE.Services.Technician
         private readonly ILogger<TechnicianOrderService> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly INotificationRepo _notificationRepo;
+        private readonly AWS _aws;
 
-        public TechnicianOrderService(ITechnicianOrderRepo technicianOrderRepo, ILogger<TechnicianOrderService> logger, IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo)
+        public TechnicianOrderService(ITechnicianOrderRepo technicianOrderRepo, ILogger<TechnicianOrderService> logger, IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo, AWS aws)
         {
             _technicianOrderRepo = technicianOrderRepo;
             _logger = logger;
             _hubContext = hubContext;
             _notificationRepo = notificationRepo;
+            _aws = aws;
         }
         /// <summary>
         /// Lấy đơn hàng đang thực hiện
@@ -367,6 +372,41 @@ namespace Capstone_2_BE.Services.Technician
             {
                 _logger.LogError(ex, "Error getting order location for ID: {OrderId}", orderId);
                 return Result<Capstone_2_BE.DTOs.GoogleMapDTO>.Failure("Lỗi khi lấy vị trí đơn hàng", 500);
+            }
+        }
+
+        public async Task<Result<ViewOrderDetailDTO>> GetOrderDetail(Guid orderId)
+        {
+            try
+            {
+                var order = await _technicianOrderRepo.viewOrderDetailDTO(orderId);
+                if (order.videoUrl != null)
+                {
+                    order.videoUrl = await _aws.ReadImage(order.videoUrl);
+                }
+                if (order.ImageUrls != null && order.ImageUrls.Count > 0)
+                {
+                    var imageUrls = new List<string>();
+                    foreach (var url in order.ImageUrls)
+                    {
+                        var imageUrl = await _aws.ReadImage(url);
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            imageUrls.Add(imageUrl);
+                        }
+                    }
+                    order.ImageUrls = imageUrls;
+                }
+                if (order == null)
+                {
+                    return Result<ViewOrderDetailDTO>.Failure("Không tìm thấy đơn hàng", 404);
+                }
+                return Result<ViewOrderDetailDTO>.Success(order, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting order detail for order {OrderId}", orderId);
+                return Result<ViewOrderDetailDTO>.Failure("Lỗi khi lấy chi tiết đơn hàng", 500);
             }
         }
     }

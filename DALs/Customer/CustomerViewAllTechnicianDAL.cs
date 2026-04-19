@@ -27,6 +27,10 @@ namespace Capstone_2_BE.DALs.Customer
                 var result = await (
                                       from tp in _context.TechnicianProfileModel
 
+                                      join acc in _context.AccountsModel
+                                       on tp.Id equals acc.Id into accGroup
+                                      from acc in accGroup.DefaultIfEmpty()
+
                                       join sp in _context.Service_ProfileModel
                                           on tp.Id equals sp.TechnicianId into spGroup
                                       from sp in spGroup.DefaultIfEmpty()
@@ -49,7 +53,13 @@ namespace Capstone_2_BE.DALs.Customer
                                           AverageRating = _context.RatingModel
                                               .Where(r => r.TechnicianId == tp.Id)
                                               .Select(r => (decimal?)r.Score)
-                                              .Average() ?? 0
+                                              .Average() ?? 0,
+                                          YearOfExperience = tp.YearOfExperience,
+                                          Status = acc == null ? "Offline" :
+                                                                 acc.IsOnline == 0 ? "Offline" :
+                                                                 acc.IsOnline == 1 ? "Online" :
+                                                                 acc.IsOnline == 2 ? "Busy" :
+                                                                 "unknown"
                                       }
                                   ).ToListAsync();
 
@@ -73,15 +83,25 @@ namespace Capstone_2_BE.DALs.Customer
                                     SELECT 
                                         tp.Id As TechnicianId,
                                         tp.FullName,
-                                        tp.AvatarURl,   
+                                        tp.AvatarURl, 
+                                        tp.YearOfExperience
                                         s.Id AS ServiceId,
                                         s.ServiceName,
                                         tp.OrderCount,
                                         COUNT(r.Id) AS RatingCount,
                                         AVG(r.Score) AS AverageRating
+
+                                    CASE 
+                                        WHEN a.IsOnline = 0 THEN 'Offline'
+                                        WHEN a.IsOnline = 1 THEN 'Online'
+                                        WHEN a.IsOnline = 2 THEN 'Busy'
+                                        ELSE 'Unknown'
+                                    END AS Status
+
                                     FROM TechnicianProfile tp
                                     JOIN Service_Profile sp ON tp.Id = sp.TechnicianId
                                     JOIN ServiceCategories s ON sp.ServiceId = s.Id
+                                    LEFT JOIN Accounts a ON tp.Id = a.Id
                                     LEFT JOIN Rating r ON tp.Id = r.TechnicianId
                                     GROUP BY tp.Id, tp.FullName, s.Id, s.ServiceName, tp.OrderCount, tp.AvatarURl
                                     HAVING AVG(r.Score) BETWEEN @startRate AND @endRate
@@ -109,10 +129,17 @@ namespace Capstone_2_BE.DALs.Customer
                                     AverageRating = reader.IsDBNull(reader.GetOrdinal("AverageRating"))
                                                      ? 0
                                                      : reader.GetDecimal(reader.GetOrdinal("AverageRating")),
+                                    YearOfExperience = reader.IsDBNull(reader.GetOrdinal("YearOfExperience"))
+                                                        ? 0
+                                                        : reader.GetDouble(reader.GetOrdinal("YearOfExperience")),
 
                                     AvatarUrl = reader.IsDBNull(reader.GetOrdinal("AvatarURl"))
                                                      ? null
-                                                     : reader.GetString(reader.GetOrdinal("AvatarURl"))
+                                                     : reader.GetString(reader.GetOrdinal("AvatarURl")),
+
+                                    Status = reader.IsDBNull(reader.GetOrdinal("Status"))
+                                             ? "Unknown"
+                                             : reader.GetString(reader.GetOrdinal("Status"))
                                 });
                             }
                         }
@@ -132,6 +159,10 @@ namespace Capstone_2_BE.DALs.Customer
             {
                 var result = await (
                                      from tp in _context.TechnicianProfileModel
+
+                                     join acc in _context.AccountsModel
+                                       on tp.Id equals acc.Id into accGroup
+                                     from acc in accGroup.DefaultIfEmpty()
 
                                      join sp in _context.Service_ProfileModel
                                          on tp.Id equals sp.TechnicianId into spGroup
@@ -155,7 +186,13 @@ namespace Capstone_2_BE.DALs.Customer
                                          AverageRating = _context.RatingModel
                                              .Where(r => r.TechnicianId == tp.Id)
                                              .Select(r => (decimal?)r.Score)
-                                             .Average() ?? 0
+                                             .Average() ?? 0,
+                                         YearOfExperience = tp.YearOfExperience,
+                                         Status = acc == null ? "Offline" :
+                                                                 acc.IsOnline == 0 ? "Offline" :
+                                                                 acc.IsOnline == 1 ? "Online" :
+                                                                 acc.IsOnline == 2 ? "Busy" :
+                                                                 "unknown"
                                      }
                                  ).ToListAsync();
 
@@ -178,6 +215,10 @@ namespace Capstone_2_BE.DALs.Customer
                 var query =
                     from tp in _context.TechnicianProfileModel
 
+                    join acc in _context.AccountsModel
+                                       on tp.Id equals acc.Id into accGroup
+                    from acc in accGroup.DefaultIfEmpty()
+
                     join sp in _context.Service_ProfileModel
                         on tp.Id equals sp.TechnicianId into spGroup
                     from sp in spGroup.DefaultIfEmpty()
@@ -194,7 +235,8 @@ namespace Capstone_2_BE.DALs.Customer
                         tp,
                         sp,
                         s,
-                        ratingGroup
+                        ratingGroup,
+                        acc
                     };
 
                 // 🔥 FILTER DYNAMIC
@@ -216,9 +258,13 @@ namespace Capstone_2_BE.DALs.Customer
                         q.tp.Id,
                         q.tp.FullName,
                         q.tp.AvatarURl,
+                        q.tp.YearOfExperience,
                         q.tp.OrderCount,
                         ServiceId = q.s != null ? q.s.Id : Guid.Empty,
-                        ServiceName = q.s != null ? q.s.ServiceName : ""
+                        ServiceName = q.s != null ? q.s.ServiceName : "",
+
+                        // ✅ lấy status từ account
+                        IsOnline = q.acc != null ? q.acc.IsOnline : 0
                     }
                     into g
                     let avgRate = g.SelectMany(x => x.ratingGroup).Select(r => (decimal?)r.Score).Average()
@@ -233,7 +279,12 @@ namespace Capstone_2_BE.DALs.Customer
                         ServiceName = g.Key.ServiceName,
                         OrderCount = g.Key.OrderCount,
                         RatingCount = ratingCount,
-                        AverageRating = avgRate ?? 0
+                        AverageRating = avgRate ?? 0,
+                        YearOfExperience = g.Key.YearOfExperience,
+                        Status = g.Key.IsOnline == 0 ? "Offline"
+                               : g.Key.IsOnline == 1 ? "Online"
+                               : g.Key.IsOnline == 2 ? "Busy"
+                               : "unknown"
                     };
 
                 // 🔥 FILTER RATE (sau khi đã tính AVG)
@@ -261,6 +312,14 @@ namespace Capstone_2_BE.DALs.Customer
                 {
                     try
                     {
+                        var updated = await _context.AccountsModel.Where(a => a.Id == placeOrderDALDTO.TechnicianId
+                                                                        && a.IsOnline == 1) .ExecuteUpdateAsync(e => e.SetProperty(sg => sg.IsOnline, 2));
+
+                        if (updated == 0)
+                        {
+                            return false; // tech đã busy hoặc offline
+                        }
+
                         OrderrModel newOrder = new OrderrModel
                         {
                             CustomerId = placeOrderDALDTO.CustomerId,
@@ -272,6 +331,7 @@ namespace Capstone_2_BE.DALs.Customer
                             CityId = placeOrderDALDTO.CityId,
                             Latitude = placeOrderDALDTO.Latitude,
                             Longitude = placeOrderDALDTO.Longitude,
+                            EstimatedTime = placeOrderDALDTO.EstimatedTime,
                             CreateAt = DateTime.Now,
                             Status = "Pending Confirmation",
                         };
@@ -334,6 +394,10 @@ namespace Capstone_2_BE.DALs.Customer
                 var result = await (
                                      from tp in _context.TechnicianProfileModel
 
+                                     join acc in _context.AccountsModel
+                                       on tp.Id equals acc.Id into accGroup
+                                     from acc in accGroup.DefaultIfEmpty()
+
                                      join sp in _context.Service_ProfileModel
                                          on tp.Id equals sp.TechnicianId into spGroup
                                      from sp in spGroup.DefaultIfEmpty()
@@ -356,7 +420,13 @@ namespace Capstone_2_BE.DALs.Customer
                                          AverageRating = _context.RatingModel
                                              .Where(r => r.TechnicianId == tp.Id)
                                              .Select(r => (decimal?)r.Score)
-                                             .Average() ?? 0
+                                             .Average() ?? 0,
+                                         YearOfExperience = tp.YearOfExperience,
+                                         Status = acc == null ? "Offline" :
+                                                                 acc.IsOnline == 0 ? "Offline" :
+                                                                 acc.IsOnline == 1 ? "Online" :
+                                                                 acc.IsOnline == 2 ? "Busy" :
+                                                                 "unknown"
                                      }
                                  ).ToListAsync();
 
@@ -374,6 +444,10 @@ namespace Capstone_2_BE.DALs.Customer
             {
                 var result = await (
                                      from tp in _context.TechnicianProfileModel
+
+                                     join acc in _context.AccountsModel
+                                         on tp.Id equals acc.Id into accGroup
+                                     from acc in accGroup.DefaultIfEmpty()
 
                                      join sp in _context.Service_ProfileModel
                                          on tp.Id equals sp.TechnicianId into spGroup
@@ -395,7 +469,12 @@ namespace Capstone_2_BE.DALs.Customer
                                          AverageRating = _context.RatingModel
                                              .Where(r => r.TechnicianId == tp.Id)
                                              .Select(r => (decimal?)r.Score)
-                                             .Average() ?? 0
+                                             .Average() ?? 0,
+                                         Status = acc == null ? "Offline" :
+                                                                 acc.IsOnline == 0 ? "Offline" :
+                                                                 acc.IsOnline == 1 ? "Online" :
+                                                                 acc.IsOnline == 2 ? "Busy" :
+                                                                 "unknown"
                                      }
                                  ).ToListAsync();
 

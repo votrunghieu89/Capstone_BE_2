@@ -10,5 +10,8 @@
         public int OrderCount { get; set; }
         public int RatingCount { get; set; }
         public decimal AverageRating { get; set; }  
+        public string Status { get; set; }
+
+        public double YearOfExperience { get; set; }
     }
 }

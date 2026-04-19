@@ -1,4 +1,5 @@
 ﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
@@ -140,6 +141,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                                 ServiceName = s.ServiceName,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
+                                                                EstimatedTime = o.EstimatedTime,
                                                                 OrderDate = o.CreateAt,
                                                             }).ToListAsync();
                 return InProgressOrder;
@@ -165,6 +167,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                                 ServiceName = s.ServiceName,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
+                                                                EstimatedTime = o.EstimatedTime,
                                                                 OrderDate = o.CreateAt,
                                                             }).ToListAsync();
                 return InProgressOrder;
@@ -190,6 +193,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                                 ServiceName = s.ServiceName,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
+                                                                EstimatedTime = o.EstimatedTime,
                                                                 OrderDate = o.CreateAt,
                                                             }).ToListAsync();
                 return InProgressOrder;
@@ -215,6 +219,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                  ServiceName = s.ServiceName,
                                                  Title = o.Title,
                                                  Status = o.Status,
+                                                 EstimatedTime = o.EstimatedTime,
                                                  OrderDate = o.CreateAt,
                                              }).FirstOrDefaultAsync();
                 return InProgressOrder;
@@ -240,6 +245,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                                 ServiceName = s.ServiceName,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
+                                                                EstimatedTime = o.EstimatedTime,
                                                                 OrderDate = o.CreateAt,
                                                             }).ToListAsync();
                 return InProgressOrder;
@@ -262,6 +268,7 @@ namespace Capstone_2_BE.DALs.Technician
                         int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "Pending Confirmation").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Rejected"));
                         if (isUpdated > 0)
                         {
+                            await _context.AccountsModel.Where(a => a.Id == AccountId && a.IsOnline == 2).ExecuteUpdateAsync(e => e.SetProperty(sg => sg.IsOnline, 1));
                             OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
                             {
                                 OrderId = orderId,
@@ -316,6 +323,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                                 ServiceName = s.ServiceName,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
+                                                                EstimatedTime = o.EstimatedTime,
                                                                 OrderDate = o.CreateAt,
                                                             }).ToListAsync();
                 return InProgressOrder;
@@ -408,6 +416,45 @@ namespace Capstone_2_BE.DALs.Technician
 
             }
             catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<ViewOrderDetailDTO> viewOrderDetailDTO(Guid orderId)
+        {
+            try
+            {
+                var result = await (from o in _context.OrderrModel
+                                    join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
+                                    join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                    join a in _context.OrderAttachmentsModel on o.Id equals a.OrderId into attachments
+                                    join ct in _context.CitiesModel on o.CityId equals ct.Id
+                                    where o.Id == orderId
+                                    select new ViewOrderDetailDTO
+                                    {
+                                        OrderId = o.Id,
+                                        ServiceName = s.ServiceName,
+                                        CustomerName = c.FullName,
+                                        Title = o.Title,
+                                        Description = o.Description,
+                                        Address = o.Address,
+                                        City = ct.CityName,
+                                        Status = o.Status,
+                                        EstimatedTime = o.EstimatedTime,
+                                        videoUrl = attachments.Where(att => att.FileType == "Video").Select(att => att.FileName).FirstOrDefault(),
+                                        ImageUrls = attachments.Where(att => att.FileType == "Image").Select(att => att.FileName).ToList(),
+                                        CreateAt = o.CreateAt,
+                                    }).FirstOrDefaultAsync();
+                if (result == null)
+                {
+                    _logger.LogWarning("Order with ID {OrderId} not found.", orderId);
+                    return null;
+                }
+                return result;
+
+            }
+            catch(Exception ex)
             {
                 return null;
             }

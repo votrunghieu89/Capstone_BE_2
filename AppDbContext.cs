@@ -18,7 +18,7 @@ namespace Capstone_2_BE
                 entity.Property(e => e.IsActive)
                     .HasComment("0, 1");
                 entity.Property(e => e.IsOnline)
-                  .HasComment("0, 1");
+                  .HasComment("0, 1, 2");
 
                 // One-to-One với CustomerProfile
                 entity.HasOne(e => e.CustomerProfile)
@@ -67,7 +67,7 @@ namespace Capstone_2_BE
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
                 entity.Property(e => e.Address);
                 entity.Property(e => e.Description);
-                entity.Property(e => e.Experiences);
+                entity.Property(e => e.YearOfExperience);
                 entity.Property(e => e.OrderCount);
                 entity.Property(e => e.Latitude).HasPrecision(10, 7).IsRequired(false);
                 entity.Property(e => e.Longitude).HasPrecision(10, 7).IsRequired(false);
@@ -110,6 +110,8 @@ namespace Capstone_2_BE
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.EstimatedTime);
+           
                 entity.Property(e => e.Status)
                      .HasMaxLength(30)
                     .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");

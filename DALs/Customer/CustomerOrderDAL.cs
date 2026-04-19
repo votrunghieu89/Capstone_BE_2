@@ -28,9 +28,10 @@ namespace Capstone_2_BE.DALs.Customer
                 {
                     try
                     {
-                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderActionDTO.OrderId && o.Status == "Pending Confirmation").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Confirmed"));
+                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderActionDTO.OrderId && o.Status == "Pending Confirmation").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Cancelled"));
                         if (isUpdated > 0)
                         {
+                            await _context.AccountsModel.Where(a => a.Id == orderActionDTO.technicianId&& a.IsOnline == 2).ExecuteUpdateAsync(e => e.SetProperty(sg => sg.IsOnline, 1));
                             OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
                             {
                                 OrderId = orderActionDTO.OrderId,
@@ -85,6 +86,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                 .SetProperty(o => o.Status, "Completed")
                                                                 .SetProperty(o => o.CompleteAt, DateTime.Now)
                                                             );
+                            await _context.AccountsModel.Where(a => a.Id == orderActionDTO.technicianId && a.IsOnline == 2).ExecuteUpdateAsync(e => e.SetProperty(sg => sg.IsOnline, 1));
                             if (isUpdated > 0)
                             {
                                 OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
@@ -149,6 +151,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
                 return InProgressOrder;
@@ -178,6 +181,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
                 return InProgressOrder;
@@ -203,6 +207,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
                 return InProgressOrder;
@@ -233,6 +238,7 @@ namespace Capstone_2_BE.DALs.Customer
                                         Address = o.Address,
                                         City = ct.CityName,
                                         Status = o.Status,
+                                        EstimatedTime = o.EstimatedTime,
                                         videoUrl = attachments.Where(att => att.FileType == "Video").Select(att => att.FileName).FirstOrDefault(),
                                         ImageUrls = attachments.Where(att => att.FileType == "Image").Select(att => att.FileName).ToList(),
                                         CreateAt = o.CreateAt,
@@ -266,6 +272,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
                 return InProgressOrder;
@@ -292,6 +299,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
                 return InProgressOrder;

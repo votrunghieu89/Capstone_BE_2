@@ -7,6 +7,7 @@ namespace Capstone_2_BE.Repositories.Technician
         // bảng thống kê của 1 tài khoản thợ
         // Tổng đơn hàng ( đã hoàn thành theo tuần) completed
         Task<List<StatisticItemDTO>> GetCompletedOrdersByWeek(Guid technicianId, DateTime from, DateTime to);
+        Task<int> GetCompletedOrdersByDays(Guid technicianId,DateTime date);
         // Tổng đơn hàng ( đã hoàn thành theo tháng) 
         Task<List<StatisticItemDTO>> GetCompletedOrdersByMonth(Guid technicianId, int year);
         // Tổng đơn hàng ( đã nhận theo tuần) cả năm trạng thái

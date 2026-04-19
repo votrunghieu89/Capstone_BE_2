@@ -7,6 +7,7 @@
         public string ServiceName { get; set; } 
         public string Title { get; set; } =  string.Empty;
         public string Status { get; set; }
+        public double? EstimatedTime { get; set; }
         public DateTime OrderDate { get; set; }
        
     }

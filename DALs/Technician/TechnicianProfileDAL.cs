@@ -79,7 +79,7 @@ namespace Capstone_2_BE.DALs.Technician
                                           CreateAt = t.CreateAt,
                                           ServiceName = s != null ? s.ServiceName : null,
                                           Description = t.Description,
-                                          Experiences = t.Experiences
+                                          Experiences = t.YearOfExperience
                                       }
                                       ).FirstOrDefaultAsync();
 
@@ -122,7 +122,7 @@ namespace Capstone_2_BE.DALs.Technician
                         .SetProperty(p => p.Latitude, lat)
                         .SetProperty(p => p.Longitude, lng)
                         .SetProperty(p => p.Description, technicianProfileUpdateDTO.Description)
-                        .SetProperty(p => p.Experiences, technicianProfileUpdateDTO.Experiences)
+                        .SetProperty(p => p.YearOfExperience, technicianProfileUpdateDTO.Experiences)
                     );
                     if (isUpdateInfor == 0)
                     {

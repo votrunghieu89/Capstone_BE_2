@@ -40,6 +40,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                             OrderCount = t.OrderCount,
                                                             CityName = ct.CityName,
                                                             Address = t.Address,
+                                                            YearOfExperience = t.YearOfExperience,
                                                         }).ToListAsync();
                 var result =  new List<AutoFindFixerResDTO>();
                 foreach (var tech in TechList)
@@ -60,6 +61,7 @@ namespace Capstone_2_BE.DALs.Customer
                         RatingCount = RatingCount,
                         City = tech.CityName,
                         Address = tech.Address,
+                        YearOfExperience = tech.YearOfExperience,
                     });
                 }
                 return result;
@@ -78,6 +80,9 @@ namespace Capstone_2_BE.DALs.Customer
                 {
                     try
                     {
+                        var updated = await _context.AccountsModel.Where(a => a.Id == placeOrderDALDTO.TechnicianId
+                                                                       && a.IsOnline == 1).ExecuteUpdateAsync(e => e.SetProperty(sg => sg.IsOnline, 2));
+
                         OrderrModel newOrder = new OrderrModel
                         {
                             CustomerId = placeOrderDALDTO.CustomerId,
@@ -89,6 +94,7 @@ namespace Capstone_2_BE.DALs.Customer
                             CityId = placeOrderDALDTO.CityId,
                             Latitude = placeOrderDALDTO.Latitude,
                             Longitude = placeOrderDALDTO.Longitude,
+                            EstimatedTime = placeOrderDALDTO.EstimatedTime,
                             CreateAt = DateTime.Now,
                             Status = "Pending Confirmation",
                         };

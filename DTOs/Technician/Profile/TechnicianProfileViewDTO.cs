@@ -14,6 +14,6 @@
         public decimal AverageRating { get; set; }
         public DateTime CreateAt { get; set; }
         public string Description { get; set; }
-        public string Experiences { get; set; }
+        public double Experiences { get; set; }
     }
 }

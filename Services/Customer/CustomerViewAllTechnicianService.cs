@@ -183,6 +183,7 @@ namespace Capstone_2_BE.Services.Customer
                 // ✅ Làm tròn 2 chữ số
                 lat = Math.Round(lat, 6);
                 lng = Math.Round(lng, 6);
+
                 var dalDto = new CreateOrderDALDTO
                 {
                     CustomerId = form.CustomerId,
@@ -194,6 +195,7 @@ namespace Capstone_2_BE.Services.Customer
                     CityId = form.CityId,
                     Latitude = lat,
                     Longitude = lng,
+                    EstimatedTime = 110,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };

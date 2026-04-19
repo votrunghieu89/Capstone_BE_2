@@ -291,5 +291,20 @@ namespace Capstone_2_BE.DALs.Technician
                 return 0;
             }
         }
+
+        public async Task<int> GetCompletedOrdersByDays(Guid technicianId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            var count = await _context.OrderrModel
+                .Where(o => o.TechnicianId == technicianId
+                            && o.Status == "Completed"
+                            && o.CreateAt >= start
+                            && o.CreateAt < end)
+                .CountAsync();
+
+            return count;
+        }
     }
 }

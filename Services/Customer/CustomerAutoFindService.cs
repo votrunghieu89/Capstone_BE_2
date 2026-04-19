@@ -68,6 +68,7 @@ namespace Capstone_2_BE.Services.Customer
                 }
                 foreach (var tech in technicians)
                 {
+                    tech.EstimatedTime = 110;
                     decimal distance = (decimal)CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
                     tech.Total = tech.Total + distance;
                 }
@@ -105,6 +106,8 @@ namespace Capstone_2_BE.Services.Customer
                     RatingCount = acceptedTechnician.RatingCount,
                     Address = acceptedTechnician.Address,
                     City = acceptedTechnician.City,
+                    EstimatedTime = acceptedTechnician.EstimatedTime,
+                    YearOfExperience = acceptedTechnician.YearOfExperience,
                 };
                 techinician.avatarURL = await _aws.ReadImage(acceptedTechnician.avatarURL);
                 return Result<AutoFindFixerResSuccessDTO>.Success(techinician, 200);
@@ -131,7 +134,7 @@ namespace Capstone_2_BE.Services.Customer
             }
         }
 
-        public async Task<Result<bool>> PlaceAutoOrder(CreateOrderFormDTO form)
+        public async Task<Result<bool>> PlaceAutoOrder(CreateOrderFormAutoFindDTO form)
         {
             try
             {
@@ -158,6 +161,7 @@ namespace Capstone_2_BE.Services.Customer
                     CityId = form.CityId,
                     Latitude = lat,
                     Longitude = lng,
+                    EstimatedTime = form.EstimatedTime,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };
