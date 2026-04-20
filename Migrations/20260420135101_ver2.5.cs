@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Capstone_2_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class ver24 : Migration
+    public partial class ver25 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -358,8 +358,8 @@ namespace Capstone_2_BE.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TechnicianId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Score = table.Column<decimal>(type: "decimal(3,2)", precision: 3, scale: 2, nullable: false),
                     Feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -453,7 +453,8 @@ namespace Capstone_2_BE.Migrations
                 name: "IX_Rating_OrderId",
                 table: "Rating",
                 column: "OrderId",
-                unique: true);
+                unique: true,
+                filter: "[OrderId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_TechnicianId",

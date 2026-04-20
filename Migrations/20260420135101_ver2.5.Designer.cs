@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260419094039_ver2.4")]
-    partial class ver24
+    [Migration("20260420135101_ver2.5")]
+    partial class ver25
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -422,7 +422,7 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("CreateAt");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CustomerId");
 
@@ -431,7 +431,7 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Feedback");
 
-                    b.Property<Guid>("OrderId")
+                    b.Property<Guid?>("OrderId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("OrderId");
 
@@ -453,7 +453,8 @@ namespace Capstone_2_BE.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("OrderId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[OrderId] IS NOT NULL");
 
                     b.HasIndex("TechnicianId");
 
@@ -756,14 +757,12 @@ namespace Capstone_2_BE.Migrations
                     b.HasOne("Capstone_2_BE.Models.CustomerProfileModel", "CustomerProfile")
                         .WithMany("Rating")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Capstone_2_BE.Models.OrderrModel", "Orders")
                         .WithOne("Rating")
                         .HasForeignKey("Capstone_2_BE.Models.RatingModel", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Capstone_2_BE.Models.TechnicianProfileModel", "TechnicianProfile")
                         .WithMany("Rating")

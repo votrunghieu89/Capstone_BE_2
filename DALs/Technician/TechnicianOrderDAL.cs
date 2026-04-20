@@ -133,12 +133,16 @@ namespace Capstone_2_BE.DALs.Technician
                 List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                             join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                             join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                             where o.TechnicianId == technicianId && o.Status == "Confirmed"
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
+                                                                Address = o.Address,
+                                                                City = ct.CityName,
+                                                                PhoneNumber = c.PhoneNumber,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
                                                                 EstimatedTime = o.EstimatedTime,
@@ -159,12 +163,16 @@ namespace Capstone_2_BE.DALs.Technician
                 List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                             join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                             join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                             where o.TechnicianId == technicianId && o.Status == "Pending Confirmation"
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
+                                                                Address = o.Address,
+                                                                City = ct.CityName,
+                                                                PhoneNumber = c.PhoneNumber,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
                                                                 EstimatedTime = o.EstimatedTime,
@@ -185,12 +193,16 @@ namespace Capstone_2_BE.DALs.Technician
                 List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                             join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                             join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                             where o.TechnicianId == technicianId && o.Status == "Completed"
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
+                                                                Address = o.Address,
+                                                                City = ct.CityName,
+                                                                PhoneNumber = c.PhoneNumber,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
                                                                 EstimatedTime = o.EstimatedTime,
@@ -211,12 +223,16 @@ namespace Capstone_2_BE.DALs.Technician
                 var InProgressOrder = await (from o in _context.OrderrModel
                                              join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                              join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                             join ct in _context.CitiesModel on o.CityId equals ct.Id
                                              where o.TechnicianId == technicianId && o.Status == "In Progress"
                                              select new ViewOrderDTO
                                              {
                                                  OrderId = o.Id,
                                                  CustomerName = c.FullName,
                                                  ServiceName = s.ServiceName,
+                                                 Address = o.Address,
+                                                 City = ct.CityName,
+                                                 PhoneNumber = c.PhoneNumber,
                                                  Title = o.Title,
                                                  Status = o.Status,
                                                  EstimatedTime = o.EstimatedTime,
@@ -237,12 +253,16 @@ namespace Capstone_2_BE.DALs.Technician
                 List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                             join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                             join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                             where o.TechnicianId == technicianId && o.Status == "Cancelled"
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
+                                                                Address = o.Address,
+                                                                City = ct.CityName,
+                                                                PhoneNumber = c.PhoneNumber,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
                                                                 EstimatedTime = o.EstimatedTime,
@@ -315,12 +335,16 @@ namespace Capstone_2_BE.DALs.Technician
                 List<ViewOrderDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                             join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                             join c in _context.CustomerProfileModel on o.CustomerId equals c.Id
+                                                            join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                             where o.TechnicianId == technicianId && o.Status == "Rejected"
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
+                                                                Address = o.Address,
+                                                                City = ct.CityName,
+                                                                PhoneNumber = c.PhoneNumber,
                                                                 Title = o.Title,
                                                                 Status = o.Status,
                                                                 EstimatedTime = o.EstimatedTime,
@@ -440,6 +464,7 @@ namespace Capstone_2_BE.DALs.Technician
                                         Description = o.Description,
                                         Address = o.Address,
                                         City = ct.CityName,
+                                        PhoneNumgber = c.PhoneNumber,
                                         Status = o.Status,
                                         EstimatedTime = o.EstimatedTime,
                                         videoUrl = attachments.Where(att => att.FileType == "Video").Select(att => att.FileName).FirstOrDefault(),

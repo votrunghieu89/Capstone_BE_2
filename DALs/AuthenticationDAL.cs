@@ -296,6 +296,19 @@ namespace Capstone_2_BE.DALs
                         await _context.TechnicianProfileModel.AddAsync(newTechnicianProfile);
                         await _context.SaveChangesAsync();
 
+                        RatingModel ratingModel = new RatingModel()
+                        {
+                            TechnicianId = newAccount.Id,
+                            CustomerId = null,
+                            Score = 5,
+                            Feedback = "Đánh giá cho người mới",
+                            CreateAt = DateTime.Now,
+                            UpdateAt = DateTime.Now,
+                        };
+
+                        await _context.RatingModel.AddAsync(ratingModel);
+                        await _context.SaveChangesAsync();
+
                         await transaction.CommitAsync();
 
                         return AuthenticationEnum.Register.Success;

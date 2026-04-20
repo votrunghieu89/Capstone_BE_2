@@ -12,10 +12,10 @@ namespace Capstone_2_BE.Models
         [Column("TechnicianId")]
         public Guid TechnicianId { get; set; }
         [Column("CustomerId")]
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
 
         [Column("OrderId")]
-        public Guid OrderId { get; set; }
+        public Guid? OrderId { get; set; }
 
         [Column("Score")]
         public decimal Score { get; set; }

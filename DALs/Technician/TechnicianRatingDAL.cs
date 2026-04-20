@@ -80,7 +80,7 @@ namespace Capstone_2_BE.DALs.Technician
                     .Where(t => t.Id == technicianId)
                     .Select(t => new TechnicianRatingViewDTO
                     {
-                        Id = t.Id,
+                        TechnicianId = t.Id,
                         FullName = t.FullName,
                         AvatarURL = t.AvatarURl,
                         AvgScore = _context.RatingModel.Where(r => r.TechnicianId == technicianId).Average(r => (decimal?)r.Score) ?? 0,

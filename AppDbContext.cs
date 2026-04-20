@@ -194,7 +194,9 @@ namespace Capstone_2_BE
                     .WithMany(c => c.Rating)
                     .HasForeignKey(e => e.CustomerId)
                     .OnDelete(DeleteBehavior.Restrict);
-                
+                entity.Property(e => e.CustomerId)
+                    .IsRequired(false); // cho phép NULL
+
                 // FK với TechnicianProfile
                 entity.HasOne(e => e.TechnicianProfile)
                     .WithMany(t => t.Rating)

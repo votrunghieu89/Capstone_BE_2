@@ -2,7 +2,7 @@
 {
     public class TechnicianRatingViewDTO
     {
-        public Guid Id { get; set; }
+        public Guid TechnicianId { get; set; }
         public decimal AvgScore { get; set; }
         public int RatingCount { get; set; }
         public int TotalOrders { get; set; }
