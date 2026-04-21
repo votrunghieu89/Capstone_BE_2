@@ -6,6 +6,8 @@
         public Guid TechnicianId { get; set; }
         public string TechnicianName { get; set; }
         public string ServiceName { get; set; }
+        public string Address { get; set; }
+        public string CityName { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Status { get; set; }
         public double? EstimatedTime { get; set; }

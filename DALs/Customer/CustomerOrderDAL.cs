@@ -143,6 +143,7 @@ namespace Capstone_2_BE.DALs.Customer
                 List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                                 join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                                 join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                                 where o.CustomerId == customerId && o.Status == "Cancelled"
                                                                 select new OrderOverviewDTO
                                                                 {
@@ -151,6 +152,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    Address = o.Address,
+                                                                    CityName = ct.CityName,
                                                                     EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
@@ -169,6 +172,7 @@ namespace Capstone_2_BE.DALs.Customer
                 List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                                 join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                                 join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                                 where o.CustomerId == customerId &&
                                                                                                     (o.Status == "Pending Confirmation" ||
                                                                                                      o.Status == "Confirmed" ||
@@ -181,6 +185,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    Address = o.Address,
+                                                                    CityName = ct.CityName,
                                                                     EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
@@ -198,6 +204,7 @@ namespace Capstone_2_BE.DALs.Customer
                 List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                                 join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                                 join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                                 where o.CustomerId == customerId && o.Status == "In Progress"
                                                                 select new OrderOverviewDTO
                                                                 {
@@ -207,6 +214,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    Address = o.Address,
+                                                                    CityName = ct.CityName,
                                                                     EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
@@ -263,6 +272,7 @@ namespace Capstone_2_BE.DALs.Customer
                 List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                                 join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                                 join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                                 where o.CustomerId == customerId && o.Status == "Completed"
                                                                 select new OrderOverviewDTO
                                                                 {
@@ -272,6 +282,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    Address = o.Address,
+                                                                    CityName = ct.CityName,
                                                                     EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
@@ -290,6 +302,7 @@ namespace Capstone_2_BE.DALs.Customer
                 List<OrderOverviewDTO> InProgressOrder = await (from o in _context.OrderrModel
                                                                 join s in _context.ServiceCategoriesModel on o.ServiceId equals s.Id
                                                                 join c in _context.TechnicianProfileModel on o.TechnicianId equals c.Id
+                                                                join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                                 where o.CustomerId == customerId && o.Status == "Rejected"
                                                                 select new OrderOverviewDTO
                                                                 {
@@ -299,6 +312,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                                     ServiceName = s.ServiceName,
                                                                     Title = o.Title,
                                                                     Status = o.Status,
+                                                                    Address = o.Address,
+                                                                    CityName = ct.CityName,
                                                                     EstimatedTime = o.EstimatedTime,
                                                                     OrderDate = o.CreateAt,
                                                                 }).ToListAsync();
