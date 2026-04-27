@@ -7,18 +7,16 @@ namespace Capstone_2_BE.Models
     public class ChatBotAIModel
     {
         [Key]
-        [Column("Id")]
         public Guid Id { get; set; }
 
-        [Column("AccountId")]
         public Guid AccountId { get; set; }
 
-        [Column("Message")]
         public string Message { get; set; } = string.Empty;
 
-        [Column("CreatedAt")]
-        public DateTime CreatedAt { get; set; }
-        public AccountsModel Account { get; set; }
+        public string Role { get; set; } = "user"; // 🔥 THÊM
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public AccountsModel Account { get; set; }
     }
 }
