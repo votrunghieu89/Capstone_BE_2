@@ -193,27 +193,27 @@ namespace Capstone_2_BE.Services.Customer
                 // ✅ Làm tròn 2 chữ số
                 lat = Math.Round(lat, 6);
                 lng = Math.Round(lng, 6);
-                
-                var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
-                if (TechforAi == null)
-                {
-                    return Result<bool>.Failure("Service không hợp lệ", 400);
-                }
 
-                EstimationTimeDTO dto = new EstimationTimeDTO()
-                {
-                    Distance = _aIEstimationTime.CalculateDistance(lat,lng, TechforAi.Latitude, TechforAi.Longitude),
-                    Experience = TechforAi.YearOfExperience,
-                    IsPeakHour = _aIEstimationTime.isPeakHour(),
-                    ServiceName = await _serviceDAL.GetServiceName(form.ServiceId)
-                };
+                //var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
+                //if (TechforAi == null)
+                //{
+                //    return Result<bool>.Failure("Service không hợp lệ", 400);
+                //}
 
-                var estimationTime = await _aIEstimationTime.EstimationTime(dto);
+                //EstimationTimeDTO dto = new EstimationTimeDTO()
+                //{
+                //    Distance = _aIEstimationTime.CalculateDistance(lat, lng, TechforAi.Latitude, TechforAi.Longitude),
+                //    Experience = TechforAi.YearOfExperience,
+                //    IsPeakHour = _aIEstimationTime.isPeakHour(),
+                //    ServiceName = await _serviceDAL.GetServiceName(form.ServiceId)
+                //};
 
-                if (estimationTime <= 0)
-                {
-                    estimationTime = 999;
-                }
+                //var estimationTime = await _aIEstimationTime.EstimationTime(dto);
+
+                //if (estimationTime <= 0)
+                //{
+                //    estimationTime = 999;
+                //}
 
                 var dalDto = new CreateOrderDALDTO
                 {
@@ -236,6 +236,7 @@ namespace Capstone_2_BE.Services.Customer
                     var videoKey = await _aws.UploadVideoOrder(form.VideoFile);
                     if (string.IsNullOrEmpty(videoKey)) return Result<bool>.Failure("Upload video th?t b?i", 400);
                     dalDto.videoUrl = videoKey;
+                    Console.WriteLine("fail1");
                 }
 
                 if (form.ImageFiles != null && form.ImageFiles.Count > 0)
@@ -245,6 +246,7 @@ namespace Capstone_2_BE.Services.Customer
                         var key = await _aws.UploadImageOrder(file);
                         if (!string.IsNullOrEmpty(key)) dalDto.ImageOrderUrl.Add(key);
                     }
+                    Console.WriteLine("fail2");
                 }
 
                 var ok = await _repo.PlaceOrderForTechnician(dalDto);

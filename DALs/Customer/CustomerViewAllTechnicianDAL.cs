@@ -335,6 +335,7 @@ namespace Capstone_2_BE.DALs.Customer
                             CreateAt = DateTime.Now,
                             Status = "Pending Confirmation",
                         };
+                        Console.WriteLine("Setp 1");
                         await _context.OrderrModel.AddAsync(newOrder);
                         await _context.SaveChangesAsync();
                         OrderStatusHistoryModel orderStatusHistory = new OrderStatusHistoryModel
@@ -344,6 +345,7 @@ namespace Capstone_2_BE.DALs.Customer
                             ChangeBy = placeOrderDALDTO.CustomerId,
                             ChangeAt = DateTime.Now,
                         };
+                        Console.WriteLine("Setp 2");
                         await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                         await _context.SaveChangesAsync();
                         // Video
@@ -358,6 +360,7 @@ namespace Capstone_2_BE.DALs.Customer
                             await _context.OrderAttachmentsModel.AddAsync(videoAttachment);
                             await _context.SaveChangesAsync();
                         }
+                        Console.WriteLine("Setp 3");
                         // Images
                         if (placeOrderDALDTO.ImageOrderUrl != null && placeOrderDALDTO.ImageOrderUrl.Count > 0)
                         {
@@ -370,6 +373,7 @@ namespace Capstone_2_BE.DALs.Customer
                             }).ToList();
                             await _context.OrderAttachmentsModel.AddRangeAsync(imageAttachments);
                             await _context.SaveChangesAsync();
+                            Console.WriteLine("Setp 4");
                         }
                         await transaction.CommitAsync();
                         return true;
