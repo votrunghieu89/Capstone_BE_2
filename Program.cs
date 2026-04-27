@@ -113,6 +113,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
 
 // Register Redis wrapper as Scoped
 builder.Services.AddScoped<Redis>();
+builder.Services.AddHttpClient<AIEstimationTime>();
+
 
 // Register repositories and services
 builder.Services.AddScoped<IAuthenticationRepo, AuthenticationDAL>();
@@ -121,6 +123,7 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<Googles>();
 builder.Services.AddScoped<Token>();
 builder.Services.AddScoped<Email>();
+
 
 // Register Technician repositories and services
 builder.Services.AddScoped<ITechnicianProfileRepo, TechnicianProfileDAL>();

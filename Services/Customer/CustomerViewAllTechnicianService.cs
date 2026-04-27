@@ -1,6 +1,11 @@
-﻿using Capstone_2_BE.DTOs.Customer.FindTechnician;
+﻿using Capstone_2_BE.DALs;
+using Capstone_2_BE.DALs.Technician;
+using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Customer.FindTechnician;
 using Capstone_2_BE.DTOs.Customer.Order;
+using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
+using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Settings;
 using System.Globalization;
 
@@ -11,12 +16,17 @@ namespace Capstone_2_BE.Services.Customer
         private readonly ICustomerViewAllTechnicianRepo _repo;
         private readonly AWS _aws;
         private readonly ILogger<CustomerViewAllTechnicianService> _logger;
-
-        public CustomerViewAllTechnicianService(ICustomerViewAllTechnicianRepo repo, AWS aws, ILogger<CustomerViewAllTechnicianService> logger)
+        private readonly AIEstimationTime _aIEstimationTime;
+        private readonly IServiceRepo _serviceDAL;
+        private readonly ITechnicianProfileRepo _technicianProfileDAL;
+        public CustomerViewAllTechnicianService(ICustomerViewAllTechnicianRepo repo, AWS aws, ILogger<CustomerViewAllTechnicianService> logger, AIEstimationTime aIEstimationTime, IServiceRepo serviceDAL, ITechnicianProfileRepo technicianProfileDAL)
         {
             _repo = repo;
             _aws = aws;
             _logger = logger;
+            _aIEstimationTime = aIEstimationTime;
+            _serviceDAL = serviceDAL;
+            _technicianProfileDAL = technicianProfileDAL;
         }
 
         public async Task<Result<List<ViewAllTechnicianDTO>>> ViewAllTechnician()
@@ -183,6 +193,27 @@ namespace Capstone_2_BE.Services.Customer
                 // ✅ Làm tròn 2 chữ số
                 lat = Math.Round(lat, 6);
                 lng = Math.Round(lng, 6);
+                
+                var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
+                if (TechforAi == null)
+                {
+                    return Result<bool>.Failure("Service không hợp lệ", 400);
+                }
+
+                EstimationTimeDTO dto = new EstimationTimeDTO()
+                {
+                    Distance = _aIEstimationTime.CalculateDistance(lat,lng, TechforAi.Latitude, TechforAi.Longitude),
+                    Experience = TechforAi.YearOfExperience,
+                    IsPeakHour = _aIEstimationTime.isPeakHour(),
+                    ServiceName = await _serviceDAL.GetServiceName(form.ServiceId)
+                };
+
+                var estimationTime = await _aIEstimationTime.EstimationTime(dto);
+
+                if (estimationTime <= 0)
+                {
+                    estimationTime = 999;
+                }
 
                 var dalDto = new CreateOrderDALDTO
                 {
@@ -195,7 +226,7 @@ namespace Capstone_2_BE.Services.Customer
                     CityId = form.CityId,
                     Latitude = lat,
                     Longitude = lng,
-                    EstimatedTime = 110,
+                    EstimatedTime = 111,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };

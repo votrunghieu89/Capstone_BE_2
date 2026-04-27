@@ -41,7 +41,10 @@ namespace Capstone_2_BE.DALs.Customer
                                                             CityName = ct.CityName,
                                                             Address = t.Address,
                                                             YearOfExperience = t.YearOfExperience,
-                                                        }).ToListAsync();
+                                                        })
+                                                        .OrderByDescending(t => t.YearOfExperience)
+                                                        .Take(40)
+                                                        .ToListAsync();
                 var result =  new List<AutoFindFixerResDTO>();
                 foreach (var tech in TechList)
                 {

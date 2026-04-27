@@ -168,5 +168,26 @@ namespace Capstone_2_BE.DALs.Technician
                 return false;
             }
         }
+        public async Task<TechForAI> getInforforAI(Guid TechnicianId)
+        {
+            try
+            {
+                TechForAI? result = await _context.TechnicianProfileModel
+                    .Where(tp => tp.Id == TechnicianId)
+                    .Select(tp => new TechForAI
+                    {
+                        YearOfExperience = tp.YearOfExperience,
+                        Latitude = tp.Latitude,
+                        Longitude = tp.Longitude
+                    })
+                    .FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // log nếu có logger
+                return null;
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.DTOs.Customer.AutoFind;
+﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs.Customer.AutoFind;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Settings;
@@ -12,13 +13,15 @@ namespace Capstone_2_BE.Services.Customer
         private readonly ILogger<CustomerAutoFindService> _logger;
         private readonly Redis _redis;
         private readonly AWS _aws;
+        public readonly AIEstimationTime _aIEstimationTime;
 
-        public CustomerAutoFindService(ICustomerAutoFindRepo customerAutoFindRepo, ILogger<CustomerAutoFindService> logger, Redis redis, AWS aws)
+        public CustomerAutoFindService(ICustomerAutoFindRepo customerAutoFindRepo, ILogger<CustomerAutoFindService> logger, Redis redis, AWS aws, AIEstimationTime aIEstimationTime)
         {
             _customerAutoFindRepo = customerAutoFindRepo;
             _logger = logger;
             _redis = redis;
             _aws = aws;
+            _aIEstimationTime = aIEstimationTime;
         }
 
         public double CalculateDistance(decimal lat1, decimal lon1, decimal? lat2, decimal? lon2)
@@ -61,6 +64,30 @@ namespace Capstone_2_BE.Services.Customer
                 lat = Math.Round(lat, 6);
                 lng = Math.Round(lng, 6);
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
+
+                //var tasks = technicians.Select(async tech =>
+                //{
+                //    if (tech.Latitude == null || tech.Longitude == null) return;
+
+                //    double distance = _aIEstimationTime.CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
+                //    int isPeakHour = _aIEstimationTime.isPeakHour();
+
+                //    var dto = new EstimationTimeDTO
+                //    {
+                //        Distance = distance,
+                //        ServiceName = tech.ServiceName,
+                //        Experience = tech.YearOfExperience,
+                //        IsPeakHour = isPeakHour
+                //    };
+                //    var EstimationResult = await _aIEstimationTime.EstimationTime(dto);
+                //    if (EstimationResult == 0) EstimationResult = 9999;
+                //    tech.EstimatedTime = EstimationResult;
+
+                //    tech.Total = tech.Total + (decimal)tech.EstimatedTime;
+                //});
+
+                //await Task.WhenAll(tasks);
+
                 if (technicians == null || !technicians.Any())
                 {
                     _logger.LogWarning("No technicians found for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.CityId, autoFindFixerDTO.ServiceId);
@@ -72,7 +99,8 @@ namespace Capstone_2_BE.Services.Customer
                     decimal distance = (decimal)CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
                     tech.Total = tech.Total + distance;
                 }
-                var sortedTechnicians = technicians.OrderBy(t => t.Total).ToList();
+
+                var sortedTechnicians = technicians.OrderBy(t => t.Total).Take(20).ToList();
                 var key = $"AutoFindTechnician:{CustomerId}";
                 var isCached = await _redis.PushListAsync(key, sortedTechnicians);
                 return Result<string>.Success("Technicians found and cached successfully.");
