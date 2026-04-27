@@ -1,4 +1,5 @@
-﻿using Capstone_2_BE.Repositories.Admin;
+﻿using Capstone_2_BE.DTOs.Admin;
+using Capstone_2_BE.Repositories.Admin;
 using Capstone_2_BE.Settings;
 
 namespace Capstone_2_BE.Services.Admin
@@ -33,19 +34,6 @@ namespace Capstone_2_BE.Services.Admin
                 ? Result<string>.Success("Unlocked", 200)
                 : Result<string>.Failure("User not found", 404);
         }
-
-        public async Task<Result<object>> GetUserStats()
-        {
-            var data = await _repo.GetUserStats();
-            return Result<object>.Success(data);
-        }
-
-        public async Task<Result<object>> GetOrderStats()
-        {
-            var data = await _repo.GetOrderStats();
-            return Result<object>.Success(data);
-        }
-
         public async Task<Result<object>> GetFeedback()
         {
             var data = await _repo.GetFeedback();
@@ -60,9 +48,33 @@ namespace Capstone_2_BE.Services.Admin
                 : Result<string>.Failure("Not found", 404);
         }
 
-        public async Task<Result<object>> GetTechnicians()
+
+        public async Task<Result<object>> GetDashboardStats()
         {
-            var data = await _repo.GetTechnicians();
+            var data = await _repo.GetDashboardStats();
+            return Result<object>.Success(data);
+        }
+
+        public async Task<Result<object>> GetRequests()
+        {
+            var data = await _repo.GetRequests();
+            return Result<object>.Success(data);
+        }
+        public async Task<Result<object>> GetTechniciansFull()
+        {
+            var data = await _repo.GetTechniciansFull();
+            return Result<object>.Success(data);
+        }
+
+        public async Task<Result<object>> GetTechnicianReviews(Guid id)
+        {
+            var data = await _repo.GetTechnicianReviews(id);
+            return Result<object>.Success(data);
+        }
+
+        public async Task<Result<object>> CreateTechnician(CreateTechnicianDto dto)
+        {
+            var data = await _repo.CreateTechnician(dto);
             return Result<object>.Success(data);
         }
     }

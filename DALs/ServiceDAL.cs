@@ -138,5 +138,18 @@ namespace Capstone_2_BE.DALs
                 return false;
             }
         }
+        // Thêm vào ServiceDAL.cs
+        public async Task<List<object>> GetServicesSummary()
+        {
+            return await _context.ServiceCategoriesModel
+                .Select(s => new
+                {
+                    id = s.Id, // Thêm dòng này
+                    name = s.ServiceName,
+                    total = _context.OrderrModel.Count(o => o.ServiceId == s.Id),
+                    completed = _context.OrderrModel.Count(o => o.ServiceId == s.Id && o.Status.Contains("Completed"))
+                })
+                .ToListAsync<object>();
+        }
     }
 }

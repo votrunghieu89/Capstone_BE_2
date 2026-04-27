@@ -12,6 +12,7 @@ using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Securities;
 using Capstone_2_BE.Services;
 using Capstone_2_BE.Services.Admin;
+using Capstone_2_BE.Services.AIservice;
 using Capstone_2_BE.Services.Customer;
 using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
@@ -166,6 +167,9 @@ builder.Services.AddScoped<IAdminRepo, AdminDAL>();
 builder.Services.AddScoped<AdminService>();
 
 builder.Services.AddSingleton<IUserIdProvider, QueryStringUserIdProvider>();
+
+
+builder.Services.AddHttpClient<AIService>();
 
 var app = builder.Build();
 
