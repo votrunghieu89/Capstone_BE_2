@@ -144,13 +144,6 @@ namespace Capstone_2_BE.Controllers
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordDTO forgetPasswordDTO)
         {
-            // Verify OTP first
-            var otpVerified = await _authenticationService.verifyOTP(forgetPasswordDTO.Email, forgetPasswordDTO.OTP);
-            if (!otpVerified)
-            {
-                return BadRequest(new { message = "OTP không hợp lệ hoặc đã hết hạn" });
-            }
-
             var result = await _authenticationService.ForgetPassword(forgetPasswordDTO.Email, forgetPasswordDTO.NewPassword);
             if (!result.IsSuccess)
             {
