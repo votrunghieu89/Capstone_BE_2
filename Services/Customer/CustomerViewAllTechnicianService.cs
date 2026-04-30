@@ -259,5 +259,36 @@ namespace Capstone_2_BE.Services.Customer
                 return Result<bool>.Failure("L?i khi ??t ??n", 500);
             }
         }
+
+        public async Task<Result<TechnicianDetailDTO>> ViewDetailOfTechnician(Guid technicianId)
+        {
+            try
+            {
+                var technician = await _repo.ViewDetailOfTechnician(technicianId);
+                if (technician == null)
+                    return Result<TechnicianDetailDTO>.Failure("Kỹ thuật viên không tồn tại", 404);
+
+                // Convert avatar key to public URL
+                if (!string.IsNullOrEmpty(technician.AvatarUrl))
+                {
+                    try
+                    {
+                        technician.AvatarUrl = await _aws.ReadImage(technician.AvatarUrl);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning("Không thể đọc ảnh đại diện cho kỹ thuật viên {TechnicianId}: {Message}", technicianId, ex.Message);
+                        technician.AvatarUrl = null;
+                    }
+                }
+
+                return Result<TechnicianDetailDTO>.Success(technician, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting detail for technician {TechnicianId}", technicianId);
+                return Result<TechnicianDetailDTO>.Failure("Lỗi khi lấy thông tin chi tiết kỹ thuật viên", 500);
+            }
+        }
     }
 }

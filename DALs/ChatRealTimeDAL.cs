@@ -129,27 +129,36 @@ namespace Capstone_2_BE.DALs
                 // bước 4 sắp xếp theo last message time
                 // bước 5 phân trang để ko lấy hết
                 // bước 6 trả về ab ac da
-                var rooms = await (from r in _context.RoomsModel                             
-                                  let otherId = r.SenderId == AccountId ? r.ReceiverId : r.SenderId // nếu accountId là sender thì lấy receiverId làm otherId, ngược lại lấy senderId làm otherId
-                                  join u in _context.TechnicianProfileModel on otherId equals u.Id
-                                  where r.SenderId == AccountId || r.ReceiverId == AccountId
-                                  orderby r.LastMessageTime descending
-                                  select new ViewAllRoomDTO
-                                  {
-                                        RoomId = r.Id,
-                                        OtherId = otherId,
-                                        UserName = u.FullName,
-                                        AvatarUrl = u.AvatarURl,
-                                        LastMessage = r.LastMessage,
-                                        LastMessageTime = r.LastMessageTime
-                                  })
-                                  .Skip((page - 1) * pageSize)
-                                  .Take(pageSize)
+                var rawRooms = await (from r in _context.RoomsModel
+                                      let otherId = r.SenderId == AccountId ? r.ReceiverId : r.SenderId
+                                      join ua in _context.AccountsModel on otherId equals ua.Id
+                                      join tp in _context.TechnicianProfileModel on otherId equals tp.Id into tpGroup
+                                      from tp in tpGroup.DefaultIfEmpty()
+                                      join cp in _context.CustomerProfileModel on otherId equals cp.Id into cpGroup
+                                      from cp in cpGroup.DefaultIfEmpty()
+                                      where r.SenderId == AccountId || r.ReceiverId == AccountId
+                                      select new ViewAllRoomDTO
+                                      {
+                                          RoomId = r.Id,
+                                          OtherId = otherId,
+                                          UserName = ua.Role == "Technician" ? (tp != null ? tp.FullName : ua.Email) : (cp != null ? cp.FullName : ua.Email),
+                                          AvatarUrl = ua.Role == "Technician" ? (tp != null ? tp.AvatarURl : null) : (cp != null ? cp.AvatarURL : null),
+                                          LastMessage = r.LastMessage,
+                                          LastMessageTime = r.LastMessageTime
+                                      })
                                   .ToListAsync();
+
+                var rooms = rawRooms
+                    .GroupBy(x => x.OtherId)
+                    .Select(g => g.OrderByDescending(x => x.LastMessageTime).ThenByDescending(x => x.RoomId).First())
+                    .OrderByDescending(x => x.LastMessageTime)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
                 _logger.LogInformation("Successfully retrieved {Count} rooms for AccountId: {AccountId}", rooms.Count, AccountId);
                 return rooms;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting all rooms for AccountId: {AccountId}", AccountId);
                 return new List<ViewAllRoomDTO>();
@@ -160,7 +169,7 @@ namespace Capstone_2_BE.DALs
         {
             try
             {
-                if(userA == userB)
+                if (userA == userB)
                 {
                     _logger.LogWarning("Attempted to get or create room for the same user: {UserA}", userA);
                     return Guid.Empty;
@@ -189,7 +198,7 @@ namespace Capstone_2_BE.DALs
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting or creating room for UserA: {UserA}, UserB: {UserB}", userA, userB);
-               return Guid.Empty;
+                return Guid.Empty;
             }
         }
 
@@ -197,7 +206,7 @@ namespace Capstone_2_BE.DALs
         {
             try
             {
-                using(var transaction = _context.Database.BeginTransaction())
+                using (var transaction = _context.Database.BeginTransaction())
                 {
                     try
                     {
@@ -206,19 +215,19 @@ namespace Capstone_2_BE.DALs
                             .Where(a => a.Id == createMessageDTO.SenderId)
                             .Select(a => a.Role)
                             .FirstOrDefaultAsync();
-                        if (Role == "Technician" )
+                        if (Role == "Technician")
                         {
-                             avatar = await _context.TechnicianProfileModel
-                                .Where(t => t.Id == createMessageDTO.SenderId)
-                                .Select(t => t.AvatarURl)
-                                .FirstOrDefaultAsync();
+                            avatar = await _context.TechnicianProfileModel
+                               .Where(t => t.Id == createMessageDTO.SenderId)
+                               .Select(t => t.AvatarURl)
+                               .FirstOrDefaultAsync();
                         }
                         else
                         {
-                             avatar = await _context.CustomerProfileModel
-                                .Where(c => c.Id == createMessageDTO.SenderId)
-                                .Select(c => c.AvatarURL)
-                                .FirstOrDefaultAsync();
+                            avatar = await _context.CustomerProfileModel
+                               .Where(c => c.Id == createMessageDTO.SenderId)
+                               .Select(c => c.AvatarURL)
+                               .FirstOrDefaultAsync();
                         }
                         MessengerModel newMess = new MessengerModel
                         {
@@ -231,7 +240,7 @@ namespace Capstone_2_BE.DALs
                         await _context.MessengerModel.AddAsync(newMess);
                         await _context.SaveChangesAsync();
 
-                        if(createMessageDTO.ImageUrls != null && createMessageDTO.ImageUrls.Count > 0)
+                        if (createMessageDTO.ImageUrls != null && createMessageDTO.ImageUrls.Count > 0)
                         {
                             var attachments = createMessageDTO.ImageUrls.Select(url => new MessAttachmentModel
                             {
@@ -243,7 +252,7 @@ namespace Capstone_2_BE.DALs
                             await _context.MessAttachmentModel.AddRangeAsync(attachments);
                             await _context.SaveChangesAsync();
                         }
-                        if(!string.IsNullOrEmpty(createMessageDTO.VideoUrl))
+                        if (!string.IsNullOrEmpty(createMessageDTO.VideoUrl))
                         {
                             MessAttachmentModel videoAttachment = new MessAttachmentModel
                             {

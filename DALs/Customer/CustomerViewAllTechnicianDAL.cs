@@ -409,7 +409,9 @@ namespace Capstone_2_BE.DALs.Customer
                                      join s in _context.ServiceCategoriesModel
                                          on sp.ServiceId equals s.Id into sGroup
                                      from s in sGroup.DefaultIfEmpty()
-
+                                     join ct in _context.CitiesModel
+                                            on tp.CityId equals ct.Id into ctGroup
+                                     from ct in ctGroup.DefaultIfEmpty()
                                      where tp.FullName.ToLower().Contains(FullName.ToLower())
 
                                      select new ViewAllTechnicianDTO
@@ -430,7 +432,9 @@ namespace Capstone_2_BE.DALs.Customer
                                                                  acc.IsOnline == 0 ? "Offline" :
                                                                  acc.IsOnline == 1 ? "Online" :
                                                                  acc.IsOnline == 2 ? "Busy" :
-                                                                 "unknown"
+                                                                 "unknown",
+                                         Address = tp.Address,
+                                         CityName = ct.CityName
                                      }
                                  ).ToListAsync();
 
@@ -461,6 +465,10 @@ namespace Capstone_2_BE.DALs.Customer
                                          on sp.ServiceId equals s.Id into sGroup
                                      from s in sGroup.DefaultIfEmpty()
 
+                                     join ct in _context.CitiesModel 
+                                        on tp.CityId equals ct.Id into ctGroup
+                                     from ct in ctGroup.DefaultIfEmpty()
+
                                      select new ViewAllTechnicianDTO
                                      {
                                          TechnicianId = tp.Id,
@@ -478,7 +486,10 @@ namespace Capstone_2_BE.DALs.Customer
                                                                  acc.IsOnline == 0 ? "Offline" :
                                                                  acc.IsOnline == 1 ? "Online" :
                                                                  acc.IsOnline == 2 ? "Busy" :
-                                                                 "unknown"
+                                                                 "unknown",
+                                         Address = tp.Address,
+                                         CityName = ct.CityName,
+                                         YearOfExperience = tp.YearOfExperience
                                      }
                                  ).ToListAsync();
 
@@ -487,6 +498,63 @@ namespace Capstone_2_BE.DALs.Customer
             catch (Exception ex)
             {
                 return new List<ViewAllTechnicianDTO>();
+            }
+        }
+
+        public async Task<TechnicianDetailDTO> ViewDetailOfTechnician(Guid TechnicianID)
+        {
+            try
+            {
+                var result = await (
+                                    from tp in _context.TechnicianProfileModel
+
+                                    join acc in _context.AccountsModel
+                                        on tp.Id equals acc.Id into accGroup
+                                    from acc in accGroup.DefaultIfEmpty()
+
+                                    join sp in _context.Service_ProfileModel
+                                        on tp.Id equals sp.TechnicianId into spGroup
+                                    from sp in spGroup.DefaultIfEmpty()
+
+                                    join s in _context.ServiceCategoriesModel
+                                        on sp.ServiceId equals s.Id into sGroup
+                                    from s in sGroup.DefaultIfEmpty()
+
+                                    join ct in _context.CitiesModel
+                                       on tp.CityId equals ct.Id into ctGroup
+                                    from ct in ctGroup.DefaultIfEmpty()
+
+                                    select new TechnicianDetailDTO
+                                    {
+                                        TechnicianId = tp.Id,
+                                        TechnicianName = tp.FullName,
+                                        AvatarUrl = tp.AvatarURl,
+                                        ServiceId = s != null ? s.Id : Guid.Empty,
+                                        ServiceName = s != null ? s.ServiceName : "",
+                                        OrderCount = tp.OrderCount,
+                                        RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
+                                        AverageRating = _context.RatingModel
+                                            .Where(r => r.TechnicianId == tp.Id)
+                                            .Select(r => (decimal?)r.Score)
+                                            .Average() ?? 0,
+                                        Status = acc == null ? "Offline" :
+                                                                acc.IsOnline == 0 ? "Offline" :
+                                                                acc.IsOnline == 1 ? "Online" :
+                                                                acc.IsOnline == 2 ? "Busy" :
+                                                                "unknown",
+                                        Address = tp.Address,
+                                        CityName = ct.CityName,
+                                        YearOfExperience = tp.YearOfExperience,
+                                        Descritption = tp.Description,
+                                        PhoneNumber = tp.PhoneNumber
+                                    }
+                                ).FirstOrDefaultAsync();
+                if (result == null) return null;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
     }

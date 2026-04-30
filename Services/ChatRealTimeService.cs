@@ -49,14 +49,14 @@ namespace Capstone_2_BE.Services
                 List<ViewAllRoomDTO> rooms = await _chatRealTimeRepository.GetAllRooms(AccountId, page, pageSize);
                 foreach (var room in rooms)
                 {
-                    if(room.AvatarUrl != null)
+                    if (room.AvatarUrl != null)
                     {
                         room.AvatarUrl = await _aws.ReadImage(room.AvatarUrl);
                     }
                 }
-                if (rooms == null || rooms.Count == 0)
+                if (rooms == null)
                 {
-                    return Result<List<ViewAllRoomDTO>>.Failure("No rooms found for this account.", 404);
+                    rooms = new List<ViewAllRoomDTO>();
                 }
                 return Result<List<ViewAllRoomDTO>>.Success(rooms, 200);
             }
@@ -78,21 +78,21 @@ namespace Capstone_2_BE.Services
                     {
                         message.AvatarUrl = await _aws.ReadImage(message.AvatarUrl);
                     }
-                    if(message.ImageUrls != null && message.ImageUrls.Count > 0)
+                    if (message.ImageUrls != null && message.ImageUrls.Count > 0)
                     {
                         for (int i = 0; i < message.ImageUrls.Count; i++)
                         {
                             message.ImageUrls[i] = await _aws.ReadImage(message.ImageUrls[i]);
                         }
                     }
-                    if(message.videoUrl != null)
+                    if (message.videoUrl != null)
                     {
                         message.videoUrl = await _aws.ReadImage(message.videoUrl);
                     }
                 }
                 if (messages == null || messages.Count == 0)
                 {
-                    return Result<List<ViewAllMessageDTO>>.Failure("No messages found for this room.", 404);
+                    messages = new List<ViewAllMessageDTO>();
                 }
                 return Result<List<ViewAllMessageDTO>>.Success(messages, 200);
             }
@@ -102,7 +102,7 @@ namespace Capstone_2_BE.Services
                 return Result<List<ViewAllMessageDTO>>.Failure("An error occurred while retrieving messages.", 500);
             }
         }
-        public async Task<Result<Guid>> GetorCreateRoom (Guid userA, Guid userB)
+        public async Task<Result<Guid>> GetorCreateRoom(Guid userA, Guid userB)
         {
             try
             {
@@ -144,14 +144,14 @@ namespace Capstone_2_BE.Services
                         createMessageDTO.ImageUrls.Add(imageUrl);
                     }
                 }
-                if(createMessageFormDTO.VideoUrl != null)
+                if (createMessageFormDTO.VideoUrl != null)
                 {
                     string videoUrl = await _aws.UploadVideoOrder(createMessageFormDTO.VideoUrl);
                     createMessageDTO.VideoUrl = videoUrl;
                 }
-                
+
                 var Response = await _chatRealTimeRepository.InsertMessage(createMessageDTO);
-                string avatarUrl = await _aws.ReadImage(Response.AvatarUrl); 
+                string avatarUrl = await _aws.ReadImage(Response.AvatarUrl);
                 // Gửi tin nhắn khi 2 người trong đoạn chat
                 await _chatHubContext.Clients.Group(roomId.ToString())
                                                 .SendAsync("ChatMessage", new
@@ -179,8 +179,8 @@ namespace Capstone_2_BE.Services
                                                         CreatedAt = DateTime.Now
                                                     });
                 return Result<string>.Success("Message sent successfully.", 200);
-                
-              
+
+
             }
             catch (Exception ex)
             {

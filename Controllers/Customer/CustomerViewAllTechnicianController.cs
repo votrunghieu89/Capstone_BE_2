@@ -69,5 +69,13 @@ namespace Capstone_2_BE.Controllers.Customer
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
             return StatusCode(result.StatusCode, new { message = "Đặt đơn thành công" });
         }
+
+        [HttpGet("detail/{technicianId}")]
+        public async Task<IActionResult> GetTechnicianDetail(Guid technicianId)
+        {
+            var result = await _service.ViewDetailOfTechnician(technicianId);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, result.Data);
+        }
     }
 }

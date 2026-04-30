@@ -23,5 +23,6 @@ namespace Capstone_2_BE.Repositories.Customer
 
         // Tìm kiếm theo họ và tên
         Task<List<ViewAllTechnicianDTO>> SearchTechnicianbyName(string FullName);
+        Task<TechnicianDetailDTO> ViewDetailOfTechnician(Guid TechnicianID);
     }
 }
