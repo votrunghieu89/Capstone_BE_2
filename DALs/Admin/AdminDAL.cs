@@ -197,7 +197,7 @@ namespace Capstone_2_BE.DALs.Admin
     {
         Id = accountId,
         Email = dto.Email,
-        Password = "123456", // Nên mã hóa password ở bước thực tế
+        Password = BCrypt.Net.BCrypt.HashPassword("123456"),
         Role = "Technician",
         IsActive = 1,
         IsOnline = 0,
