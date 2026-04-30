@@ -96,10 +96,13 @@ namespace Capstone_2_BE.DALs.Technician
         {
             try
             {
-                if (!decimal.TryParse(technicianProfileUpdateDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+                var latStr = technicianProfileUpdateDTO.Latitude.Replace(",", ".");
+                var lngStr = technicianProfileUpdateDTO.Longitude.Replace(",", ".");
+
+                if (!decimal.TryParse(latStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
                     throw new Exception("Latitude không hợp lệ");
 
-                if (!decimal.TryParse(technicianProfileUpdateDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                if (!decimal.TryParse(lngStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
                     throw new Exception("Longitude không hợp lệ");
 
                 // ✅ Validate

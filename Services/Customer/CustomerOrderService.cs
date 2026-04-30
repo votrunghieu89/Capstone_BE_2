@@ -221,10 +221,13 @@ namespace Capstone_2_BE.Services.Customer
 
         public async Task<Result<string>> UpdateOrder(OrderUpdateFormDTO OrderUpdateFormDTO)
         {
-            if (!decimal.TryParse(OrderUpdateFormDTO.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+            var latStr = OrderUpdateFormDTO.Latitude.Replace(",", ".");
+            var lngStr = OrderUpdateFormDTO.Longitude.Replace(",", ".");
+
+            if (!decimal.TryParse(latStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
                 return Result<string>.Failure("Latitude không hợp lệ", 400);
 
-            if (!decimal.TryParse(OrderUpdateFormDTO.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+            if (!decimal.TryParse(lngStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
                 return Result<string>.Failure("Longitude không hợp lệ", 400);
             // ✅ Validate GPS
             if (lat < -90 || lat > 90)

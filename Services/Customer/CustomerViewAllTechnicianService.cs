@@ -177,10 +177,14 @@ namespace Capstone_2_BE.Services.Customer
         {
             try
             {
-                if (!decimal.TryParse(form.Latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
+
+                var latStr = form.Latitude.Replace(",", ".");
+                var lngStr = form.Longitude.Replace(",", ".");
+
+                if (!decimal.TryParse(latStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
                     return Result<bool>.Failure("Latitude không hợp lệ", 400);
 
-                if (!decimal.TryParse(form.Longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
+                if (!decimal.TryParse(lngStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
                     return Result<bool>.Failure("Longitude không hợp lệ", 400);
 
                 // ✅ Validate GPS
