@@ -68,6 +68,7 @@ namespace Capstone_2_BE.Services.Customer
                 lng = Math.Round(lng, 6);
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
 
+                if(technicians == null) Result<string>.Failure("An error occurred while trying to find technicians. Please try again later.", 500);
                 //var tasks = technicians.Select(async tech =>
                 //{
                 //    if (tech.Latitude == null || tech.Longitude == null) return;

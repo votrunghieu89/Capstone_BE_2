@@ -198,12 +198,13 @@ namespace Capstone_2_BE.Services.Customer
                 lat = Math.Round(lat, 6);
                 lng = Math.Round(lng, 6);
 
-                //var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
-                //if (TechforAi == null)
-                //{
-                //    return Result<bool>.Failure("Service không hợp lệ", 400);
-                //}
-
+                var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
+                if (TechforAi == null)
+                {
+                    return Result<bool>.Failure("TechforAI loi khong hop lệ", 400);
+                }
+                var ServiceName = await _serviceDAL.GetServiceName(form.ServiceId);
+                if (ServiceName == null) return Result<bool>.Failure("ServiceName loi khong hop lệ", 400);
                 //EstimationTimeDTO dto = new EstimationTimeDTO()
                 //{
                 //    Distance = _aIEstimationTime.CalculateDistance(lat, lng, TechforAi.Latitude, TechforAi.Longitude),
