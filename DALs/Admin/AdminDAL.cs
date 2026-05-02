@@ -44,37 +44,48 @@ namespace Capstone_2_BE.DALs.Admin
         }
 
         // ================= DASHBOARD STATS =================
+        // ================= DASHBOARD STATS (UPDATED) =================
         public async Task<object> GetDashboardStats()
         {
-            var totalUsers = await _context.AccountsModel.CountAsync(x => x.Role == "Customer");
-            var totalTechnicians = await _context.AccountsModel.CountAsync(x => x.Role == "Technician");
+            // 1. Lấy tất cả yêu cầu (để tính tổng theo tháng)
+            var allRequests = await _context.OrderrModel
+                .Select(o => new { createdAt = o.CreateAt })
+                .ToListAsync();
 
-            var activeTechnicians = await _context.AccountsModel
-                .CountAsync(x => x.Role == "Technician" && x.IsOnline == 1);
-
-            var totalRequests = await _context.OrderrModel.CountAsync();
-
-            var pendingRequests = await _context.OrderrModel
-                .CountAsync(x => x.Status.Contains("Pending"));
-
+            // 2. Lấy đơn hàng đã hoàn thành (để tính theo tháng)
             var completedRequests = await _context.OrderrModel
-                .CountAsync(x => x.Status.Contains("Completed"));
+                .Where(o => o.Status.Contains("Completed"))
+                .Select(o => new { completeAt = o.CompleteAt }) // Lưu ý: dùng CompleteAt để chính xác về thời điểm xong
+                .ToListAsync();
 
-            var cancelledRequests = await _context.OrderrModel
-                .CountAsync(x => x.Status.Contains("Cancel"));
+            // 3. Lấy người dùng phân loại theo Role (để tính tăng trưởng)
+            var users = await _context.AccountsModel
+                .Select(u => new {
+                    role = u.Role,
+                    createdAt = u.CreateAt
+                })
+                .ToListAsync();
+
+            // 4. Các con số tổng hợp (cho các thẻ Card nhỏ nếu cần)
+            var totalUsers = users.Count(x => x.role == "Customer");
+            var totalTechnicians = users.Count(x => x.role == "Technician");
+            var activeTechnicians = await _context.AccountsModel.CountAsync(x => x.Role == "Technician" && x.IsOnline == 1);
 
             return new
             {
-                totalUsers,
-                totalTechnicians,
-                totalRequests,
-                pendingRequests,
-                completedRequests,
-                cancelledRequests,
-                activeTechnicians
+                requests = allRequests,
+                completedRequests = completedRequests,
+                users = users,
+                // Trả về thêm các số tổng để hiển thị nhanh ở Card
+                summary = new
+                {
+                    totalUsers,
+                    totalTechnicians,
+                    totalRequests = allRequests.Count,
+                    activeTechnicians
+                }
             };
         }
-
         // ================= REQUESTS =================
         public async Task<List<object>> GetRequests()
         {
@@ -198,7 +209,7 @@ namespace Capstone_2_BE.DALs.Admin
     {
         Id = accountId,
         Email = dto.Email,
-        Password = "123456", // Nên mã hóa password ở bước thực tế
+        Password = BCrypt.Net.BCrypt.HashPassword("123456"),
         Role = "Technician",
         IsActive = 1,
         IsOnline = 0,

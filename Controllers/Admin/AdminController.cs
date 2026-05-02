@@ -55,12 +55,15 @@ namespace Capstone_2_BE.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("stats")]
+        // Thay đổi từ "stats" thành "dashboard-stats"
+        [HttpGet("dashboard-stats")]
         public async Task<IActionResult> GetStats()
         {
             var result = await _service.GetDashboardStats();
+            // Vì service của bạn trả về object Result, nên lấy result.Data
             return Ok(result.Data);
         }
+        
 
         [HttpGet("requests")]
         public async Task<IActionResult> GetRequests()
