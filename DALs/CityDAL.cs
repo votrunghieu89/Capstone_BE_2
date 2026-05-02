@@ -83,5 +83,33 @@ namespace Capstone_2_BE.DALs
                 return new List<DTOs.City.ViewAllCities>();
             }
         }
+
+        public async Task<string> GetCityName(Guid CityId)
+        {
+            try
+            {
+                var city = await _context.CitiesModel.FirstOrDefaultAsync(c => c.Id == CityId);
+                return city?.CityName ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting city name for {CityId}", CityId);
+                return string.Empty;
+            }
+        }
+
+        public async Task<Guid> GetCityID(string cityName)
+        {
+            try
+            {
+                var city = await _context.CitiesModel.FirstOrDefaultAsync(c => c.CityName == cityName);
+                return city?.Id ?? Guid.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting city ID for {CityName}", cityName);
+                return Guid.Empty;
+            }
+        }
     }
 }

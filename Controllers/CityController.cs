@@ -66,5 +66,27 @@ namespace Capstone_2_BE.Controllers
             }
             return StatusCode(result.StatusCode, new { message = result.Data });
         }
+
+        [HttpGet("{id}/name")]
+        public async Task<IActionResult> GetCityName(Guid id)
+        {
+            var result = await _cityService.GetCityName(id);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, new { cityName = result.Data });
+        }
+
+        [HttpGet("name/{cityName}")]
+        public async Task<IActionResult> GetCityIDByName(string cityName)
+        {
+            var result = await _cityService.GetCityID(cityName);
+            if (!result.IsSuccess)
+            {
+                return StatusCode(result.StatusCode, new { message = result.Error });
+            }
+            return StatusCode(result.StatusCode, new { cityId = result.Data });
+        }
     }
 }

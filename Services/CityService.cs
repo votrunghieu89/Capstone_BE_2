@@ -72,5 +72,40 @@ namespace Capstone_2_BE.Services
                 return Result<List<ViewAllCities>>.Failure("Lỗi khi lấy danh sách thành phố", 500);
             }
         }
+
+        public async Task<Result<string>> GetCityName(Guid cityId)
+        {
+            try
+            {
+                var cityName = await _cityRepo.GetCityName(cityId);
+                if (string.IsNullOrEmpty(cityName))
+                    return Result<string>.Failure("Không tìm thấy thành phố", 404);
+                return Result<string>.Success(cityName, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting city name for {CityId}", cityId);
+                return Result<string>.Failure("Lỗi khi lấy tên thành phố", 500);
+            }
+        }
+
+        public async Task<Result<Guid>> GetCityID(string cityName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(cityName))
+                    return Result<Guid>.Failure("Tên thành phố không hợp lệ", 400);
+                
+                var cityId = await _cityRepo.GetCityID(cityName);
+                if (cityId == Guid.Empty)
+                    return Result<Guid>.Failure("Không tìm thấy thành phố", 404);
+                return Result<Guid>.Success(cityId, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting city ID for {CityName}", cityName);
+                return Result<Guid>.Failure("Lỗi khi lấy ID thành phố", 500);
+            }
+        }
     }
 }
