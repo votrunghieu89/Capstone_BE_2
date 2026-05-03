@@ -231,7 +231,7 @@ namespace Capstone_2_BE.Services.Customer
                     CityId = form.CityId,
                     Latitude = lat,
                     Longitude = lng,
-                    EstimatedTime = 111,
+                    EstimatedTime = 299,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };
