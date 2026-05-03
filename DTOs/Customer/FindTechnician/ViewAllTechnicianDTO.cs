@@ -4,6 +4,7 @@
     {
         public Guid TechnicianId { get; set; }
         public Guid ServiceId { get; set; }
+        public Guid CityId { get; set; }
         public string TechnicianName { get; set; } = string.Empty;
         public string ServiceName { get; set; } = string.Empty;
         public string? AvatarUrl { get; set; }

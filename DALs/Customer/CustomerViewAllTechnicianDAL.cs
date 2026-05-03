@@ -475,6 +475,7 @@ namespace Capstone_2_BE.DALs.Customer
                                          TechnicianName = tp.FullName,
                                          AvatarUrl = tp.AvatarURl,
                                          ServiceId = s != null ? s.Id : Guid.Empty,
+                                         CityId = s != null ? s.Id : Guid.Empty,
                                          ServiceName = s != null ? s.ServiceName : "",
                                          OrderCount = tp.OrderCount,
                                          RatingCount = _context.RatingModel.Count(r => r.TechnicianId == tp.Id),
