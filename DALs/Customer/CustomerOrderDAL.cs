@@ -175,8 +175,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                                 join ct in _context.CitiesModel on o.CityId equals ct.Id
                                                                 where o.CustomerId == customerId &&
                                                                                                     (o.Status == "Pending Confirmation" ||
-                                                                                                     o.Status == "Confirmed" ||
-                                                                                                     o.Status == "In Progress")
+                                                                                                     o.Status == "Confirmed")
                                                                 select new OrderOverviewDTO
                                                                 {
                                                                     OrderId = o.Id,
