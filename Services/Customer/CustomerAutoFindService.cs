@@ -1,8 +1,12 @@
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Customer.AutoFind;
 using Capstone_2_BE.DTOs.Customer.Order;
+using Capstone_2_BE.DTOs.Notification;
+using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Settings;
+using Capstone_2_BE.Socket;
+using Microsoft.AspNetCore.SignalR;
 using System.Globalization;
 
 namespace Capstone_2_BE.Services.Customer
@@ -14,9 +18,13 @@ namespace Capstone_2_BE.Services.Customer
         private readonly Redis _redis;
         private readonly AWS _aws;
         public readonly AIEstimationTime _aIEstimationTime;
+        public readonly INotificationRepo _notificationRepo;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public CustomerAutoFindService(ICustomerAutoFindRepo customerAutoFindRepo, ILogger<CustomerAutoFindService> logger, Redis redis, AWS aws, AIEstimationTime aIEstimationTime)
+        public CustomerAutoFindService(IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo, ICustomerAutoFindRepo customerAutoFindRepo, ILogger<CustomerAutoFindService> logger, Redis redis, AWS aws, AIEstimationTime aIEstimationTime)
         {
+            _hubContext = hubContext;
+            _notificationRepo = notificationRepo;
             _customerAutoFindRepo = customerAutoFindRepo;
             _logger = logger;
             _redis = redis;
@@ -224,8 +232,25 @@ namespace Capstone_2_BE.Services.Customer
                         }
                     }
                 }
-
                 var ok = await _customerAutoFindRepo.PlaceAutoOrder(dalDto);
+                if (ok == true)
+                {
+                    var newNotification = new InsertNewNotificationDTO
+                    {
+                        SenderId = form.CustomerId,
+                        ReceiverId = form.TechnicianId,
+                        Message = "Bạn vừa có 1 đơn hàng mới",
+                        CratedAt = DateTime.Now,
+                    };
+
+                    var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
+                    if (isInsert)
+                    {
+                        await _hubContext.Clients.User(newNotification.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
+
+                    }
+                }
+               
                 if (ok) return Result<bool>.Success(true, 200);
                 return Result<bool>.Failure("Đặt đơn tự động thất bại", 400);
             }

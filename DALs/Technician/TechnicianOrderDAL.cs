@@ -1,4 +1,4 @@
-﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Models;
@@ -138,6 +138,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
+                                                                CustomerId = o.CustomerId,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
                                                                 Address = o.Address,
@@ -168,6 +169,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
+                                                                CustomerId = o.CustomerId,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
                                                                 Address = o.Address,
@@ -198,6 +200,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
+                                                                CustomerId = o.CustomerId,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
                                                                 Address = o.Address,
@@ -228,6 +231,7 @@ namespace Capstone_2_BE.DALs.Technician
                                              select new ViewOrderDTO
                                              {
                                                  OrderId = o.Id,
+                                                 CustomerId = o.CustomerId,
                                                  CustomerName = c.FullName,
                                                  ServiceName = s.ServiceName,
                                                  Address = o.Address,
@@ -258,6 +262,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
+                                                                CustomerId = o.CustomerId,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
                                                                 Address = o.Address,
@@ -340,6 +345,7 @@ namespace Capstone_2_BE.DALs.Technician
                                                             select new ViewOrderDTO
                                                             {
                                                                 OrderId = o.Id,
+                                                                CustomerId = o.CustomerId,
                                                                 CustomerName = c.FullName,
                                                                 ServiceName = s.ServiceName,
                                                                 Address = o.Address,
@@ -458,6 +464,7 @@ namespace Capstone_2_BE.DALs.Technician
                                     select new ViewOrderDetailDTO
                                     {
                                         OrderId = o.Id,
+                                        CustomerId = o.CustomerId,
                                         ServiceName = s.ServiceName,
                                         CustomerName = c.FullName,
                                         Title = o.Title,
@@ -479,7 +486,7 @@ namespace Capstone_2_BE.DALs.Technician
                 return result;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }

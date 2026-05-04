@@ -1,8 +1,9 @@
-﻿namespace Capstone_2_BE.DTOs.Technician.Orders
+namespace Capstone_2_BE.DTOs.Technician.Orders
 {
     public class ViewOrderDetailDTO
     {
         public Guid OrderId { get; set; }
+        public Guid CustomerId { get; set; }
         public string CustomerName { get; set; }
         public string ServiceName { get; set; }
         public string Title { get; set; } = string.Empty;

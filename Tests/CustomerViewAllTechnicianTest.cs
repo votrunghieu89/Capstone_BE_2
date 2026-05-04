@@ -6,6 +6,7 @@ using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Services.Customer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -19,7 +20,15 @@ namespace Capstone_2_BE.Tests
             Mock<ILogger<CustomerViewAllTechnicianService>> logger,
             Mock<IServiceRepo> serviceRepo,
             Mock<ITechnicianProfileRepo> techRepo)
-            => new CustomerViewAllTechnicianService(repo.Object, aws: null!, logger.Object, aIEstimationTime: null!, serviceRepo.Object, techRepo.Object);
+            => new CustomerViewAllTechnicianService(
+                hubContext: Mock.Of<IHubContext<Capstone_2_BE.Socket.NotificationHub>>(),
+                notificationRepo: Mock.Of<Capstone_2_BE.Repositories.INotificationRepo>(),
+                repo: repo.Object,
+                aws: null!,
+                logger: logger.Object,
+                aIEstimationTime: null!,
+                serviceDAL: serviceRepo.Object,
+                technicianProfileDAL: techRepo.Object);
 
         [Fact]
         public async Task FilterTechnicianCombination_WhenFilterNull_Returns400()

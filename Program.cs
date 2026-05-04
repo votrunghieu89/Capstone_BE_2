@@ -18,6 +18,8 @@ using Capstone_2_BE.Services.Technician;
 using Capstone_2_BE.Settings;
 using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +33,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+// Increase upload limits for multipart/form-data (images/videos)
+// NOTE: If hosting behind IIS / reverse proxy, you may also need to adjust that layer's limits (e.g., web.config maxAllowedContentLength).
+const long MaxUploadBytes = 500L * 1024L * 1024L; // 500 MB
+builder.Services.Configure<FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = MaxUploadBytes;
+});
+
+builder.Services.Configure<KestrelServerOptions>(o =>
+{
+    o.Limits.MaxRequestBodySize = MaxUploadBytes;
+});
 
 builder.Services.AddSwaggerGen(option =>
 {

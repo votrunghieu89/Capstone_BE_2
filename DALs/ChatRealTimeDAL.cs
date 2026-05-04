@@ -1,4 +1,4 @@
-﻿using Capstone_2_BE.DTOs.ChatRealTime;
+using Capstone_2_BE.DTOs.ChatRealTime;
 using Capstone_2_BE.Models;
 using Capstone_2_BE.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -144,7 +144,8 @@ namespace Capstone_2_BE.DALs
                                           UserName = ua.Role == "Technician" ? (tp != null ? tp.FullName : ua.Email) : (cp != null ? cp.FullName : ua.Email),
                                           AvatarUrl = ua.Role == "Technician" ? (tp != null ? tp.AvatarURl : null) : (cp != null ? cp.AvatarURL : null),
                                           LastMessage = r.LastMessage,
-                                          LastMessageTime = r.LastMessageTime
+                                          LastMessageTime = r.LastMessageTime,
+                                          UnreadCount = _context.MessengerModel.Count(m => m.RoomId == r.Id && m.SenderId != AccountId && !m.IsRead)
                                       })
                                   .ToListAsync();
 
@@ -310,7 +311,7 @@ namespace Capstone_2_BE.DALs
             try
             {
                 int IsUpdate = await _context.MessengerModel
-                    .Where(m => m.RoomId == roomId && m.SenderId == AccountId && !m.IsRead)
+                    .Where(m => m.RoomId == roomId && m.SenderId != AccountId && !m.IsRead)
                     .ExecuteUpdateAsync(m => m.SetProperty(msg => msg.IsRead, true));
                 if (IsUpdate > 0)
                 {

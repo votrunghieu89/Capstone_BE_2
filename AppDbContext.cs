@@ -69,8 +69,8 @@ namespace Capstone_2_BE
                 entity.Property(e => e.Description);
                 entity.Property(e => e.YearOfExperience);
                 entity.Property(e => e.OrderCount);
-                entity.Property(e => e.Latitude).HasPrecision(10, 7).IsRequired(false);
-                entity.Property(e => e.Longitude).HasPrecision(10, 7).IsRequired(false);
+                entity.Property(e => e.Latitude).HasPrecision(10, 6).IsRequired(false);
+                entity.Property(e => e.Longitude).HasPrecision(10, 6).IsRequired(false);
 
                 // FK với CitiesModel
                 entity.HasOne(e => e.CitiesModel)
@@ -116,8 +116,8 @@ namespace Capstone_2_BE
                      .HasMaxLength(30)
                     .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
                 //entity.Property(e => e.Price).HasPrecision(18, 2);
-                entity.Property(e => e.Latitude).HasPrecision(10, 7);
-                entity.Property(e => e.Longitude).HasPrecision(10, 7);
+                entity.Property(e => e.Latitude).HasPrecision(10, 6);
+                entity.Property(e => e.Longitude).HasPrecision(10, 6);
 
                 // FK với CustomerProfile
                 entity.HasOne(e => e.CustomerProfile)

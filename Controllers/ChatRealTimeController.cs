@@ -1,4 +1,4 @@
-﻿using Capstone_2_BE.DTOs.ChatRealTime;
+using Capstone_2_BE.DTOs.ChatRealTime;
 using Capstone_2_BE.Services;
 using Microsoft.AspNetCore.Mvc;
 

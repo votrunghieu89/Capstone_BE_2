@@ -3,10 +3,13 @@ using Capstone_2_BE.DALs.Technician;
 using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Customer.FindTechnician;
 using Capstone_2_BE.DTOs.Customer.Order;
+using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
 using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Settings;
+using Capstone_2_BE.Socket;
+using Microsoft.AspNetCore.SignalR;
 using System.Globalization;
 
 namespace Capstone_2_BE.Services.Customer
@@ -18,9 +21,13 @@ namespace Capstone_2_BE.Services.Customer
         private readonly ILogger<CustomerViewAllTechnicianService> _logger;
         private readonly AIEstimationTime _aIEstimationTime;
         private readonly IServiceRepo _serviceDAL;
+        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly ITechnicianProfileRepo _technicianProfileDAL;
-        public CustomerViewAllTechnicianService(ICustomerViewAllTechnicianRepo repo, AWS aws, ILogger<CustomerViewAllTechnicianService> logger, AIEstimationTime aIEstimationTime, IServiceRepo serviceDAL, ITechnicianProfileRepo technicianProfileDAL)
+        public readonly INotificationRepo _notificationRepo;
+        public CustomerViewAllTechnicianService(IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo, ICustomerViewAllTechnicianRepo repo, AWS aws, ILogger<CustomerViewAllTechnicianService> logger, AIEstimationTime aIEstimationTime, IServiceRepo serviceDAL, ITechnicianProfileRepo technicianProfileDAL)
         {
+            _hubContext = hubContext;
+            _notificationRepo = notificationRepo;
             _repo = repo;
             _aws = aws;
             _logger = logger;
@@ -241,7 +248,7 @@ namespace Capstone_2_BE.Services.Customer
                     var videoKey = await _aws.UploadVideoOrder(form.VideoFile);
                     if (string.IsNullOrEmpty(videoKey)) return Result<bool>.Failure("Upload video th?t b?i", 400);
                     dalDto.videoUrl = videoKey;
-                    Console.WriteLine("fail1");
+                    
                 }
 
                 if (form.ImageFiles != null && form.ImageFiles.Count > 0)
@@ -251,10 +258,27 @@ namespace Capstone_2_BE.Services.Customer
                         var key = await _aws.UploadImageOrder(file);
                         if (!string.IsNullOrEmpty(key)) dalDto.ImageOrderUrl.Add(key);
                     }
-                    Console.WriteLine("fail2");
+                 
                 }
 
                 var ok = await _repo.PlaceOrderForTechnician(dalDto);
+                if (ok == true)
+                {
+                    var newNotification = new InsertNewNotificationDTO
+                    {
+                        SenderId = form.CustomerId,
+                        ReceiverId = form.TechnicianId,
+                        Message = "Bạn vừa có 1 đơn hàng mới",
+                        CratedAt = DateTime.Now,
+                    };
+
+                    var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
+                    if (isInsert)
+                    {
+                        await _hubContext.Clients.User(newNotification.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        
+                    }
+                }
                 if (ok) return Result<bool>.Success(true, 200);
                 return Result<bool>.Failure("??t ??n cho k? thu?t viên th?t b?i", 400);
             }
