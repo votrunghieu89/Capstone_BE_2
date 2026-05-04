@@ -1,4 +1,4 @@
-﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Customer.AutoFind;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.Repositories.Customer;
@@ -59,7 +59,7 @@ namespace Capstone_2_BE.Services.Customer
 
                 // ✅ Validate GPS
                 if (lat < -90 || lat > 90)
-                    return Result<string>.Failure("Latitude ngoài phạm vi", 400);   
+                    return Result<string>.Failure("Latitude ngoài phạm vi", 400);
                 if (lng < -180 || lng > 180)
                     return Result<string>.Failure("Longitude ngoài phạm vi", 400);
 
@@ -68,7 +68,7 @@ namespace Capstone_2_BE.Services.Customer
                 lng = Math.Round(lng, 6);
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
 
-                if(technicians == null) Result<string>.Failure("An error occurred while trying to find technicians. Please try again later.", 500);
+                if (technicians == null) Result<string>.Failure("An error occurred while trying to find technicians. Please try again later.", 500);
                 //var tasks = technicians.Select(async tech =>
                 //{
                 //    if (tech.Latitude == null || tech.Longitude == null) return;
@@ -134,7 +134,7 @@ namespace Capstone_2_BE.Services.Customer
                     avatarURL = acceptedTechnician.avatarURL,
                     ServiceName = acceptedTechnician.ServiceName,
                     Score = acceptedTechnician.AvgScore,
-                    OrderCount =  acceptedTechnician.OrderCount,
+                    OrderCount = acceptedTechnician.OrderCount,
                     RatingCount = acceptedTechnician.RatingCount,
                     Address = acceptedTechnician.Address,
                     City = acceptedTechnician.City,
@@ -196,7 +196,7 @@ namespace Capstone_2_BE.Services.Customer
                     CityId = form.CityId,
                     Latitude = lat,
                     Longitude = lng,
-                    EstimatedTime = form.EstimatedTime,
+                    EstimatedTime = 300,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };

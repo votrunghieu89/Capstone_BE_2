@@ -32,7 +32,7 @@ namespace Capstone_2_BE.Controllers.Customer
         {
             var result = await _service.PlaceAutoOrder(form);
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
-            return StatusCode(result.StatusCode, new { message = "??t ??n t? ??ng thành công" });
+            return StatusCode(result.StatusCode, new { message = "??t ??n t? ??ng thï¿½nh cï¿½ng" });
         }
 
         [HttpGet("accept/{customerId}")]
