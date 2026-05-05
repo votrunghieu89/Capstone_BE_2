@@ -181,6 +181,9 @@ builder.Services.AddScoped<ServiceType>();
 // Register NotificationService
 builder.Services.AddScoped<NotificationService>();
 
+// Background cleanup: delete old read notifications periodically
+builder.Services.AddHostedService<NotificationCleanupBackgroundService>();
+
 builder.Services.AddScoped<IAdminRepo, AdminDAL>();
 builder.Services.AddScoped<AdminService>();
 

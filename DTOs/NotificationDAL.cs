@@ -21,7 +21,7 @@ namespace Capstone_2_BE.DTOs
         {
             try
             {
-                var cutoff = DateTime.Now.AddHours(-48);
+                var cutoff = DateTime.Now.AddHours(-28);
                 int deleted = await _context.NotificationsModel
                     .Where(n => n.IsRead == 1 && n.CreateAt < cutoff)
                     .ExecuteDeleteAsync();
