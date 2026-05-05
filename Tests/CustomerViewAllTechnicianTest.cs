@@ -137,7 +137,7 @@ namespace Capstone_2_BE.Tests
         }
 
         [Fact]
-        public async Task SearchByName_WhenRepoReturnsNull_Returns200EmptyList()
+        public async Task SearchByName_WhenRepoReturnsNull_Returns500()
         {
             var repo = new Mock<ICustomerViewAllTechnicianRepo>();
             var logger = new Mock<ILogger<CustomerViewAllTechnicianService>>();
@@ -149,9 +149,8 @@ namespace Capstone_2_BE.Tests
             var sut = CreateSut(repo, logger, serviceRepo, techRepo);
             var result = await sut.SearchByName("a");
 
-            Assert.True(result.IsSuccess);
-            Assert.Equal(200, result.StatusCode);
-            Assert.Empty(result.Data);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(500, result.StatusCode);
         }
 
         [Fact]

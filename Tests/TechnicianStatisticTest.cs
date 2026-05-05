@@ -54,6 +54,62 @@ namespace Capstone_2_BE.Tests
         }
 
         [Fact]
+        public async Task GetCompletedOrdersByMonth_WhenRepoReturnsData_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            var data = new List<StatisticItemDTO> { new StatisticItemDTO { Label = "m", Value = 2 } };
+            repo.Setup(r => r.GetCompletedOrdersByMonth(techId, 2026)).ReturnsAsync(data);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetCompletedOrdersByMonth(techId, 2026);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Same(data, result.Data);
+        }
+
+        [Fact]
+        public async Task GetReceivedOrdersByWeek_WhenRepoReturnsData_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            var from = DateTime.UtcNow.Date.AddDays(-6);
+            var to = DateTime.UtcNow.Date;
+            var data = new List<StatisticItemDTO> { new StatisticItemDTO { Label = "w", Value = 5 } };
+            repo.Setup(r => r.GetReceivedOrdersByWeek(techId, from, to)).ReturnsAsync(data);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetReceivedOrdersByWeek(techId, from, to);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Same(data, result.Data);
+        }
+
+        [Fact]
+        public async Task GetReceivedOrdersByMonth_WhenRepoReturnsData_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            var data = new List<StatisticItemDTO> { new StatisticItemDTO { Label = "m", Value = 10 } };
+            repo.Setup(r => r.GetReceivedOrdersByMonth(techId, 2026)).ReturnsAsync(data);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetReceivedOrdersByMonth(techId, 2026);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Same(data, result.Data);
+        }
+
+        [Fact]
         public async Task GetRatingOverview_WhenRepoReturnsDto_Returns200()
         {
             var repo = new Mock<ITechnicianStatisticRepo>();
@@ -85,6 +141,127 @@ namespace Capstone_2_BE.Tests
             Assert.False(result.IsSuccess);
             Assert.Equal(500, result.StatusCode);
             Assert.Equal("Lỗi lấy dữ liệu thống kê", result.Error);
+        }
+
+        [Fact]
+        public async Task GetCanceledOrdersByWeek_WhenRepoReturnsData_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            var from = DateTime.UtcNow.Date.AddDays(-6);
+            var to = DateTime.UtcNow.Date;
+            var data = new List<StatisticItemDTO> { new StatisticItemDTO { Label = "w", Value = 1 } };
+            repo.Setup(r => r.GetCanceledOrdersByWeek(techId, from, to)).ReturnsAsync(data);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetCanceledOrdersByWeek(techId, from, to);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Same(data, result.Data);
+        }
+
+        [Fact]
+        public async Task GetRejectedOrdersTotal_WhenRepoReturnsValue_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            repo.Setup(r => r.GetRejectedOrdersTotal(techId)).ReturnsAsync(7);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetRejectedOrdersTotal(techId);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(7, result.Data);
+        }
+
+        [Fact]
+        public async Task GetRejectedOrdersByMonth_WhenRepoThrows_Returns500()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            repo.Setup(r => r.GetRejectedOrdersByMonth(It.IsAny<Guid>(), It.IsAny<int>())).ThrowsAsync(new Exception("boom"));
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetRejectedOrdersByMonth(Guid.NewGuid(), 2026);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(500, result.StatusCode);
+            Assert.Equal("Lỗi lấy dữ liệu thống kê", result.Error);
+        }
+
+        [Fact]
+        public async Task GetTodayReceivedOrders_WhenRepoReturnsValue_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            repo.Setup(r => r.GetTodayReceivedOrders(techId)).ReturnsAsync(2);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetTodayReceivedOrders(techId);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(2, result.Data);
+        }
+
+        [Fact]
+        public async Task GetTodayCompletedOrders_WhenRepoReturnsValue_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            repo.Setup(r => r.GetTodayCompletedOrders(techId)).ReturnsAsync(3);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetTodayCompletedOrders(techId);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(3, result.Data);
+        }
+
+        [Fact]
+        public async Task GetTotalCompletedOrders_WhenRepoReturnsValue_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            repo.Setup(r => r.GetTotalCompletedOrders(techId)).ReturnsAsync(11);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetTotalCompletedOrders(techId);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(11, result.Data);
+        }
+
+        [Fact]
+        public async Task GetTotalOrders_WhenRepoReturnsValue_Returns200()
+        {
+            var repo = new Mock<ITechnicianStatisticRepo>();
+            var logger = new Mock<ILogger<TechnicianStatisticService>>();
+
+            var techId = Guid.NewGuid();
+            repo.Setup(r => r.GetTotalOrders(techId)).ReturnsAsync(20);
+
+            var sut = CreateSut(repo, logger);
+            var result = await sut.GetTotalOrders(techId);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(20, result.Data);
         }
 
         [Fact]
