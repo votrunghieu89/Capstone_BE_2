@@ -1,6 +1,7 @@
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 
 namespace Capstone_2_BE.Settings
 {
@@ -11,11 +12,18 @@ namespace Capstone_2_BE.Settings
 
         public AWS(IConfiguration configuration)
         {
-            _bucketName = configuration["AWS:BucketName"];
+            _bucketName = configuration["AWS:BucketName"]
+                ?? throw new InvalidOperationException("Missing configuration: AWS:BucketName");
+            var accessKey = configuration["AWS:AccessKey"]
+                ?? throw new InvalidOperationException("Missing configuration: AWS:AccessKey");
+            var secretKey = configuration["AWS:SecretKey"]
+                ?? throw new InvalidOperationException("Missing configuration: AWS:SecretKey");
+            var regionName = configuration["AWS:Region"]
+                ?? throw new InvalidOperationException("Missing configuration: AWS:Region");
             _s3Client = new AmazonS3Client(
-                configuration["AWS:AccessKey"],
-                configuration["AWS:SecretKey"],
-                RegionEndpoint.GetBySystemName(configuration["AWS:Region"])
+                accessKey,
+                secretKey,
+                RegionEndpoint.GetBySystemName(regionName)
             );
         }
 
@@ -38,12 +46,13 @@ namespace Capstone_2_BE.Settings
             }
         }
 
-        public async Task<string> UploadProfile(IFormFile file)
+        public async Task<string?> UploadProfile(IFormFile file)
         {
             try
             {
-                string key = $"profile/{Guid.NewGuid()}_{file.FileName}";
+                if (file == null || file.Length == 0) return null;
 
+                string key = $"profile/{Guid.NewGuid()}_{file.FileName}";
                 using var stream = file.OpenReadStream();
 
                 var request = new PutObjectRequest
@@ -59,18 +68,22 @@ namespace Capstone_2_BE.Settings
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ UploadQuizImageToS3 FAILED: {ex.Message}");
+                Console.WriteLine($"[AWS] Upload failed (profile): {ex}");
                 return null;
             }
         }
 
-        public async Task<string> UploadVideoOrder(IFormFile file)
+        public async Task<string?> UploadVideoOrder(IFormFile file)
         {
             try
             {
+                if (file == null || file.Length == 0) return null;
                 string key = $"Video/{Guid.NewGuid()}_{file.FileName}";
 
-                using var stream = file.OpenReadStream();
+                using var source = file.OpenReadStream();
+                using var stream = new MemoryStream();
+                await source.CopyToAsync(stream);
+                stream.Position = 0;
 
                 var request = new PutObjectRequest
                 {
@@ -85,17 +98,21 @@ namespace Capstone_2_BE.Settings
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ UploadQuizImageToS3 FAILED: {ex.Message}");
+                Console.WriteLine($"[AWS] Upload failed (order video): {ex}");
                 return null;
             }
         }
-        public async Task<string> UploadImageOrder(IFormFile file)
+        public async Task<string?> UploadImageOrder(IFormFile file)
         {
             try
             {
+                if (file == null || file.Length == 0) return null;
                 string key = $"Image/{Guid.NewGuid()}_{file.FileName}";
 
-                using var stream = file.OpenReadStream();
+                using var source = file.OpenReadStream();
+                using var stream = new MemoryStream();
+                await source.CopyToAsync(stream);
+                stream.Position = 0;
 
                 var request = new PutObjectRequest
                 {
@@ -110,13 +127,68 @@ namespace Capstone_2_BE.Settings
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ UploadQuizImageToS3 FAILED: {ex.Message}");
+                Console.WriteLine($"[AWS] Upload failed (order image): {ex}");
                 return null;
             }
         }
-        public async Task<string> ReadImage(string key)
+
+        public async Task<string?> UploadChatImage(IFormFile file)
         {
-            return $"https://{_bucketName}.s3.ap-southeast-2.amazonaws.com/{key}";
+            return await UploadFile("Chat/Image", file);
+        }
+
+        public async Task<string?> UploadChatVideo(IFormFile file)
+        {
+            return await UploadFile("Chat/Video", file);
+        }
+
+        private async Task<string?> UploadFile(string folder, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length <= 0 || string.IsNullOrWhiteSpace(folder))
+                {
+                    return null;
+                }
+
+                var safeFileName = string.IsNullOrWhiteSpace(file.FileName) ? "upload.bin" : file.FileName;
+                var safeContentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+                string key = $"{folder}/{Guid.NewGuid()}_{safeFileName}";
+
+                using var source = file.OpenReadStream();
+                using var stream = new MemoryStream();
+                await source.CopyToAsync(stream);
+                stream.Position = 0;
+
+                Console.WriteLine($"[AWS] Start upload: {key}, size={file.Length} bytes, contentType={safeContentType}");
+
+                var uploadRequest = new TransferUtilityUploadRequest
+                {
+                    BucketName = _bucketName ?? string.Empty,
+                    Key = key,
+                    InputStream = stream,
+                    ContentType = safeContentType
+                };
+
+                var transferUtility = new TransferUtility(_s3Client);
+                await transferUtility.UploadAsync(uploadRequest);
+                Console.WriteLine($"[AWS] Upload success: {key}");
+                return key;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AWS] Upload failed ({folder}): {ex}");
+                return null;
+            }
+        }
+        public Task<string?> ReadImage(string? key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return Task.FromResult<string?>(null);
+            }
+
+            return Task.FromResult<string?>($"https://{_bucketName}.s3.ap-southeast-2.amazonaws.com/{key}");
         }
     }
 }

@@ -123,6 +123,16 @@ namespace Capstone_2_BE.Services
         {
             try
             {
+                var normalizedContent = string.IsNullOrWhiteSpace(createMessageFormDTO.Content)
+                    ? null
+                    : createMessageFormDTO.Content.Trim();
+                var hasImages = createMessageFormDTO.ImageUrls != null && createMessageFormDTO.ImageUrls.Count > 0;
+                var hasVideo = createMessageFormDTO.VideoUrl != null;
+                if (normalizedContent == null && !hasImages && !hasVideo)
+                {
+                    return Result<string>.Failure("Message content is empty.", 400);
+                }
+
                 Guid roomId = await _chatRealTimeRepository.GetOrCreateRoom(createMessageFormDTO.SenderId, createMessageFormDTO.ReceiverId);
                 if (roomId == Guid.Empty)
                 {
@@ -132,7 +142,7 @@ namespace Capstone_2_BE.Services
                 {
                     RoomId = roomId,
                     SenderId = createMessageFormDTO.SenderId,
-                    Content = createMessageFormDTO.Content,
+                    Content = normalizedContent ?? "[media]",
                     ImageUrls = new List<string>(),
                     VideoUrl = null
                 };
@@ -140,18 +150,38 @@ namespace Capstone_2_BE.Services
                 {
                     foreach (var image in createMessageFormDTO.ImageUrls)
                     {
-                        string imageUrl = await _aws.UploadImageOrder(image);
-                        createMessageDTO.ImageUrls.Add(imageUrl);
+                        string? imageUrl = await _aws.UploadChatImage(image);
+                        if (!string.IsNullOrWhiteSpace(imageUrl))
+                        {
+                            createMessageDTO.ImageUrls.Add(imageUrl);
+                        }
+                    }
+                    if (hasImages && createMessageDTO.ImageUrls.Count == 0)
+                    {
+                        return Result<string>.Failure("Image upload failed.", 400);
                     }
                 }
                 if (createMessageFormDTO.VideoUrl != null)
                 {
-                    string videoUrl = await _aws.UploadVideoOrder(createMessageFormDTO.VideoUrl);
+                    string? videoUrl = await _aws.UploadChatVideo(createMessageFormDTO.VideoUrl);
+                    if (string.IsNullOrWhiteSpace(videoUrl))
+                    {
+                        return Result<string>.Failure("Video upload failed.", 400);
+                    }
                     createMessageDTO.VideoUrl = videoUrl;
                 }
 
                 var Response = await _chatRealTimeRepository.InsertMessage(createMessageDTO);
-                string avatarUrl = await _aws.ReadImage(Response.AvatarUrl);
+                if (Response == null)
+                {
+                    return Result<string>.Failure("Failed to save message.", 500);
+                }
+
+                string? avatarUrl = null;
+                if (!string.IsNullOrWhiteSpace(Response.AvatarUrl))
+                {
+                    avatarUrl = await _aws.ReadImage(Response.AvatarUrl);
+                }
                 // Gửi tin nhắn khi 2 người trong đoạn chat
                 await _chatHubContext.Clients.Group(roomId.ToString())
                                                 .SendAsync("ChatMessage", new
@@ -159,7 +189,7 @@ namespace Capstone_2_BE.Services
                                                     MessId = Response.MessengerId,
                                                     RoomId = roomId,
                                                     SenderId = createMessageFormDTO.SenderId,
-                                                    Content = createMessageFormDTO.Content,
+                                                    Content = createMessageDTO.Content,
                                                     AvatarUrl = avatarUrl,
                                                     ImageUrls = createMessageDTO.ImageUrls.Count > 0 ? createMessageDTO.ImageUrls : null,
                                                     VideoUrl = createMessageDTO.VideoUrl,
@@ -172,7 +202,7 @@ namespace Capstone_2_BE.Services
                                                         MessId = Response.MessengerId,
                                                         RoomId = roomId,
                                                         SenderId = createMessageFormDTO.SenderId,
-                                                        Content = createMessageFormDTO.Content,
+                                                        Content = createMessageDTO.Content,
                                                         AvatarUrl = avatarUrl,
                                                         ImageUrls = createMessageDTO.ImageUrls.Count > 0 ? createMessageDTO.ImageUrls : null,
                                                         VideoUrl = createMessageDTO.VideoUrl,
@@ -184,7 +214,7 @@ namespace Capstone_2_BE.Services
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Error inserting chat message from {SenderId} to {ReceiverId}", createMessageFormDTO.SenderId, createMessageFormDTO.ReceiverId);
                 return Result<string>.Failure("An error occurred while sending the message.", 500);
             }
         }

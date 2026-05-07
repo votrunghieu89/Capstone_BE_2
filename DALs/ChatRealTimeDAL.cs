@@ -234,7 +234,7 @@ namespace Capstone_2_BE.DALs
                         {
                             RoomId = createMessageDTO.RoomId,
                             SenderId = createMessageDTO.SenderId,
-                            Content = createMessageDTO.Content,
+                            Content = string.IsNullOrWhiteSpace(createMessageDTO.Content) ? "[media]" : createMessageDTO.Content,
                             IsRead = false,
                             CreateAt = DateTime.Now
                         };
@@ -243,15 +243,21 @@ namespace Capstone_2_BE.DALs
 
                         if (createMessageDTO.ImageUrls != null && createMessageDTO.ImageUrls.Count > 0)
                         {
-                            var attachments = createMessageDTO.ImageUrls.Select(url => new MessAttachmentModel
+                            var validImageUrls = createMessageDTO.ImageUrls
+                                .Where(url => !string.IsNullOrWhiteSpace(url))
+                                .ToList();
+                            var attachments = validImageUrls.Select(url => new MessAttachmentModel
                             {
                                 MessageId = newMess.Id,
                                 FileName = url,
                                 FileType = "Image",
                                 CreateAt = DateTime.Now
                             }).ToList();
-                            await _context.MessAttachmentModel.AddRangeAsync(attachments);
-                            await _context.SaveChangesAsync();
+                            if (attachments.Count > 0)
+                            {
+                                await _context.MessAttachmentModel.AddRangeAsync(attachments);
+                                await _context.SaveChangesAsync();
+                            }
                         }
                         if (!string.IsNullOrEmpty(createMessageDTO.VideoUrl))
                         {

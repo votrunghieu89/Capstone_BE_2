@@ -1,4 +1,4 @@
-﻿using Capstone_2_BE.DTOs;
+using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.DTOs.Technician.Orders;
@@ -34,7 +34,7 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 var order = await _technicianOrderRepo.GetInProgressOrders(technicianId);
-                
+
                 if (order == null)
                 {
                     return Result<ViewOrderDTO>.Failure("Không có đơn hàng đang thực hiện", 404);
@@ -174,8 +174,8 @@ namespace Capstone_2_BE.Services.Technician
                         Message = $"Đơn hàng của bạn đã được kỹ thuật viên xác nhận và đang chờ bắt đầu thực hiện.",
                         CratedAt = result.CreatedAt
                     };
-                    var isInsert =  await _notificationRepo.InsertNewNotification(newNotification);
-                    if(isInsert)
+                    var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
+                    if (isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
                         return Result<OrderActionResDTO>.Success(result, 200);
@@ -209,7 +209,7 @@ namespace Capstone_2_BE.Services.Technician
                 }
 
                 OrderActionResDTO result = await _technicianOrderRepo.StartOrder(orderActionDTO.OrderId, orderActionDTO.technicianId);
-                
+
                 if (result != null)
                 {
                     InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
@@ -239,7 +239,7 @@ namespace Capstone_2_BE.Services.Technician
             }
         }
 
-        
+
         /// <summary>
         /// Hoàn thành đơn hàng (In Progress -> Completed)
         /// NOTE: CompleteOrder is commented in DAL. Keep commented here for consistency.
@@ -249,7 +249,7 @@ namespace Capstone_2_BE.Services.Technician
             try
             {
                 var result = await _technicianOrderRepo.CompletedOrder(orderId);
-                
+
                 if (result != null)
                 {
                     InsertNewNotificationDTO newNotification = new InsertNewNotificationDTO
