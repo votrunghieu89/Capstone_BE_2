@@ -107,7 +107,7 @@ namespace Capstone_2_BE.Services.Customer
                 }
                 foreach (var tech in technicians)
                 {
-                    tech.EstimatedTime = 300;
+                    tech.EstimatedTime = 180;
                     decimal distance = (decimal)CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
                     tech.Total = tech.Total + distance;
                 }
