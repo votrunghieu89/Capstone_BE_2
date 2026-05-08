@@ -184,5 +184,41 @@ namespace Capstone_2_BE.Services
                 return Result<List<ViewAllInvoice>>.Failure("Lỗi hệ thống khi lấy danh sách hóa đơn", 500);
             }
         }
+
+        public async Task<Result<ViewUpdateInvoiceDTO>> GetInvoiceItemforUpdate(Guid OrderId)
+        {
+            try
+            {
+                var result = await _invoiceRepo.GetInvoiceItemforUpdate(OrderId);
+                if (result != null)
+                {
+                    return Result<ViewUpdateInvoiceDTO>.Success(result, 200);
+                }
+                return Result<ViewUpdateInvoiceDTO>.Failure("Không tìm thấy thông tin hóa đơn để cập nhật", 404);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting invoice update info for OrderId {OrderId}", OrderId);
+                return Result<ViewUpdateInvoiceDTO>.Failure("Lỗi hệ thống khi lấy thông tin cập nhật hóa đơn", 500);
+            }
+        }
+
+        public async Task<Result<bool>> UpdateInvoice(Guid OrderId, CreateInvoiceDTO createInvoiceDTO)
+        {
+            try
+            {
+                var result = await _invoiceRepo.UpdateInvoice(OrderId, createInvoiceDTO);
+                if (result)
+                {
+                    return Result<bool>.Success(true, 200);
+                }
+                return Result<bool>.Failure("Không tìm thấy đơn hàng cần cập nhật", 404);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating invoice for OrderId {OrderId}", OrderId);
+                return Result<bool>.Failure("Lỗi hệ thống khi cập nhật hóa đơn", 500);
+            }
+        }
     }
 }

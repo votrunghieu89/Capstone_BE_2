@@ -227,5 +227,96 @@ namespace Capstone_2_BE.DALs
                 })
                 .ToListAsync();
         }
+
+        public async Task<ViewUpdateInvoiceDTO> GetInvoiceItemforUpdate(Guid OrderId) // này là lấy detail của hóa đơn để hiển thị lên form update
+        {
+            var invoice = await _context.Invoices
+                .Include(i => i.InvoiceItems)
+                .FirstOrDefaultAsync(i => i.OrderId == OrderId);
+
+            if (invoice == null) return null;
+
+            return new ViewUpdateInvoiceDTO
+            {
+                OrderId = invoice.OrderId,
+                InvoiceId = invoice.Id,
+                LaborCost = invoice.LaborCost,
+                TotalAmount = invoice.TotalAmount,
+                BankCode = invoice.BankCode ?? "",
+                BankAccount = invoice.BankAccount ?? "",
+                BankAccountName = invoice.BankAccountName ?? "",
+                CreatedAt = invoice.CreatedAt,
+                Materials = invoice.InvoiceItems?.Select(m => new ViewUpdateInvoiceDTO.ViewMaterialItemDTO
+                {
+                    MaterialName = m.MaterialName,
+                    Price = m.Price,
+                    Quantity = m.Quantity,
+                    Subtotal = m.Subtotal
+                }).ToList() ?? new List<ViewUpdateInvoiceDTO.ViewMaterialItemDTO>()
+            };
+        }
+
+        public async Task<bool> UpdateInvoice(Guid OrderId, CreateInvoiceDTO createInvoiceDTO) // khi update tuân theo quy tắc sau. Khi update thì sẽ xóa hết các item cũ đi và thêm các item mới vào, Chỉ được update khi hoá đơn chưa thanh toán, Bảng Invoices chỉ update lại thông tin, ko xoá nó, ko update lại CreatedAt, chỉ update LaborCost, TotalAmount, BankCode, BankAccount, BankAccountName, PaymentStatus, còn bảng InvoiceItems thì sẽ xóa hết các item cũ đi và thêm các item mới vào
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var existingInvoice = await _context.Invoices
+                    .Include(i => i.InvoiceItems)
+                    .FirstOrDefaultAsync(i => i.OrderId == OrderId);
+
+                // Chỉ cho phép cập nhật khi hóa đơn chưa thanh toán (PaymentStatus == 0)
+                if (existingInvoice == null || existingInvoice.PaymentStatus == 1)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                // Xóa tất cả InvoiceItems cũ
+                if (existingInvoice.InvoiceItems != null && existingInvoice.InvoiceItems.Any())
+                {
+                    _context.InvoiceItems.RemoveRange(existingInvoice.InvoiceItems);
+                }
+
+                // Cập nhật lại các thông tin của Invoices
+                decimal totalMaterials = createInvoiceDTO.Materials.Sum(m => m.Price * m.Quantity);
+                decimal totalAmount = totalMaterials + createInvoiceDTO.LaborCost;
+
+                existingInvoice.LaborCost = createInvoiceDTO.LaborCost;
+                existingInvoice.TotalAmount = totalAmount;
+                existingInvoice.BankCode = createInvoiceDTO.BankCode;
+                existingInvoice.BankAccount = createInvoiceDTO.BankAccount;
+                existingInvoice.BankAccountName = createInvoiceDTO.BankAccountName;
+                
+                _context.Invoices.Update(existingInvoice);
+
+                // Thêm InvoiceItem mới vào
+                if (createInvoiceDTO.Materials != null && createInvoiceDTO.Materials.Any())
+                {
+                    var newInvoiceItems = createInvoiceDTO.Materials.Select(m => new InvoiceItemsModel
+                    {
+                        Id = Guid.NewGuid(),
+                        InvoiceId = existingInvoice.Id,
+                        MaterialName = m.MaterialName,
+                        Price = m.Price,
+                        Quantity = m.Quantity,
+                        Subtotal = m.Price * m.Quantity,
+                        CreatedAt = DateTime.Now
+                    }).ToList();
+
+                    await _context.InvoiceItems.AddRangeAsync(newInvoiceItems);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating invoice for OrderId: {OrderId}", OrderId);
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
     }
 }

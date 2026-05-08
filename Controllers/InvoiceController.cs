@@ -87,5 +87,23 @@ namespace Capstone_2_BE.Controllers
             if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
             return StatusCode(result.StatusCode, result.Data);
         }
+
+        [HttpGet("update-info/{orderId}")]
+        public async Task<IActionResult> GetInvoiceItemForUpdate(Guid orderId)
+        {
+            var result = await _invoiceService.GetInvoiceItemforUpdate(orderId);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, result.Data);
+        }
+
+        [HttpPut("update/{orderId}")]
+        public async Task<IActionResult> UpdateInvoice(Guid orderId, [FromBody] CreateInvoiceDTO dto)
+        {
+            if (dto == null) return BadRequest(new { message = "Invalid input data" });
+            dto.OrderId = orderId; 
+            var result = await _invoiceService.UpdateInvoice(orderId, dto);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, new { message = "Cập nhật hóa đơn thành công." });
+        }
     }
 }

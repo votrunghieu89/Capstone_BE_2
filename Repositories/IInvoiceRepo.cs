@@ -13,6 +13,8 @@ namespace Capstone_2_BE.Repositories
         Task<bool> ConfirmPayment (Guid InvoiceId);
 
         Task<List<ViewAllInvoice>> GetAllInvoice();
+        Task<ViewUpdateInvoiceDTO> GetInvoiceItemforUpdate(Guid OrderId);
+        Task<bool> UpdateInvoice(Guid OrderId, CreateInvoiceDTO createInvoiceDTO);
         
     }
 }
