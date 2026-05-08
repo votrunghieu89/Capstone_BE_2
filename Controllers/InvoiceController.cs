@@ -39,6 +39,14 @@ namespace Capstone_2_BE.Controllers
             return StatusCode(result.StatusCode, result.Data);
         }
 
+        [HttpGet("customer/{customerId}/completed-orders")]
+        public async Task<IActionResult> GetAllCompletedOrdersForCustomer(Guid customerId)
+        {
+            var result = await _invoiceService.getAllCompletedOrderforCustomer(customerId);
+            if (!result.IsSuccess) return StatusCode(result.StatusCode, new { message = result.Error });
+            return StatusCode(result.StatusCode, result.Data);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceDTO dto)
         {

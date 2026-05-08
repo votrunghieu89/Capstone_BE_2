@@ -45,6 +45,20 @@ namespace Capstone_2_BE.Services
             }
         }
 
+        public async Task<Result<List<ViewAllCompletedOrderforCustomerDTO>>> getAllCompletedOrderforCustomer(Guid customerId)
+        {
+            try
+            {
+                var result = await _invoiceRepo.getAllCompletedOrderforCustomer(customerId);
+                return Result<List<ViewAllCompletedOrderforCustomerDTO>>.Success(result, 200);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting completed orders for Customer {CustomerId}", customerId);
+                return Result<List<ViewAllCompletedOrderforCustomerDTO>>.Failure("Lỗi khi lấy danh sách đơn hoàn thành", 500);
+            }
+        }
+
         public async Task<Result<bool>> CreateInvoice(CreateInvoiceDTO create)
         {
             try

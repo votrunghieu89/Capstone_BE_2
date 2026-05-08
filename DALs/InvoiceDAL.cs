@@ -318,5 +318,24 @@ namespace Capstone_2_BE.DALs
                 return false;
             }
         }
+
+        public async Task<List<ViewAllCompletedOrderforCustomerDTO>> getAllCompletedOrderforCustomer(Guid CustomerId)
+        {
+            return await _context.OrderrModel
+                .Where(o => o.CustomerId == CustomerId && o.Status == "Completed")
+                .Include(o => o.TechnicianProfile)
+                .Select(o => new ViewAllCompletedOrderforCustomerDTO
+                {
+                    OrderId = o.Id,
+                    CustomerId = o.CustomerId,
+                    TechnicianID = o.TechnicianId,
+                    TechnicianName = o.TechnicianProfile != null ? (o.TechnicianProfile.FullName ?? "") : "",
+                    Title = o.Title,
+                    Status = o.Status,
+                    CreatedAt = o.CreateAt
+                })
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+        }
     }
 }
