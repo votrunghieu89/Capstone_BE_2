@@ -332,6 +332,7 @@ namespace Capstone_2_BE.DALs.Customer
                             Latitude = placeOrderDALDTO.Latitude,
                             Longitude = placeOrderDALDTO.Longitude,
                             EstimatedTime = placeOrderDALDTO.EstimatedTime,
+                            IsInvoice = 0,
                             CreateAt = DateTime.Now,
                             Status = "Pending Confirmation",
                         };

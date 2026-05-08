@@ -27,6 +27,9 @@ namespace Capstone_2_BE.Models
         public string Status { get; set; }
         [Column("EstimatedTime")]
         public double? EstimatedTime { get; set; }
+        [Column("IsInvoice")]
+        public int IsInvoice { get; set; }
+
         [Column("Latitude")]
         public decimal? Latitude { get; set; }
         [Column("Longtitude")]
@@ -44,6 +47,7 @@ namespace Capstone_2_BE.Models
         public CitiesModel Cities { get; set; }
         public ICollection<OrderAttachmentsModel> OrderAttachments { get; set; }
         public ICollection<OrderStatusHistoryModel> OrderStatusHistory { get; set; } 
+        public InvoicesModel Invoices { get; set; }
 
     }
 }

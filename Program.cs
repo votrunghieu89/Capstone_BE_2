@@ -144,6 +144,8 @@ builder.Services.AddScoped<Email>();
 // Register Technician repositories and services
 builder.Services.AddScoped<ITechnicianProfileRepo, TechnicianProfileDAL>();
 builder.Services.AddScoped<TechnicianProfileService>();
+builder.Services.AddScoped<IInvoiceRepo, InvoiceDAL>();
+builder.Services.AddScoped<InvoiceService>();
 builder.Services.AddScoped<ITechnicianRatingRepo, TechnicianRatingDAL>();
 builder.Services.AddScoped<TechnicianRatingService>();
 builder.Services.AddScoped<ITechnicianOrderRepo, TechnicianOrderDAL>();

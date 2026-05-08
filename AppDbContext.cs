@@ -142,6 +142,30 @@ namespace Capstone_2_BE
                     .WithMany(c => c.orderrModels)
                     .HasForeignKey(e => e.CityId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                // One-To-One với Invoices
+                entity.HasOne(e => e.Invoices)
+                    .WithOne(i => i.Order)
+                    .HasForeignKey<InvoicesModel>(i => i.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Invoices Configuration
+            modelBuilder.Entity<InvoicesModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                // One-To-Many với InvoiceItems
+                entity.HasMany(e => e.InvoiceItems)
+                    .WithOne(i => i.Invoices)
+                    .HasForeignKey(i => i.InvoiceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // InvoiceItems Configuration
+            modelBuilder.Entity<InvoiceItemsModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
             });
 
             // OrderAttachmentsModel Configuration
@@ -294,6 +318,8 @@ namespace Capstone_2_BE
         public DbSet<MessengerModel> MessengerModel { get; set; }
         public DbSet<MessAttachmentModel> MessAttachmentModel { get; set; }
         public DbSet<ChatBotAIModel> ChatBotAIModel { get; set; }
+        public DbSet<InvoicesModel> Invoices { get; set; }
+        public DbSet<InvoiceItemsModel> InvoiceItems { get; set; }
 
     }
 }

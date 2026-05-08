@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260502140253_a")]
-    partial class a
+    [Migration("20260508054234_ver3")]
+    partial class ver3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,6 +157,92 @@ namespace Capstone_2_BE.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomerProfile");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.InvoiceItemsModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("InvoiceId");
+
+                    b.Property<string>("MaterialName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("MaterialName");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("Price");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("Quantity");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("Subtotal");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoiceItems");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.InvoicesModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("BankAccount")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("BankAccount");
+
+                    b.Property<string>("BankAccountName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("BankAccountName");
+
+                    b.Property<string>("BankCode")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("BankCode");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<decimal>("LaborCost")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("LaborCost");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int")
+                        .HasColumnName("PaymentStatus");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("TotalAmount");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.MessAttachmentModel", b =>
@@ -369,14 +455,18 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnType("float")
                         .HasColumnName("EstimatedTime");
 
+                    b.Property<int>("IsInvoice")
+                        .HasColumnType("int")
+                        .HasColumnName("IsInvoice");
+
                     b.Property<decimal?>("Latitude")
-                        .HasPrecision(10, 7)
-                        .HasColumnType("decimal(10,7)")
+                        .HasPrecision(10, 6)
+                        .HasColumnType("decimal(10,6)")
                         .HasColumnName("Latitude");
 
                     b.Property<decimal?>("Longitude")
-                        .HasPrecision(10, 7)
-                        .HasColumnType("decimal(10,7)")
+                        .HasPrecision(10, 6)
+                        .HasColumnType("decimal(10,6)")
                         .HasColumnName("Longtitude");
 
                     b.Property<Guid>("ServiceId")
@@ -602,13 +692,13 @@ namespace Capstone_2_BE.Migrations
                         .HasColumnName("IdUnique");
 
                     b.Property<decimal?>("Latitude")
-                        .HasPrecision(10, 7)
-                        .HasColumnType("decimal(10,7)")
+                        .HasPrecision(10, 6)
+                        .HasColumnType("decimal(10,6)")
                         .HasColumnName("Latitude");
 
                     b.Property<decimal?>("Longitude")
-                        .HasPrecision(10, 7)
-                        .HasColumnType("decimal(10,7)")
+                        .HasPrecision(10, 6)
+                        .HasColumnType("decimal(10,6)")
                         .HasColumnName("Longtitude");
 
                     b.Property<int>("OrderCount")
@@ -656,6 +746,28 @@ namespace Capstone_2_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.InvoiceItemsModel", b =>
+                {
+                    b.HasOne("Capstone_2_BE.Models.InvoicesModel", "Invoices")
+                        .WithMany("InvoiceItems")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoices");
+                });
+
+            modelBuilder.Entity("Capstone_2_BE.Models.InvoicesModel", b =>
+                {
+                    b.HasOne("Capstone_2_BE.Models.OrderrModel", "Order")
+                        .WithOne("Invoices")
+                        .HasForeignKey("Capstone_2_BE.Models.InvoicesModel", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Capstone_2_BE.Models.MessAttachmentModel", b =>
@@ -864,6 +976,11 @@ namespace Capstone_2_BE.Migrations
                     b.Navigation("Rating");
                 });
 
+            modelBuilder.Entity("Capstone_2_BE.Models.InvoicesModel", b =>
+                {
+                    b.Navigation("InvoiceItems");
+                });
+
             modelBuilder.Entity("Capstone_2_BE.Models.MessengerModel", b =>
                 {
                     b.Navigation("MessAttachments");
@@ -871,6 +988,9 @@ namespace Capstone_2_BE.Migrations
 
             modelBuilder.Entity("Capstone_2_BE.Models.OrderrModel", b =>
                 {
+                    b.Navigation("Invoices")
+                        .IsRequired();
+
                     b.Navigation("OrderAttachments");
 
                     b.Navigation("OrderStatusHistory");
