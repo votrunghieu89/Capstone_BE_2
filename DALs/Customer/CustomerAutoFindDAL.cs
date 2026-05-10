@@ -25,7 +25,6 @@ namespace Capstone_2_BE.DALs.Customer
                                                         join ct in _context.CitiesModel on t.CityId equals ct.Id
                                                         join sp in _context.Service_ProfileModel on t.Id equals sp.TechnicianId
                                                         join sc in _context.ServiceCategoriesModel on sp.ServiceId equals sc.Id
-                                                        
                                                         where a.IsOnline == 1 && t.CityId == autoFindFixerDTO.CityId && sp.ServiceId == autoFindFixerDTO.ServiceId
                                                         && t.Latitude != null && t.Longitude != null
                                                         select new
@@ -42,8 +41,8 @@ namespace Capstone_2_BE.DALs.Customer
                                                             Address = t.Address,
                                                             YearOfExperience = t.YearOfExperience,
                                                         })
-                                                        .OrderByDescending(t => t.YearOfExperience)
-                                                        .Take(40)
+                                                        .OrderBy(x => Guid.NewGuid())
+                                                        .Take(20)
                                                         .ToListAsync();
                 var result =  new List<AutoFindFixerResDTO>();
                 foreach (var tech in TechList)
@@ -59,7 +58,7 @@ namespace Capstone_2_BE.DALs.Customer
                         Latitude = tech.Latitude,
                         Longitude = tech.Longitude,
                         AvgScore = score,
-                        Total = score,
+                        Total = score + tech.OrderCount,
                         OrderCount = tech.OrderCount,
                         RatingCount = RatingCount,
                         City = tech.CityName,

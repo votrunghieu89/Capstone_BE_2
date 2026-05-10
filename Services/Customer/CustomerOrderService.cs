@@ -4,6 +4,7 @@ using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
+using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Settings;
 using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.SignalR;
@@ -18,14 +19,18 @@ namespace Capstone_2_BE.Services.Customer
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly INotificationRepo _notificationRepo;
         private readonly AWS _aws;
+        private readonly ITechnicianProfileRepo _technicianProfileDAL;
+        public readonly AIEstimationTime _aIEstimationTime;
 
-        public CustomerOrderService(ICustomerOrderRepo customerOrderRepo, ILogger<CustomerOrderService> logger, IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo, AWS aws)
+        public CustomerOrderService(ITechnicianProfileRepo technicianProfileDAL, ICustomerOrderRepo customerOrderRepo, ILogger<CustomerOrderService> logger, IHubContext<NotificationHub> hubContext, INotificationRepo notificationRepo, AWS aws, AIEstimationTime aIEstimationTime)
         {
+            _technicianProfileDAL = technicianProfileDAL;
             _customerOrderRepo = customerOrderRepo;
             _logger = logger;
             _hubContext = hubContext;
             _notificationRepo = notificationRepo;
             _aws = aws;
+            _aIEstimationTime = aIEstimationTime;
         }
 
         public async Task<Result<List<OrderOverviewDTO>>> GetCurrentOrders(Guid customerId)
@@ -129,7 +134,7 @@ namespace Capstone_2_BE.Services.Customer
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = "Khách hàng ?ã h?y ??n hàng c?a b?n.",
+                        Message = $"Khách hàng đã huỷ đơn hàng {result.OrderName} của bạn.",
                         CratedAt = result.CreatedAt
                     };
 
@@ -162,7 +167,7 @@ namespace Capstone_2_BE.Services.Customer
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = "Khách hàng ?ã xác nh?n hoàn thành ??n hàng.",
+                        Message = $"Khách hàng đã xác nhận hoàn thành đơn hàng {result.OrderName}.",
                         CratedAt = result.CreatedAt
                     };
 
@@ -170,7 +175,7 @@ namespace Capstone_2_BE.Services.Customer
                     if (isInsert)
                     {
                         await _hubContext.Clients.User(result.ReceiverId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        return Result<string>.Success("Xác nh?n hoàn thành ??n hàng thành công", 200);
+                        return Result<string>.Success("Xác nhậnn hoàn thành ??n hàng thành công", 200);
                     }
 
                     return Result<string>.Failure("Không th? xác nh?n ??n hàng. L?i h? th?ng", 400);
@@ -221,34 +226,13 @@ namespace Capstone_2_BE.Services.Customer
 
         public async Task<Result<string>> UpdateOrder(OrderUpdateFormDTO OrderUpdateFormDTO)
         {
-            var latStr = OrderUpdateFormDTO.Latitude.Replace(",", ".");
-            var lngStr = OrderUpdateFormDTO.Longitude.Replace(",", ".");
 
-            if (!decimal.TryParse(latStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lat))
-                return Result<string>.Failure("Latitude không hợp lệ", 400);
-
-            if (!decimal.TryParse(lngStr, NumberStyles.Any, CultureInfo.InvariantCulture, out var lng))
-                return Result<string>.Failure("Longitude không hợp lệ", 400);
-            // ✅ Validate GPS
-            if (lat < -90 || lat > 90)
-                return Result<string>.Failure("Latitude ngoài phạm vi", 400);
-
-            if (lng < -180 || lng > 180)
-                return Result<string>.Failure("Longitude ngoài phạm vi", 400);
-
-            // ✅ Làm tròn 2 chữ số
-            lat = Math.Round(lat, 2);
-            lng = Math.Round(lng, 2);
             try
             {
                 UpdateOrderDALDTO updateDTO = new UpdateOrderDALDTO
                 {   OrderId = OrderUpdateFormDTO.OrderId,
                     Title = OrderUpdateFormDTO.Title,
                     Description = OrderUpdateFormDTO.Description,
-                    Address = OrderUpdateFormDTO.Address,
-                    CityId = OrderUpdateFormDTO.CityId,
-                    Latitude = lat,
-                    Longitude = lng,
                     videoUrl = null,
                     ImageUrls = new List<string>()
                 };

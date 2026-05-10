@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Capstone_2_BE.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260508054234_ver3")]
-    partial class ver3
+    [Migration("20260509122014_ver1")]
+    partial class ver1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,7 +30,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -76,7 +77,8 @@ namespace Capstone_2_BE.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier");
@@ -104,7 +106,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("CityName")
                         .IsRequired()
@@ -120,8 +123,10 @@ namespace Capstone_2_BE.Migrations
             modelBuilder.Entity("Capstone_2_BE.Models.CustomerProfileModel", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("AvatarURL")
                         .IsRequired()
@@ -164,7 +169,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -203,7 +209,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("BankAccount")
                         .HasColumnType("nvarchar(max)")
@@ -250,7 +257,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -282,7 +290,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -325,7 +334,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -359,7 +369,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -391,7 +402,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("ChangeAt")
                         .HasColumnType("datetime2")
@@ -424,7 +436,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -506,7 +519,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -559,7 +573,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -595,7 +610,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -626,7 +642,8 @@ namespace Capstone_2_BE.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2")
@@ -654,8 +671,10 @@ namespace Capstone_2_BE.Migrations
             modelBuilder.Entity("Capstone_2_BE.Models.TechnicianProfileModel", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)")

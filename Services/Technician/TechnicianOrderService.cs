@@ -171,7 +171,7 @@ namespace Capstone_2_BE.Services.Technician
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = $"Đơn hàng của bạn đã được kỹ thuật viên xác nhận và đang chờ bắt đầu thực hiện.",
+                        Message = $"Đơn hàng của bạn {result.OrderName} đã được kỹ thuật viên xác nhận và đang chờ bắt đầu thực hiện.",
                         CratedAt = result.CreatedAt
                     };
                     var isInsert =  await _notificationRepo.InsertNewNotification(newNotification);
@@ -216,7 +216,7 @@ namespace Capstone_2_BE.Services.Technician
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = $"Kỹ thuật viên đã bắt đầu thực hiện đơn hàng của bạn.",
+                        Message = $"Kỹ thuật viên đã bắt đầu thực hiện đơn hàng {result.OrderName} của bạn.",
                         CratedAt = result.CreatedAt
                     };
                     var isInsert = await _notificationRepo.InsertNewNotification(newNotification);
@@ -293,7 +293,7 @@ namespace Capstone_2_BE.Services.Technician
                     {
                         SenderId = result.SenderId,
                         ReceiverId = result.ReceiverId,
-                        Message = $"Đơn hàng của bạn đã bị kỹ thuật viên từ chối.",
+                        Message = $"Đơn hàng {result.OrderName} của bạn đã bị kỹ thuật viên từ chối.",
                         CratedAt = result.CreatedAt
                     };
                     var isInsert = await _notificationRepo.InsertNewNotification(newNotification);

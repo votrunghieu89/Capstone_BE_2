@@ -37,7 +37,7 @@ namespace Capstone_2_BE.DALs.Customer
                                 OrderId = orderActionDTO.OrderId,
                                 Status = "Cancelled",
                                 ChangeBy = orderActionDTO.technicianId,
-                                ChangeAt = DateTime.UtcNow,
+                                ChangeAt = DateTime.Now,
                             };
                             await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                             await _context.SaveChangesAsync();
@@ -94,7 +94,7 @@ namespace Capstone_2_BE.DALs.Customer
                                     OrderId = orderActionDTO.OrderId,
                                     Status = "Completed",
                                     ChangeBy = orderActionDTO.technicianId,
-                                    ChangeAt = DateTime.UtcNow,
+                                    ChangeAt = DateTime.Now,
                                 };
                                 await _context.OrderStatusHistoryModel.AddAsync(orderStatusHistory);
                                 await _context.SaveChangesAsync();
@@ -419,10 +419,6 @@ namespace Capstone_2_BE.DALs.Customer
                             .ExecuteUpdateAsync(s => s
                                 .SetProperty(o => o.Title, updateOrderDTO.Title)
                                 .SetProperty(o => o.Description, updateOrderDTO.Description)
-                                .SetProperty(o => o.Address, updateOrderDTO.Address)
-                                .SetProperty(o => o.CityId, updateOrderDTO.CityId)
-                                .SetProperty(o => o.Latitude, updateOrderDTO.Latitude)
-                                .SetProperty(o => o.Longitude, updateOrderDTO.Longitude)
                             );
                         if (isUpdate > 0)
                         {

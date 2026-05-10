@@ -12,6 +12,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<AccountsModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Role)
                     .HasMaxLength(50)
                     .HasComment("Admin, Customer, Technician");
@@ -48,6 +49,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<CustomerProfileModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.FullName).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.IdUnique).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
@@ -56,12 +58,14 @@ namespace Capstone_2_BE
             modelBuilder.Entity<CitiesModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.CityName).IsRequired().HasMaxLength(100);
             });
             // TechnicianProfileModel Configuration
             modelBuilder.Entity<TechnicianProfileModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.FullName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.IdUnique).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.PhoneNumber).HasMaxLength(11);
@@ -83,6 +87,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<ServiceCategoriesModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.ServiceName).IsRequired().HasMaxLength(255);
                 
             });
@@ -91,6 +96,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<Service_ProfileModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 
                 // FK với ServiceCategories
                 entity.HasOne(e => e.ServiceCategories)
@@ -109,6 +115,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<OrderrModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.EstimatedTime);
            
@@ -154,6 +161,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<InvoicesModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
 
                 // One-To-Many với InvoiceItems
                 entity.HasMany(e => e.InvoiceItems)
@@ -166,12 +174,14 @@ namespace Capstone_2_BE
             modelBuilder.Entity<InvoiceItemsModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
             });
 
             // OrderAttachmentsModel Configuration
             modelBuilder.Entity<OrderAttachmentsModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.FileType).HasMaxLength(50);
                 entity.Property(e => e.FileName).IsRequired();
                 
@@ -186,6 +196,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<OrderStatusHistoryModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Status)
                     .HasMaxLength(30)
                     .HasComment("Rejected, Cancelled, Pending Confirmation, Confirmed, In Progress, Completed");
@@ -207,6 +218,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<RatingModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Score).HasPrecision(3, 2);
                 entity.ToTable(t =>
                 {
@@ -238,6 +250,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<NotificationsModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Message).IsRequired();
                 entity.Property(e => e.IsRead)
                     .HasComment("0, 1");
@@ -247,6 +260,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<RoomsModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.CreateAt);
 
                 // Sender relationship (Account -> SentRooms)
@@ -272,6 +286,7 @@ namespace Capstone_2_BE
             modelBuilder.Entity<MessengerModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Content).IsRequired();
                 entity.Property(e => e.IsRead).HasDefaultValue(false);
                 entity.Property(e => e.CreateAt);
@@ -289,10 +304,18 @@ namespace Capstone_2_BE
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<MessAttachmentModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
+                // existing config for MessAttachmentModel currently omitted in OnModelCreating
+            });
+
             // ChatBotAIModel Configuration
             modelBuilder.Entity<ChatBotAIModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.Message).IsRequired();
                 entity.Property(e => e.CreatedAt);
 

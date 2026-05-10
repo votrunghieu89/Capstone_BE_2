@@ -119,7 +119,7 @@ namespace Capstone_2_BE.Controllers.Customer
 
         [HttpPut("update")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateOrder([FromBody] OrderUpdateFormDTO updateOrderDTO)
+        public async Task<IActionResult> UpdateOrder([FromForm] OrderUpdateFormDTO updateOrderDTO)
         {
             var result = await _customerOrderService.UpdateOrder(updateOrderDTO);
             if (!result.IsSuccess)

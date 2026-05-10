@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Notification;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Repositories.Customer;
+using Capstone_2_BE.Repositories.Technician;
 using Capstone_2_BE.Services.Customer;
+using Capstone_2_BE.Settings;
 using Capstone_2_BE.Socket;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -18,24 +21,37 @@ namespace Capstone_2_BE.Tests
     public class CustomerOrderTest
     {
         private static CustomerOrderService CreateSut(
+            Mock<ITechnicianProfileRepo> technicianRepo,
             Mock<ICustomerOrderRepo> repo,
             Mock<ILogger<CustomerOrderService>> logger,
             Mock<IHubContext<NotificationHub>> hub,
-            Mock<INotificationRepo> notificationRepo)
-            => new CustomerOrderService(repo.Object, logger.Object, hub.Object, notificationRepo.Object, aws: null!);
+            Mock<INotificationRepo> notificationRepo,
+            Mock<AWS> aws,
+            Mock<AIEstimationTime> ai)
+            => new CustomerOrderService(
+                technicianRepo.Object,
+                repo.Object,
+                logger.Object,
+                hub.Object,
+                notificationRepo.Object,
+                aws.Object,
+                ai.Object);
 
         [Fact]
         public async Task GetCurrentOrders_WhenRepoReturnsNull_ReturnsEmptyList200()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             var id = Guid.NewGuid();
             repo.Setup(r => r.GetCurrentOrders(id)).ReturnsAsync((List<OrderOverviewDTO>?)null);
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.GetCurrentOrders(id);
 
             Assert.True(result.IsSuccess);
@@ -47,14 +63,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task GetCurrentOrders_WhenRepoThrows_Returns500()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.GetCurrentOrders(It.IsAny<Guid>())).ThrowsAsync(new Exception("boom"));
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.GetCurrentOrders(Guid.NewGuid());
 
             Assert.False(result.IsSuccess);
@@ -64,14 +83,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task GetInProgressOrders_WhenRepoReturnsEmpty_ReturnsEmptyList200()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.GetInProgressOrders(It.IsAny<Guid>())).ReturnsAsync(new List<OrderOverviewDTO>());
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.GetInProgressOrders(Guid.NewGuid());
 
             Assert.True(result.IsSuccess);
@@ -82,15 +104,18 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task GetOrderHistory_WhenRepoReturnsEmpty_ReturnsEmptyList200()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             var id = Guid.NewGuid();
             repo.Setup(r => r.GetOrderHistory(id)).ReturnsAsync(new List<OrderOverviewDTO>());
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.GetOrderHistory(id);
 
             Assert.True(result.IsSuccess);
@@ -101,14 +126,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task GetCancalledOrder_WhenRepoReturnsNull_ReturnsEmptyList200()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.GetCancalledOrder(It.IsAny<Guid>())).ReturnsAsync((List<OrderOverviewDTO>?)null);
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.GetCancalledOrder(Guid.NewGuid());
 
             Assert.True(result.IsSuccess);
@@ -119,14 +147,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task GetRejectedOrder_WhenRepoReturnsEmpty_ReturnsEmptyList200()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.GetRejectedOrder(It.IsAny<Guid>())).ReturnsAsync(new List<OrderOverviewDTO>());
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.GetRejectedOrder(Guid.NewGuid());
 
             Assert.True(result.IsSuccess);
@@ -137,14 +168,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task CancelOrder_WhenRepoReturnsNull_Returns400()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.CancelOrder(It.IsAny<OrderActionDTO>())).ReturnsAsync((OrderActionResDTO?)null);
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.CancelOrder(new OrderActionDTO { OrderId = Guid.NewGuid(), technicianId = Guid.NewGuid() });
 
             Assert.False(result.IsSuccess);
@@ -154,6 +188,7 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task CancelOrder_WhenNotificationInsertFails_Returns400_AndDoesNotSendHub()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
 
@@ -165,6 +200,8 @@ namespace Capstone_2_BE.Tests
             hub.SetupGet(h => h.Clients).Returns(clients.Object);
 
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             var actionRes = new OrderActionResDTO
             {
@@ -178,7 +215,7 @@ namespace Capstone_2_BE.Tests
             repo.Setup(r => r.CancelOrder(It.IsAny<OrderActionDTO>())).ReturnsAsync(actionRes);
             notificationRepo.Setup(n => n.InsertNewNotification(It.IsAny<InsertNewNotificationDTO>())).ReturnsAsync(false);
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.CancelOrder(new OrderActionDTO { OrderId = actionRes.OrderId, technicianId = actionRes.ReceiverId });
 
             Assert.False(result.IsSuccess);
@@ -189,14 +226,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task CancelOrder_WhenRepoThrows_Returns500()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.CancelOrder(It.IsAny<OrderActionDTO>())).ThrowsAsync(new Exception("boom"));
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.CancelOrder(new OrderActionDTO { OrderId = Guid.NewGuid(), technicianId = Guid.NewGuid() });
 
             Assert.False(result.IsSuccess);
@@ -206,14 +246,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task ConfirmCompletedOrder_WhenRepoReturnsNull_Returns400()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.ConfirmCompletedOrder(It.IsAny<OrderActionDTO>())).ReturnsAsync((OrderActionResDTO?)null);
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.ConfirmCompletedOrder(new OrderActionDTO { OrderId = Guid.NewGuid(), technicianId = Guid.NewGuid() });
 
             Assert.False(result.IsSuccess);
@@ -223,14 +266,17 @@ namespace Capstone_2_BE.Tests
         [Fact]
         public async Task ConfirmCompletedOrder_WhenRepoThrows_Returns500()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>();
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
+            var aws = new Mock<AWS>(MockBehavior.Loose, new object?[] { null! });
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
 
             repo.Setup(r => r.ConfirmCompletedOrder(It.IsAny<OrderActionDTO>())).ThrowsAsync(new Exception("boom"));
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
             var result = await sut.ConfirmCompletedOrder(new OrderActionDTO { OrderId = Guid.NewGuid(), technicianId = Guid.NewGuid() });
 
             Assert.False(result.IsSuccess);
@@ -238,24 +284,25 @@ namespace Capstone_2_BE.Tests
         }
 
         [Fact]
-        public async Task UpdateOrder_WhenLatitudeInvalid_Returns400_AndDoesNotCallRepo()
+        public async Task UpdateOrder_WhenTitleNull_Returns400_AndDoesNotCallRepo()
         {
+            var technicianRepo = new Mock<ITechnicianProfileRepo>();
             var repo = new Mock<ICustomerOrderRepo>(MockBehavior.Strict);
             var logger = new Mock<ILogger<CustomerOrderService>>();
             var hub = new Mock<IHubContext<NotificationHub>>();
             var notificationRepo = new Mock<INotificationRepo>();
 
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
+            var aws = new Mock<AWS>(MockBehavior.Strict, new object?[] { null! });
+            // Không được gọi Upload/Delete trong case fail sớm
+            var ai = new Mock<AIEstimationTime>(MockBehavior.Loose, new object?[] { new HttpClient() });
+
+            var sut = CreateSut(technicianRepo, repo, logger, hub, notificationRepo, aws, ai);
 
             var dto = new OrderUpdateFormDTO
             {
                 OrderId = Guid.NewGuid(),
-                Title = "t",
+                Title = null,
                 Description = "d",
-                Address = "a",
-                CityId = Guid.NewGuid(),
-                Latitude = "not-a-number",
-                Longitude = "106.12",
                 videoUrl = null,
                 ImageUrls = new List<Microsoft.AspNetCore.Http.IFormFile>()
             };
@@ -264,101 +311,8 @@ namespace Capstone_2_BE.Tests
 
             Assert.False(result.IsSuccess);
             Assert.Equal(400, result.StatusCode);
-            Assert.Equal("Latitude không hợp lệ", result.Error);
             repo.VerifyAll();
-        }
-
-        [Fact]
-        public async Task UpdateOrder_WhenLongitudeInvalid_Returns400()
-        {
-            var repo = new Mock<ICustomerOrderRepo>(MockBehavior.Strict);
-            var logger = new Mock<ILogger<CustomerOrderService>>();
-            var hub = new Mock<IHubContext<NotificationHub>>();
-            var notificationRepo = new Mock<INotificationRepo>();
-
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
-
-            var dto = new OrderUpdateFormDTO
-            {
-                OrderId = Guid.NewGuid(),
-                Title = "t",
-                Description = "d",
-                Address = "a",
-                CityId = Guid.NewGuid(),
-                Latitude = "10.12",
-                Longitude = "not-a-number",
-                videoUrl = null,
-                ImageUrls = new List<Microsoft.AspNetCore.Http.IFormFile>()
-            };
-
-            var result = await sut.UpdateOrder(dto);
-
-            Assert.False(result.IsSuccess);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Equal("Longitude không hợp lệ", result.Error);
-            repo.VerifyAll();
-        }
-
-        [Fact]
-        public async Task UpdateOrder_WhenLatitudeOutOfRange_Returns400()
-        {
-            var repo = new Mock<ICustomerOrderRepo>(MockBehavior.Strict);
-            var logger = new Mock<ILogger<CustomerOrderService>>();
-            var hub = new Mock<IHubContext<NotificationHub>>();
-            var notificationRepo = new Mock<INotificationRepo>();
-
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
-
-            var dto = new OrderUpdateFormDTO
-            {
-                OrderId = Guid.NewGuid(),
-                Title = "t",
-                Description = "d",
-                Address = "a",
-                CityId = Guid.NewGuid(),
-                Latitude = "100",
-                Longitude = "106.12",
-                videoUrl = null,
-                ImageUrls = new List<Microsoft.AspNetCore.Http.IFormFile>()
-            };
-
-            var result = await sut.UpdateOrder(dto);
-
-            Assert.False(result.IsSuccess);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Equal("Latitude ngoài phạm vi", result.Error);
-            repo.VerifyAll();
-        }
-
-        [Fact]
-        public async Task UpdateOrder_WhenLongitudeOutOfRange_Returns400()
-        {
-            var repo = new Mock<ICustomerOrderRepo>(MockBehavior.Strict);
-            var logger = new Mock<ILogger<CustomerOrderService>>();
-            var hub = new Mock<IHubContext<NotificationHub>>();
-            var notificationRepo = new Mock<INotificationRepo>();
-
-            var sut = CreateSut(repo, logger, hub, notificationRepo);
-
-            var dto = new OrderUpdateFormDTO
-            {
-                OrderId = Guid.NewGuid(),
-                Title = "t",
-                Description = "d",
-                Address = "a",
-                CityId = Guid.NewGuid(),
-                Latitude = "10",
-                Longitude = "200",
-                videoUrl = null,
-                ImageUrls = new List<Microsoft.AspNetCore.Http.IFormFile>()
-            };
-
-            var result = await sut.UpdateOrder(dto);
-
-            Assert.False(result.IsSuccess);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Equal("Longitude ngoài phạm vi", result.Error);
-            repo.VerifyAll();
+            aws.VerifyNoOtherCalls();
         }
     }
 }

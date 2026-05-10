@@ -36,8 +36,7 @@ namespace Capstone_2_BE.DALs.Admin
             var user = await _context.AccountsModel.FindAsync(id);
             if (user == null) return false;
 
-            user.IsActive = isActive;
-            user.UpdateAt = DateTime.Now;
+            var isUpdate = await _context.AccountsModel.Where(a => a.Id == id).ExecuteUpdateAsync(e => e.SetProperty(e => e.IsActive, isActive) .SetProperty(e => e.UpdateAt, DateTime.Now));
 
             await _context.SaveChangesAsync();
             return true;

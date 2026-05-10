@@ -76,29 +76,51 @@ namespace Capstone_2_BE.Services.Customer
                 lng = Math.Round(lng, 6);
                 var technicians = await _customerAutoFindRepo.AutoFindCustomer(autoFindFixerDTO);
 
-                if (technicians == null) Result<string>.Failure("An error occurred while trying to find technicians. Please try again later.", 500);
-                //var tasks = technicians.Select(async tech =>
-                //{
-                //    if (tech.Latitude == null || tech.Longitude == null) return;
+                if (technicians == null) return Result<string>.Failure("Không tìm thấy thợ nào", 404);
 
-                //    double distance = _aIEstimationTime.CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
+                //var validTechnicians = technicians
+                //                        .Where(t => t.Latitude != null && t.Longitude != null)
+                //                        .Select(t =>
+                //                        {
+                //                            var distance = _aIEstimationTime.CalculateDistance(lat, lng, t.Latitude, t.Longitude);
+
+                //                            return new
+                //                            {
+                //                                Tech = t,
+                //                                Distance = distance
+                //                            };
+                //                        })
+                //                        .Where(x => x.Distance <= 150)
+                //                        .ToList();
+
+                //if (!validTechnicians.Any())
+                //{
+                //    return Result<string>.Failure("Không tìm thấy thợ nào trong phạm vi 150km", 404);
+                //}
+                //var tasks = validTechnicians.Select(async x =>
+                //{
                 //    int isPeakHour = _aIEstimationTime.isPeakHour();
 
                 //    var dto = new EstimationTimeDTO
                 //    {
-                //        Distance = distance,
-                //        ServiceName = tech.ServiceName,
-                //        Experience = tech.YearOfExperience,
+                //        Distance = x.Distance,
+                //        ServiceName = x.Tech.ServiceName,
+                //        Experience = x.Tech.YearOfExperience,
                 //        IsPeakHour = isPeakHour
                 //    };
-                //    var EstimationResult = await _aIEstimationTime.EstimationTime(dto);
-                //    if (EstimationResult == 0) EstimationResult = 9999;
-                //    tech.EstimatedTime = EstimationResult;
 
-                //    tech.Total = tech.Total + (decimal)tech.EstimatedTime;
+                //    var estimation = await _aIEstimationTime.EstimationTime(dto);
+
+                //    if (estimation == 0)
+                //        estimation = 9999;
+
+                //    x.Tech.EstimatedTime = estimation;
+                //    x.Tech.Total += (decimal)estimation;
                 //});
 
                 //await Task.WhenAll(tasks);
+
+
 
                 if (technicians == null || !technicians.Any())
                 {
@@ -112,7 +134,12 @@ namespace Capstone_2_BE.Services.Customer
                     tech.Total = tech.Total + distance;
                 }
 
-                var sortedTechnicians = technicians.OrderBy(t => t.Total).Take(20).ToList();
+                //var sortedTechnicians = validTechnicians
+                //                                    .OrderBy(x => x.Tech.Total)
+                //                                    .Take(10)
+                //                                    .Select(x => x.Tech)
+                //                                    .ToList();
+                var sortedTechnicians = technicians.OrderBy(t => t.Total).Take(10).ToList();
                 var key = $"AutoFindTechnician:{CustomerId}";
                 var isCached = await _redis.PushListAsync(key, sortedTechnicians);
                 return Result<string>.Success("Technicians found and cached successfully.");
