@@ -77,6 +77,7 @@ namespace Capstone_2_BE.DALs
                 };
 
                 await _context.Invoices.AddAsync(invoice);
+                await _context.SaveChangesAsync();
 
                 if (create.Materials.Any())
                 {
@@ -91,6 +92,7 @@ namespace Capstone_2_BE.DALs
                     }).ToList();
 
                     await _context.InvoiceItems.AddRangeAsync(invoiceItems);
+                    await _context.SaveChangesAsync();
                 }
 
                 order.IsInvoice = 1;
