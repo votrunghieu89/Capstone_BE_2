@@ -1,4 +1,4 @@
-using Capstone_2_BE.DTOs;
+ using Capstone_2_BE.DTOs;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Models;
@@ -290,7 +290,7 @@ namespace Capstone_2_BE.DALs.Technician
                 {
                     try
                     {
-                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId && o.Status == "Pending Confirmation").ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Rejected"));
+                        int isUpdated = await _context.OrderrModel.Where(o => o.Id == orderId).ExecuteUpdateAsync(s => s.SetProperty(o => o.Status, "Rejected"));
                         if (isUpdated > 0)
                         {
                             await _context.AccountsModel.Where(a => a.Id == AccountId && a.IsOnline == 2).ExecuteUpdateAsync(e => e.SetProperty(sg => sg.IsOnline, 1));
