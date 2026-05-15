@@ -1,5 +1,6 @@
 ﻿using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Services.Technician;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Technician
@@ -35,6 +36,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy đơn hàng đang thực hiện
         /// </summary>
         [HttpGet("in-progress/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetInProgressOrder(Guid technicianId)
         {
             var result = await _technicianOrderService.GetInProgressOrder(technicianId);
@@ -49,6 +51,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy số lượng đơn đang thực hiện hôm nay
         /// </summary>
         [HttpGet("in-progress/{technicianId}/count-today")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetOrderInProgressToday(Guid technicianId)
         {
             var result = await _technicianOrderService.GetOrderInProgressToday(technicianId);
@@ -63,6 +66,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy danh sách đơn hàng chờ xác nhận
         /// </summary>
         [HttpGet("confirming/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetConfirmingOrders(Guid technicianId)
         {
             var result = await _technicianOrderService.GetConfirmingOrders(technicianId);
@@ -77,6 +81,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy danh sách đơn hàng đã xác nhận
         /// </summary>
         [HttpGet("confirmed/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetConfirmedOrders(Guid technicianId)
         {
             var result = await _technicianOrderService.GetConfirmedOrders(technicianId);
@@ -91,6 +96,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy lịch sử đơn hàng đã hoàn thành
         /// </summary>
         [HttpGet("history/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetHistoryOrders(Guid technicianId)
         {
             var result = await _technicianOrderService.GetHistoryOrders(technicianId);
@@ -105,6 +111,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy danh sách đơn hàng đã hủy
         /// </summary>
         [HttpGet("canceled/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetCanceledOrders(Guid technicianId)
         {
             var result = await _technicianOrderService.GetCanceledOrders(technicianId);
@@ -119,6 +126,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy danh sách đơn bị từ chối (do kỹ thuật viên từ chối)
         /// </summary>
         [HttpGet("rejected/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetRejectedOrders(Guid technicianId)
         {
             var result = await _technicianOrderService.GetRejectedOrders(technicianId);
@@ -133,6 +141,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Xác nhận đơn hàng (Pending Confirmation -> Confirmed)
         /// </summary>
         [HttpPost("confirm")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> ConfirmOrder([FromBody] OrderActionDTO orderActionDTO)
         {
             var result = await _technicianOrderService.ConfirmOrder(orderActionDTO);
@@ -147,6 +156,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Bắt đầu thực hiện đơn hàng (Confirmed -> In Progress)
         /// </summary>
         [HttpPost("start")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> StartOrder([FromBody] OrderActionDTO orderActionDTO)
         {
             var result = await _technicianOrderService.StartOrder(orderActionDTO);
@@ -162,6 +172,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// NOTE: CompleteOrder is commented in DAL. Keep commented here for consistency.
         /// </summary>
         [HttpPost("complete/{orderId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> CompleteOrder(Guid orderId)
         {
             var result = await _technicianOrderService.CompleteOrder(orderId);
@@ -176,6 +187,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Hủy đơn hàng (Pending Confirmation -> Refuse)
         /// </summary>
         [HttpPost("reject")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> RejectedOrder([FromBody] OrderActionDTO orderActionDTO)
         {
             var result = await _technicianOrderService.RejectedOrder(orderActionDTO);
@@ -190,6 +202,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy vị trí của kỹ thuật viên (Address, CityName)
         /// </summary>
         [HttpGet("location/technician/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetTechnicianLocation(Guid technicianId)
         {
             var result = await _technicianOrderService.GetTechnicianLocation(technicianId);
@@ -204,6 +217,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy vị trí của đơn hàng (Address, CityName)
         /// </summary>
         [HttpGet("location/order/{orderId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetOrderLocation(Guid orderId)
         {
             var result = await _technicianOrderService.GetOrderLocation(orderId);

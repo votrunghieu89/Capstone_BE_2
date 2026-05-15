@@ -1,11 +1,13 @@
 using Capstone_2_BE.DTOs.Customer.Profile;
 using Capstone_2_BE.Services.Customer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Customer
 {
     [ApiController]
     [Route("api/customer/profile")]
+
     public class CustomerProfileController : ControllerBase
     {
         private readonly CustomerProfileService _customerProfileService;
@@ -21,6 +23,7 @@ namespace Capstone_2_BE.Controllers.Customer
         /// L?y thông tin profile khách hàng
         /// </summary>
         [HttpGet("{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetCustomerProfile(Guid customerId)
         {
             var result = await _customerProfileService.GetCustomerProfile(customerId);
@@ -36,6 +39,7 @@ namespace Capstone_2_BE.Controllers.Customer
         /// </summary>
         [HttpPut]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> UpdateCustomerProfile([FromForm] CustomerProfileUpdateDTO updateDTO)
         {
             var result = await _customerProfileService.UpdateCustomerProfile(updateDTO);

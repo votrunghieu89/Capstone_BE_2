@@ -1,8 +1,9 @@
 ﻿using Capstone_2_BE.DTOs.Admin;
+using Capstone_2_BE.DTOs.Service; // Thêm dòng này vào phần using
 using Capstone_2_BE.Repositories;
 using Capstone_2_BE.Services.Admin;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Capstone_2_BE.DTOs.Service; // Thêm dòng này vào phần using
 
 namespace Capstone_2_BE.Controllers
 {
@@ -21,19 +22,20 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
             var result = await _service.GetUsers();
             return Ok(result.Data);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("users/{id}/lock")]
         public async Task<IActionResult> LockUser(Guid id)
         {
             var result = await _service.LockUser(id);
             return StatusCode(result.StatusCode, result);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("users/{id}/unlock")]
         public async Task<IActionResult> UnlockUser(Guid id)
         {
@@ -42,6 +44,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("feedback")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetFeedback()
         {
             var result = await _service.GetFeedback();
@@ -49,6 +52,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpDelete("feedback/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteFeedback(Guid id)
         {
             var result = await _service.DeleteFeedback(id);
@@ -57,6 +61,7 @@ namespace Capstone_2_BE.Controllers
 
         // Thay đổi từ "stats" thành "dashboard-stats"
         [HttpGet("dashboard-stats")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetStats()
         {
             var result = await _service.GetDashboardStats();
@@ -66,12 +71,14 @@ namespace Capstone_2_BE.Controllers
         
 
         [HttpGet("requests")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRequests()
         {
             var result = await _service.GetRequests();
             return Ok(result.Data);
         }
         [HttpGet("technicians/full")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetTechniciansFull()
         {
             var result = await _service.GetTechniciansFull();
@@ -79,6 +86,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("technicians/{id}/reviews")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetReviews(Guid id)
         {
             var result = await _service.GetTechnicianReviews(id);
@@ -86,6 +94,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpPost("technicians")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateTechnician([FromBody] CreateTechnicianDto dto)
         {
             var result = await _service.CreateTechnician(dto);
@@ -93,6 +102,7 @@ namespace Capstone_2_BE.Controllers
         }
         // 1. Route GET Summary (Cho trang ServicesPage)
         [HttpGet("services-summary")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetSummary()
         {
             var data = await _serviceRepo.GetServicesSummary();
@@ -101,6 +111,7 @@ namespace Capstone_2_BE.Controllers
 
         // 2. Route DELETE theo ID (Tuân thủ theo BE)
         [HttpDelete("services/{id:guid}")] // Chỉ nhận GUID
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var success = await _serviceRepo.DeleteService(id); // Gọi hàm DeleteService(Guid) cũ của bạn
@@ -110,6 +121,7 @@ namespace Capstone_2_BE.Controllers
 
         // 3. Route POST để tạo mới
         [HttpPost("services")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateServiceAdminDTO dto)
         {
             var id = await _serviceRepo.AddService(dto);

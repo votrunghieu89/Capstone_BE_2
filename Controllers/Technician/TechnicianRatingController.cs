@@ -1,4 +1,5 @@
 ﻿using Capstone_2_BE.Services.Technician;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Technician
@@ -20,6 +21,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy tổng quan đánh giá của kỹ thuật viên
         /// </summary>
         [HttpGet("overview/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetTechnicianRatingOverview(Guid technicianId)
         {
             var result = await _technicianRatingService.GetTechnicianRatingOverview(technicianId);
@@ -34,6 +36,7 @@ namespace Capstone_2_BE.Controllers.Technician
         /// Lấy danh sách feedback của kỹ thuật viên
         /// </summary>
         [HttpGet("feedbacks/{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetTechnicianFeedbacks(Guid technicianId)
         {
             var result = await _technicianRatingService.GetTechnicianFeedbacks(technicianId);

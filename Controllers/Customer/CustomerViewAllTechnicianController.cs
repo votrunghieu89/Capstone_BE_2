@@ -1,6 +1,7 @@
 ﻿using Capstone_2_BE.DTOs.Customer.FindTechnician;
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.Services.Customer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Customer
@@ -19,6 +20,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("all")]
+     
         public async Task<IActionResult> ViewAll()
         {
             var result = await _service.ViewAllTechnician();
@@ -27,6 +29,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("filter")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> FilterTechnicians([FromQuery] TechnicianFilterRequestDTO filter)
         {
             var result = await _service.FilterTechnicianCombination(filter);
@@ -38,6 +41,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("by-service/{serviceId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ByService(Guid serviceId)
         {
             var result = await _service.FilterByService(serviceId);
@@ -46,6 +50,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("by-rate")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ByRate([FromQuery] decimal start, [FromQuery] decimal end)
         {
             var result = await _service.FilterByRate(start, end);
@@ -54,6 +59,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("search")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Search([FromQuery] string TechnicianName)
         {
             var result = await _service.SearchByName(TechnicianName);
@@ -63,6 +69,7 @@ namespace Capstone_2_BE.Controllers.Customer
 
         [HttpPost("place-order")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> PlaceOrder([FromForm] CreateOrderFormDTO form)
         {
             var result = await _service.PlaceOrder(form);
@@ -71,6 +78,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("detail/{technicianId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetTechnicianDetail(Guid technicianId)
         {
             var result = await _service.ViewDetailOfTechnician(technicianId);

@@ -1,5 +1,6 @@
 using Capstone_2_BE.DTOs.Customer.Rating;
 using Capstone_2_BE.Services.Customer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Customer
@@ -16,6 +17,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CreateFeedBack([FromBody] CreateFeedbackDTO createFeedback)
         {
             var result = await _customerRatingService.CreateFeedBack(createFeedback);
@@ -27,6 +29,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("view/{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ViewCreatedFeedBack(Guid customerId)
         {
             var result = await _customerRatingService.ViewCreatedFeedBack(customerId);
@@ -38,6 +41,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpPut("update")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> UpdateFeedBack([FromBody] UpdateFeedbackDTO updateFeedback)
         {
             var result = await _customerRatingService.UpdateFeedBack(updateFeedback);
@@ -49,6 +53,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpDelete("delete/{feedbackId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> DeleteFeedBack(Guid feedbackId)
         {
             var result = await _customerRatingService.DeleteFeedBack(feedbackId);
@@ -60,6 +65,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("is-feedback/{orderId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> IsFeedback(Guid orderId)
         {
             var result = await _customerRatingService.IsFeedback(orderId);

@@ -1,5 +1,6 @@
 ﻿using Capstone_2_BE.DTOs.Technician.Profile;
 using Capstone_2_BE.Services.Technician;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Technician
@@ -18,6 +19,7 @@ namespace Capstone_2_BE.Controllers.Technician
         }
 
         [HttpGet("{technicianId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetTechnicianProfile(Guid technicianId)
         {
             var result = await _technicianProfileService.GetTechnicianProfile(technicianId);
@@ -30,6 +32,7 @@ namespace Capstone_2_BE.Controllers.Technician
 
         [HttpPut]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> UpdateTechnicianProfile([FromForm] TechnicianProfileUpdateDTO updateDTO)
         {
             var result = await _technicianProfileService.UpdateTechnicianProfile(updateDTO);

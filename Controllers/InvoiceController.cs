@@ -1,5 +1,6 @@
 ﻿using Capstone_2_BE.DTOs.Invoices;
 using Capstone_2_BE.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers
@@ -16,6 +17,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("banks")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetBanks()
         {
             var result = await _invoiceService.GetBanksAsync();
@@ -32,6 +34,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("technician/{technicianId}/completed-orders")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> GetAllCompletedOrders(Guid technicianId)
         {
             var result = await _invoiceService.getAllCompletedOrder(technicianId);
@@ -40,6 +43,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("customer/{customerId}/completed-orders")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetAllCompletedOrdersForCustomer(Guid customerId)
         {
             var result = await _invoiceService.getAllCompletedOrderforCustomer(customerId);
@@ -48,6 +52,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceDTO dto)
         {
             if (dto == null) return BadRequest(new { message = "Invalid input data" });
@@ -57,6 +62,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpDelete("delete/{invoiceId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> DeleteInvoice(Guid invoiceId)
         {
             var result = await _invoiceService.DeleteInvoice(invoiceId);
@@ -81,6 +87,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpPut("confirm-payment/{invoiceId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> ConfirmPayment(Guid invoiceId)
         {
             var result = await _invoiceService.ConfirmPayment(invoiceId);
@@ -97,6 +104,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpGet("update-info/{orderId}")]
+
         public async Task<IActionResult> GetInvoiceItemForUpdate(Guid orderId)
         {
             var result = await _invoiceService.GetInvoiceItemforUpdate(orderId);
@@ -105,6 +113,7 @@ namespace Capstone_2_BE.Controllers
         }
 
         [HttpPut("update/{orderId}")]
+        [Authorize(Roles = "Technician")]
         public async Task<IActionResult> UpdateInvoice(Guid orderId, [FromBody] CreateInvoiceDTO dto)
         {
             if (dto == null) return BadRequest(new { message = "Invalid input data" });

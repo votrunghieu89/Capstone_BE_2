@@ -1,6 +1,7 @@
 using Capstone_2_BE.DTOs.Customer.Order;
 using Capstone_2_BE.DTOs.Technician.Orders;
 using Capstone_2_BE.Services.Customer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Capstone_2_BE.Controllers.Customer
@@ -19,6 +20,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("current/{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetCurrentOrders(Guid customerId)
         {
             var result = await _customerOrderService.GetCurrentOrders(customerId);
@@ -29,6 +31,7 @@ namespace Capstone_2_BE.Controllers.Customer
             return StatusCode(result.StatusCode, result.Data);
         }
         [HttpGet("in-progress/{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetInProgressOrders(Guid customerId)
         {
             var result = await _customerOrderService.GetInProgressOrders(customerId);
@@ -39,6 +42,7 @@ namespace Capstone_2_BE.Controllers.Customer
             return StatusCode(result.StatusCode, result.Data);
         }
         [HttpGet("history/{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetOrderHistory(Guid customerId)
         {
             var result = await _customerOrderService.GetOrderHistory(customerId);
@@ -50,6 +54,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("canceled/{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetCancalledOrder(Guid customerId)
         {
             var result = await _customerOrderService.GetCancalledOrder(customerId);
@@ -61,6 +66,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("rejected/{customerId}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetRejectedOrder(Guid customerId)
         {
             var result = await _customerOrderService.GetRejectedOrder(customerId);
@@ -72,6 +78,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpPost("cancel")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderActionDTO orderActionDTO)
         {
             var result = await _customerOrderService.CancelOrder(orderActionDTO);
@@ -83,6 +90,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpPost("confirm-complete")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> ConfirmCompletedOrder([FromBody] OrderActionDTO orderActionDTO)
         {
             var result = await _customerOrderService.ConfirmCompletedOrder(orderActionDTO);
@@ -107,6 +115,7 @@ namespace Capstone_2_BE.Controllers.Customer
         
 
         [HttpGet("detail/{orderId}")]
+     
         public async Task<IActionResult> GetOrderDetail(Guid orderId)
         {
             var result = await _customerOrderService.GetOrderDetail(orderId);
@@ -119,6 +128,7 @@ namespace Capstone_2_BE.Controllers.Customer
 
         [HttpPut("update")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> UpdateOrder([FromForm] OrderUpdateFormDTO updateOrderDTO)
         {
             var result = await _customerOrderService.UpdateOrder(updateOrderDTO);
