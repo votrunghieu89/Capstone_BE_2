@@ -42,7 +42,7 @@ namespace Capstone_2_BE.DALs.Customer
                                                             YearOfExperience = t.YearOfExperience,
                                                         })
                                                         .OrderBy(x => Guid.NewGuid())
-                                                        .Take(20)
+                                                        .Take(15)
                                                         .ToListAsync();
                 var result =  new List<AutoFindFixerResDTO>();
                 foreach (var tech in TechList)

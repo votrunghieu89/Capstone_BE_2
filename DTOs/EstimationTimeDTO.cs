@@ -5,7 +5,7 @@
         public string ServiceName { get; set; }
         public double Distance { get; set; }
         public double Experience { get; set; }
-
         public int IsPeakHour { get; set; }
+        public double RainRatio { get; set; }
     }
 }

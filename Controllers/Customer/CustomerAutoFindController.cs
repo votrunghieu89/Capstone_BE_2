@@ -20,7 +20,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpPost("find/{customerId}")]
-        [Authorize(Roles = "Customer")]
+  
         public async Task<IActionResult> AutoFindTechnician(Guid customerId, [FromBody] AutoFindFixerDTO dto)
         {
             var result = await _service.AutoFindTechnician(customerId, dto);
@@ -30,7 +30,7 @@ namespace Capstone_2_BE.Controllers.Customer
 
         [HttpPost("place-auto-order")]
         [Consumes("multipart/form-data")]
-        [Authorize(Roles = "Customer")]
+       
         public async Task<IActionResult> PlaceAutoOrder([FromForm] CreateOrderFormAutoFindDTO form)
         {
             var result = await _service.PlaceAutoOrder(form);
@@ -39,7 +39,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpGet("accept/{customerId}")]
-        [Authorize(Roles = "Customer")]
+       
         public async Task<IActionResult> GetFirstTechnician(Guid customerId)
         {
             var result = await _service.GetFirstTechnician(customerId);
@@ -48,7 +48,7 @@ namespace Capstone_2_BE.Controllers.Customer
         }
 
         [HttpDelete("clear/{customerId}")]
-        [Authorize(Roles = "Customer")]
+        
         public async Task<IActionResult> ClearCache(Guid customerId)
         {
             var result = await _service.ClearTechnicianCache(customerId);

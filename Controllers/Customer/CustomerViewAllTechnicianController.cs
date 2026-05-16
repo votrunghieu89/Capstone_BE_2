@@ -69,7 +69,7 @@ namespace Capstone_2_BE.Controllers.Customer
 
         [HttpPost("place-order")]
         [Consumes("multipart/form-data")]
-        [Authorize(Roles = "Customer")]
+        
         public async Task<IActionResult> PlaceOrder([FromForm] CreateOrderFormDTO form)
         {
             var result = await _service.PlaceOrder(form);

@@ -50,6 +50,7 @@ namespace Capstone_2_BE.Settings
                 distance = estimationTimeDTO.Distance,
                 experience = estimationTimeDTO.Experience,
                 is_peak_hour = estimationTimeDTO.IsPeakHour,
+                rain_ratio = estimationTimeDTO.RainRatio,
             };  
             var response = await _httpClient.PostAsJsonAsync(url, requestData);
 
@@ -72,6 +73,46 @@ namespace Capstone_2_BE.Settings
         {
             int hour = DateTime.Now.Hour;
             return (hour >= 7 && hour <= 9) || (hour >= 14 && hour <= 19) ? 1 : 0;
+        }
+
+
+        public async Task<double> GetRainRatio(decimal lat1, decimal lon1, decimal? lat2, decimal? lon2)
+        {
+
+            if (lat2 == null || lon2 == null) { return 0; }
+            decimal midLat = (lat1 + lat2.Value) / 2; 
+            decimal midLon = (lon1 + lon2.Value) / 2;
+
+            string url =
+                "https://api.open-meteo.com/v1/forecast" +
+                $"?latitude={midLat.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+                $"&longitude={midLon.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+                "&current=rain";
+
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return 0;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            using JsonDocument doc = JsonDocument.Parse(json);
+
+            double rain = doc.RootElement
+                .GetProperty("current")
+                .GetProperty("rain")
+                .GetDouble();
+
+            
+            if (rain == 0)
+                return 0;
+
+            if (rain < 3)
+                return 0.5;
+
+            return 1;
         }
     }
 }

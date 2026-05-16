@@ -78,68 +78,70 @@ namespace Capstone_2_BE.Services.Customer
 
                 if (technicians == null) return Result<string>.Failure("Không tìm thấy thợ nào", 404);
 
-                //var validTechnicians = technicians
-                //                        .Where(t => t.Latitude != null && t.Longitude != null)
-                //                        .Select(t =>
-                //                        {
-                //                            var distance = _aIEstimationTime.CalculateDistance(lat, lng, t.Latitude, t.Longitude);
+                var validTechnicians = technicians
+                                        .Where(t => t.Latitude != null && t.Longitude != null)
+                                        .Select(t =>
+                                        {
+                                            var distance = _aIEstimationTime.CalculateDistance(lat, lng, t.Latitude, t.Longitude);
+                                            
+                                            return new
+                                            {
+                                                Tech = t,
+                                                Distance = distance
+                                            };
+                                        })
+                                        .Where(x => x.Distance <= 150)
+                                        .ToList();
 
-                //                            return new
-                //                            {
-                //                                Tech = t,
-                //                                Distance = distance
-                //                            };
-                //                        })
-                //                        .Where(x => x.Distance <= 150)
-                //                        .ToList();
+                if (!validTechnicians.Any())
+                {
+                    return Result<string>.Failure("Không tìm thấy thợ nào trong phạm vi 150km", 404);
+                }
+                var tasks = validTechnicians.Select(async x =>
+                {
+                    int isPeakHour = _aIEstimationTime.isPeakHour();
+                    double rainRatio = await _aIEstimationTime.GetRainRatio(lat, lng, x.Tech.Latitude, x.Tech.Longitude);
+                    var dto = new EstimationTimeDTO
+                    {
+                        Distance = x.Distance,
+                        ServiceName = x.Tech.ServiceName,
+                        Experience = x.Tech.YearOfExperience,
+                        IsPeakHour = isPeakHour,
+                        RainRatio = rainRatio,
 
-                //if (!validTechnicians.Any())
+                    };
+
+                    var estimation = await _aIEstimationTime.EstimationTime(dto);
+
+                    if (estimation == 0)
+                        estimation = 9999;
+
+                    x.Tech.EstimatedTime = estimation;
+                    x.Tech.Total += (decimal)estimation;
+                });
+
+                await Task.WhenAll(tasks);
+
+
+
+                //if (technicians == null || !technicians.Any())
                 //{
-                //    return Result<string>.Failure("Không tìm thấy thợ nào trong phạm vi 150km", 404);
+                //    _logger.LogWarning("No technicians found for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.CityId, autoFindFixerDTO.ServiceId);
+                //    return Result<string>.Failure("No technicians found in your area for the selected service.", 400);
                 //}
-                //var tasks = validTechnicians.Select(async x =>
+                //foreach (var tech in technicians)
                 //{
-                //    int isPeakHour = _aIEstimationTime.isPeakHour();
+                //    tech.EstimatedTime = 180;
+                //    decimal distance = (decimal)CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
+                //    tech.Total = tech.Total + distance;
+                //}
 
-                //    var dto = new EstimationTimeDTO
-                //    {
-                //        Distance = x.Distance,
-                //        ServiceName = x.Tech.ServiceName,
-                //        Experience = x.Tech.YearOfExperience,
-                //        IsPeakHour = isPeakHour
-                //    };
-
-                //    var estimation = await _aIEstimationTime.EstimationTime(dto);
-
-                //    if (estimation == 0)
-                //        estimation = 9999;
-
-                //    x.Tech.EstimatedTime = estimation;
-                //    x.Tech.Total += (decimal)estimation;
-                //});
-
-                //await Task.WhenAll(tasks);
-
-
-
-                if (technicians == null || !technicians.Any())
-                {
-                    _logger.LogWarning("No technicians found for City: {City} and ServiceId: {ServiceId}", autoFindFixerDTO.CityId, autoFindFixerDTO.ServiceId);
-                    return Result<string>.Failure("No technicians found in your area for the selected service.", 400);
-                }
-                foreach (var tech in technicians)
-                {
-                    tech.EstimatedTime = 180;
-                    decimal distance = (decimal)CalculateDistance(lat, lng, tech.Latitude, tech.Longitude);
-                    tech.Total = tech.Total + distance;
-                }
-
-                //var sortedTechnicians = validTechnicians
-                //                                    .OrderBy(x => x.Tech.Total)
-                //                                    .Take(10)
-                //                                    .Select(x => x.Tech)
-                //                                    .ToList();
-                var sortedTechnicians = technicians.OrderBy(t => t.Total).Take(10).ToList();
+                var sortedTechnicians = validTechnicians
+                                                    .OrderBy(x => x.Tech.Total)
+                                                    .Take(10)
+                                                    .Select(x => x.Tech)
+                                                    .ToList();
+                //var sortedTechnicians = technicians.OrderBy(t => t.Total).Take(10).ToList();
                 var key = $"AutoFindTechnician:{CustomerId}";
                 var isCached = await _redis.PushListAsync(key, sortedTechnicians);
                 return Result<string>.Success("Technicians found and cached successfully.");
