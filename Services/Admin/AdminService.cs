@@ -22,9 +22,13 @@ namespace Capstone_2_BE.Services.Admin
         public async Task<Result<string>> LockUser(Guid id)
         {
             var result = await _repo.UpdateUserStatus(id, 0);
-            return result
-                ? Result<string>.Success("Locked", 200)
-                : Result<string>.Failure("User not found", 404);
+            if (result == true) {
+                return Result<string>.Success("Khoá thành công", 200);
+            }
+            else
+            {
+                return Result<string>.Success("Không thể khoá ngay bây giờ", 409);
+            }
         }
 
         public async Task<Result<string>> UnlockUser(Guid id)
