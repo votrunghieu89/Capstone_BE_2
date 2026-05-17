@@ -205,28 +205,28 @@ namespace Capstone_2_BE.Services.Customer
                 lat = Math.Round(lat, 6);
                 lng = Math.Round(lng, 6);
 
-                var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
-                if (TechforAi == null)
-                {
-                    return Result<bool>.Failure("TechforAI loi khong hop lệ", 400);
-                }
-                var ServiceName = await _serviceDAL.GetServiceName(form.ServiceId);
-                if (ServiceName == null) return Result<bool>.Failure("ServiceName loi khong hop lệ", 400);
-                EstimationTimeDTO dto = new EstimationTimeDTO()
-                {
-                    Distance = _aIEstimationTime.CalculateDistance(lat, lng, TechforAi.Latitude, TechforAi.Longitude),
-                    Experience = TechforAi.YearOfExperience,
-                    IsPeakHour = _aIEstimationTime.isPeakHour(),
-                    ServiceName = await _serviceDAL.GetServiceName(form.ServiceId),
-                    RainRatio = await _aIEstimationTime.GetRainRatio(lat, lng, TechforAi.Latitude, TechforAi.Longitude)
-                };
+                //var TechforAi = await _technicianProfileDAL.getInforforAI(form.TechnicianId);
+                //if (TechforAi == null)
+                //{
+                //    return Result<bool>.Failure("TechforAI loi khong hop lệ", 400);
+                //}
+                //var ServiceName = await _serviceDAL.GetServiceName(form.ServiceId);
+                //if (ServiceName == null) return Result<bool>.Failure("ServiceName loi khong hop lệ", 400);
+                //EstimationTimeDTO dto = new EstimationTimeDTO()
+                //{
+                //    Distance = _aIEstimationTime.CalculateDistance(lat, lng, TechforAi.Latitude, TechforAi.Longitude),
+                //    Experience = TechforAi.YearOfExperience,
+                //    IsPeakHour = _aIEstimationTime.isPeakHour(),
+                //    ServiceName = await _serviceDAL.GetServiceName(form.ServiceId),
+                //    RainRatio = await _aIEstimationTime.GetRainRatio(lat, lng, TechforAi.Latitude, TechforAi.Longitude)
+                //};
 
-                var estimationTime = await _aIEstimationTime.EstimationTime(dto);
+                //var estimationTime = await _aIEstimationTime.EstimationTime(dto);
 
-                if (estimationTime <= 0)
-                {
-                    estimationTime = 999;
-                }
+                //if (estimationTime <= 0)
+                //{
+                //    estimationTime = 999;
+                //}
 
                 var dalDto = new CreateOrderDALDTO
                 {
@@ -239,7 +239,7 @@ namespace Capstone_2_BE.Services.Customer
                     CityId = form.CityId,
                     Latitude = lat,
                     Longitude = lng,
-                    EstimatedTime = estimationTime,
+                    EstimatedTime = 100,
                     ImageOrderUrl = new List<string>(),
                     videoUrl = string.Empty
                 };
